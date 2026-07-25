@@ -1,0 +1,114 @@
+@import "tailwindcss";
+
+/* ===== Film Diary Design System ===== */
+
+@theme inline {
+  /* Creamy base palette */
+  --color-bg-cream: #faf4e8;
+  --color-bg-paper: #fffef9;
+  --color-bg-warm: #f5ead0;
+
+  /* Text */
+  --color-text-primary: #4a3520;
+  --color-text-secondary: #6b5744;
+  --color-text-muted: #9a8570;
+
+  /* Accent */
+  --color-accent-gold: #d4a853;
+  --color-accent-rose: #c47a6a;
+  --color-accent-sage: #8a9a7a;
+  --color-accent-sky: #7a9aac;
+
+  /* Fonts — film diary: serif for titles, kaiti for captions */
+  --font-display: "Georgia", "Noto Serif SC", "STSong", serif;
+  --font-body: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --font-caption: "KaiTi", "STKaiti", "Noto Serif SC", serif;
+
+  /* Border radius */
+  --radius-card: 0.5rem;
+  --radius-button: 2rem;
+
+  /* Shadow — soft paper */
+  --shadow-paper: 0 2px 12px rgba(74, 53, 32, 0.08), 0 0 1px rgba(74, 53, 32, 0.12);
+  --shadow-paper-hover: 0 6px 24px rgba(74, 53, 32, 0.12), 0 0 2px rgba(74, 53, 32, 0.15);
+}
+
+/* Base */
+html {
+  scroll-behavior: smooth;
+}
+body {
+  background: var(--color-bg-cream);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+}
+
+/* ===== Polaroid photo card ===== */
+.polaroid {
+  background: var(--color-bg-paper);
+  box-shadow: var(--shadow-paper);
+  padding: 0.75rem 0.75rem 2.5rem 0.75rem;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.polaroid:hover {
+  transform: scale(1.03) rotate(0deg) !important;
+  box-shadow: var(--shadow-paper-hover);
+}
+.polaroid img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  display: block;
+}
+.polaroid-caption {
+  font-family: var(--font-caption);
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  margin-top: 0.75rem;
+  line-height: 1.4;
+  text-align: center;
+}
+
+/* ===== Avatar ring ===== */
+.avatar-ring {
+  border-radius: 50%;
+  border: 3px solid var(--color-accent-gold);
+  box-shadow: 0 0 0 6px var(--color-bg-cream), 0 0 0 7px var(--color-accent-gold);
+}
+
+/* ===== Film grain texture overlay ===== */
+.film-grain {
+  position: relative;
+}
+.film-grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
+/* ===== Text utilities ===== */
+.gold-text {
+  color: var(--color-accent-gold);
+}
+.diary-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: 0.02em;
+}
+.caption-text {
+  font-family: var(--font-caption);
+  color: var(--color-text-muted);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--color-bg-cream); }
+::-webkit-scrollbar-thumb { background: var(--color-accent-gold); border-radius: 3px; }
