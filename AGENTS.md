@@ -4,26 +4,29 @@
 
 ```bash
 npm run dev      # dev server at localhost:3000
-npm run build    # SSG build to .next/
+npm run build    # build to .next/
 npm run start    # production server
 ```
 
 No lint, no test, no format scripts. Don't try to run them.
 
-## Tailwind v4 gotchas
-
-This project uses Tailwind CSS **v4** with `@import "tailwindcss"` syntax. Common mistakes:
-
-- **Gradients**: `bg-linear-to-*` — NOT `bg-gradient-to-*` (v3 legacy, silently fails)
-- **Theme tokens**: Defined in `@theme inline {}` block in `globals.css`, not `tailwind.config.*`
-- **Colors**: Use theme variables like `bg-bg-cream`, `text-accent-gold`, `border-accent-gold/20` — never hardcode hex unless it's a new one-off
-
 ## Architecture
 
-- **Pure static site** — every page is SSG. No dynamic routes.
+- **Hybrid Next.js 16 + React 19** — SSG pages + API routes + client components.
 - **`@/*`** → `./src/*` (tsconfig paths).
-- **No CMS** — blog posts are a hardcoded array in `src/data/blog-posts.ts`.
+- **CloudBase backend**: envId `psn-site-m5-d2g6kt88h3b1d7da8` (ap-shanghai). Configured via `.env.local`.
+- **Cloud functions** (`cloudfunctions/`): auth, content, permissions, upload, logs, visitors.
+- **Auth**: GitHub OAuth + password-based admin login. `AuthContext` wraps the app. `AntiCopyProvider` + `Watermark` on every page.
+- **`.env.local` is required** — contains `NEXT_PUBLIC_TCB_ENV_ID`, CloudBase secrets, GitHub OAuth credentials, and `ADMIN_PASSWORD`.
 - **`/about`** redirects to `/`.
+- **Blog posts** are a hardcoded array in `src/data/blog-posts.ts`.
+- **TipTap** editor used in admin dashboard for rich-text editing.
+
+## Tailwind v4 gotchas
+
+- **Gradients**: `bg-linear-to-*` — NOT `bg-gradient-to-*` (v3 legacy, silently fails).
+- **Theme tokens**: Defined in `@theme inline {}` block in `src/app/globals.css`, NOT `tailwind.config.*`.
+- **Colors**: Use theme variables like `bg-bg-cream`, `text-accent-gold`, `border-accent-gold/20` — don't hardcode hex unless it's a new one-off.
 
 ## Design system — Film Diary
 
@@ -40,7 +43,7 @@ All tokens live in `src/app/globals.css` → `@theme inline {}`. Key utility cla
 | `.shadow-paper` | Soft paper shadow (light theme) |
 | `.shadow-paper-hover` | Elevated paper shadow on hover |
 
-## Color palette (light theme)
+## Color palette (light theme only)
 
 | Token | Value | Usage |
 |---|---|---|
@@ -60,12 +63,20 @@ All tokens live in `src/app/globals.css` → `@theme inline {}`. Key utility cla
 | What | Where |
 |---|---|
 | Design tokens | `src/app/globals.css` |
-| Blog post content | `src/data/blog-posts.ts` |
-| Photo components | `src/components/photo/PhotoCard.tsx`, `PhotoStrip.tsx` |
-| Section components | `src/components/resume/`, `works/`, `family/` |
+| Root layout (auth, watermark, nav, footer) | `src/app/layout.tsx` |
+| Homepage (auth-gated content) | `src/app/page.tsx` |
+| Blog static data | `src/data/blog-posts.ts` |
+| Auth context & logic | `src/contexts/AuthContext.tsx`, `src/lib/auth.ts` |
+| Shared types | `src/lib/data.ts` |
+| API routes | `src/app/api/admin/{login,logout,site-data,upload}/`, `src/app/api/auth/github/`, `src/app/api/site-data/` |
+| Admin / dashboard pages | `src/app/admin/`, `src/app/dashboard/`, `src/app/login/` |
 | Nav / Footer | `src/components/layout/` |
-| Scene (legacy) | `src/components/scene/AnimatedPastoral.tsx` (not used) |
+| Photo components | `src/components/photo/PhotoCard.tsx`, `PhotoStrip.tsx`, `BgPhotoWall.tsx` |
+| Section components | `src/components/resume/`, `works/`, `family/` |
+| Auth UI | `src/components/auth/Watermark.tsx`, `AntiCopyProvider.tsx` |
+| Admin editors (TipTap) | `src/components/editors/` |
+| Cloud functions | `cloudfunctions/{auth,content,permissions,upload,logs,visitors}/` |
 | Raw photos | `素材/` |
 | Public photos | `public/photos/` |
 | Videos | `public/videos/` |
-| Legacy images | `public/images/` (not used by new theme) |
+| macOS quick-launch | `start.command` |

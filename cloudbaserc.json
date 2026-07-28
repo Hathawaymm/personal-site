@@ -1,0 +1,31 @@
+{
+  "envId": "psn-site-m5-d2g6kt88h3b1d7da8",
+  "region": "ap-shanghai",
+  "functionRoot": "./cloudfunctions",
+  "functions": [
+    {
+      "name": "auth",
+      "timeout": 10
+    },
+    {
+      "name": "content",
+      "timeout": 10
+    },
+    {
+      "name": "permissions",
+      "timeout": 5
+    },
+    {
+      "name": "upload",
+      "timeout": 30
+    },
+    {
+      "name": "logs",
+      "timeout": 5
+    },
+    {
+      "name": "visitors",
+      "timeout": 5
+    }
+  ]
+}

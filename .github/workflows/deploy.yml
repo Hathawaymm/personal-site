@@ -1,0 +1,38 @@
+name: Deploy to CloudBase
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: npm ci
+
+      - name: Build static site
+        env:
+          NEXT_PUBLIC_TCB_ENV_ID: ${{ secrets.TCB_ENV_ID }}
+        run: npm run build
+
+      - name: Deploy to CloudBase hosting
+        uses: TencentCloudBase/cloudbase-action@v2
+        with:
+          secretId: ${{ secrets.TCB_SECRET_ID }}
+          secretKey: ${{ secrets.TCB_SECRET_KEY }}
+          envId: ${{ secrets.TCB_ENV_ID }}
+          staticSrcPath: out
+
+      - name: Deploy cloud functions
+        uses: TencentCloudBase/cloudbase-action@v2
+        with:
+          secretId: ${{ secrets.TCB_SECRET_ID }}
+          secretKey: ${{ secrets.TCB_SECRET_KEY }}
+          envId: ${{ secrets.TCB_ENV_ID }}
+          functionDeployPath: cloudfunctions

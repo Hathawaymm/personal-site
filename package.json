@@ -5,7 +5,11 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
   },
   "postcss": {
     "plugins": {
@@ -13,16 +17,29 @@
     }
   },
   "dependencies": {
+    "@cloudbase/js-sdk": "^1.7.1",
+    "@cloudbase/manager-node": "^5.6.4",
+    "@tiptap/extension-image": "^3.29.1",
+    "@tiptap/pm": "^3.29.1",
+    "@tiptap/react": "^3.29.1",
+    "@tiptap/starter-kit": "^3.29.1",
+    "jsonwebtoken": "^9.0.3",
     "next": "16.2.10",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },
   "devDependencies": {
+    "@playwright/test": "^1.62.0",
     "@tailwindcss/postcss": "^4",
+    "@testing-library/jest-dom": "^7.0.0",
+    "@testing-library/react": "^16.3.2",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^6.0.4",
+    "jsdom": "^30.0.0",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.10"
   }
 }

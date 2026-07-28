@@ -1,0 +1,99 @@
+{
+  "title": "你好，我的朋友",
+  "subtitle": "一切顺利，一起加油～",
+  "resume": {
+    "avatar": "/uploads/1785052879232-mei的美照.jpg",
+    "name": "Hathawaymm",
+    "bio": "<p><strong>不上班一天干什么</strong></p><h2>标题一</h2><ol><li><p>内容一</p></li><li><p>2. 内容二</p></li><li><p></p></li></ol><h3>标题二</h3><ol start=\"2\"><li><p>1. 句子一</p></li><li><p>2. 句子二</p></li></ol><p></p>",
+    "experience": [
+      {
+        "period": "2021.07-2025.03",
+        "role": "项目管理",
+        "company": "保密",
+        "description": "保密"
+      },
+      {
+        "period": "2025.07-2026.05",
+        "role": "项目管理",
+        "company": "保密",
+        "description": "保密"
+      }
+    ],
+    "education": [
+      {
+        "period": "2018.09-2021.06",
+        "school": "重庆邮电大学",
+        "degree": "硕士研究生"
+      }
+    ],
+    "skills": [
+      "AI，PMP"
+    ]
+  },
+  "family": [
+    {
+      "name": "Meimei",
+      "label": "铲屎官1号",
+      "description": "",
+      "avatar": "/uploads/1785053370873-本人正面照.jpg"
+    },
+    {
+      "name": "Hichens",
+      "label": "铲屎官2号",
+      "description": "",
+      "avatar": "/uploads/1785053317907-hichens.jpg"
+    },
+    {
+      "name": "加贝",
+      "label": "边牧妹妹",
+      "description": "家里最聪明的大姐姐",
+      "avatar": "/uploads/1785053144263-加贝正面照.jpg"
+    },
+    {
+      "name": "joy",
+      "label": "橘白猫",
+      "description": "从不埋屎，优雅自信的美女🦢",
+      "avatar": "/uploads/1785053254985-joy.jpg"
+    },
+    {
+      "name": "emo",
+      "label": "胖橘",
+      "description": "小太监，也是聪明的小猫",
+      "avatar": "/uploads/1785053188209-emo.jpg"
+    }
+  ],
+  "photos": [
+    {
+      "src": "/uploads/1785053431819-近期旅行照.jpg",
+      "alt": ""
+    },
+    {
+      "src": "/uploads/1785053441913-近期旅行照2.jpg",
+      "alt": ""
+    },
+    {
+      "src": "",
+      "alt": ""
+    },
+    {
+      "src": "",
+      "alt": ""
+    }
+  ],
+  "works": [
+    {
+      "title": "视频作品一",
+      "description": "",
+      "videoUrl": "",
+      "cover": "",
+      "category": "视频创作"
+    },
+    {
+      "title": "个人网站",
+      "description": "",
+      "category": "",
+      "videoUrl": "http://localhost:3000/admin",
+      "cover": ""
+    }
+  ]
+}

@@ -1,19 +1,25 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
-const bgPhotos = [
-  { src: "/photos/mei跟加贝在海边.jpg", alt: "" },
-  { src: "/photos/mei的美照.jpg", alt: "" },
-  { src: "/photos/hichens.jpg", alt: "" },
-  { src: "/photos/加贝过圣诞.jpg", alt: "" },
-  { src: "/photos/hichens跟加贝在海边.jpg", alt: "" },
-  { src: "/photos/近期旅行照.jpg", alt: "" },
-];
+interface PhotoItem {
+  src: string;
+  alt: string;
+}
 
 export default function BgPhotoWall() {
   const wallRef = useRef<HTMLDivElement>(null);
+  const [photos, setPhotos] = useState<PhotoItem[]>([]);
+  const { isLoggedIn, isAdmin, permissions } = useAuth();
+
+  useEffect(() => {
+    fetch("/api/site-data")
+      .then((res) => res.json())
+      .then((data) => setPhotos(data.photos || []))
+      .catch((err) => { console.error("加载照片失败:", err); });
+  }, []);
 
   useEffect(() => {
     let raf = 0;
@@ -32,10 +38,15 @@ export default function BgPhotoWall() {
     };
   }, []);
 
+  if (photos.length === 0) return null;
+
+  const showWall = isAdmin || permissions.photos === true;
+  if (!showWall) return null;
+
   return (
     <div ref={wallRef} className="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden="true">
       <div className="columns-3 gap-2 px-2 pt-24">
-        {bgPhotos.map((photo, i) => (
+        {photos.filter(p => p.src).map((photo, i) => (
           <div key={i} className="mb-2 break-inside-avoid overflow-hidden rounded-sm opacity-25">
             <Image
               src={photo.src}

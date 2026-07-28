@@ -39,3 +39,25 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# opencode runtime data
+.omo/
+
+# opencode project config (contains MCP server config)
+.opencode.json
+
+# media assets — too large / personal, deploy separately
+public/videos/
+public/photos/
+public/images/
+public/uploads/
+
+# raw source materials (duplicate of public/)
+素材/
+
+# next.js default placeholders (not used)
+public/file.svg
+public/globe.svg
+public/next.svg
+public/vercel.svg
+public/window.svg
