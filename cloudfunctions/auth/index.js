@@ -1,10 +1,28 @@
 const cloudbase = require("@cloudbase/node-sdk");
 const https = require("https");
+const crypto = require("crypto");
 
 const app = cloudbase.init({ env: cloudbase.SYMBOL_CURRENT_ENV });
 const db = app.database();
 
 const HTTP_TIMEOUT = 15000;
+const AUTH_SECRET = process.env.GITHUB_CLIENT_SECRET || "cloudbase-dev-secret";
+
+function signToken(payload) {
+  const hmac = crypto.createHmac("sha256", AUTH_SECRET);
+  hmac.update(payload);
+  return payload + "." + hmac.digest("hex");
+}
+
+function verifyToken(token) {
+  const idx = token.lastIndexOf(".");
+  if (idx === -1) return null;
+  const payload = token.substring(0, idx);
+  const sig = token.substring(idx + 1);
+  const expected = signToken(payload);
+  if (expected !== token) return null;
+  try { return JSON.parse(payload); } catch { return null; }
+}
 
 function httpRequest(method, url, headers, body) {
   return new Promise((resolve, reject) => {
@@ -112,23 +130,57 @@ exports.main = async (event) => {
           return { code: -1, error: "获取 GitHub 用户信息失败" };
         }
 
+        const gid = String(userData.id);
+        const login = userData.login || "";
+        const avatar = userData.avatar_url || "";
+        const email = userData.email || "";
+
+        // Create/update user in DB
+        const users = db.collection("users");
+        const existing = await users.where({ github_id: gid }).get();
+        if (existing.data.length === 0) {
+          await users.add({
+            github_id: gid, github_username: login, nickname: login,
+            avatar_url: avatar, email, is_admin: false, status: "pending",
+            created_at: new Date().toISOString(), updated_at: new Date().toISOString(),
+          });
+        } else {
+          await users.where({ github_id: gid }).update({
+            github_username: login, avatar_url: avatar, email,
+            updated_at: new Date().toISOString(),
+          });
+        }
+
+        const token = signToken(JSON.stringify({ g: gid, l: login }));
+
         return {
           code: 0,
-          user: {
-            gid: String(userData.id),
-            login: userData.login || "",
-            avatar: userData.avatar_url || "",
-            email: userData.email || "",
-          },
+          token,
+          user: { gid, login, avatar, email },
         };
       }
 
       case "getCurrentUser": {
-        const { uid } = data || {};
-        if (!uid) return { code: -1, error: "缺少 uid" };
+        const { token, uid } = data || {};
+        let gid = uid;
+        if (token) {
+          const payload = verifyToken(token);
+          if (!payload) return { code: -1, error: "token 无效" };
+          gid = payload.g;
+        }
+        if (!gid) return { code: -1, error: "缺少 uid 或 token" };
 
-        const user = await db.collection("users").where({ github_id: String(uid) }).get();
+        const user = await db.collection("users").where({ github_id: String(gid) }).get();
         return { code: 0, user: user.data[0] || null };
+      }
+
+      case "verifyToken": {
+        const { token } = data || {};
+        if (!token) return { code: -1, error: "缺少 token" };
+        const payload = verifyToken(token);
+        if (!payload) return { code: -1, error: "token 无效" };
+        const user = await db.collection("users").where({ github_id: String(payload.g) }).get();
+        return { code: 0, user: user.data[0] || null, payload };
       }
 
       case "isAdmin": {
