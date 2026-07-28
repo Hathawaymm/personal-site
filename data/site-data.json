@@ -3,19 +3,19 @@
   "subtitle": "一切顺利，一起加油～",
   "resume": {
     "avatar": "/uploads/1785052879232-mei的美照.jpg",
-    "name": "Hathawaymm",
-    "bio": "<p><strong>不上班一天干什么</strong></p><h2>标题一</h2><ol><li><p>内容一</p></li><li><p>2. 内容二</p></li><li><p></p></li></ol><h3>标题二</h3><ol start=\"2\"><li><p>1. 句子一</p></li><li><p>2. 句子二</p></li></ol><p></p>",
+    "name": "嚣张小张",
+    "bio": "不上班在家干什么呢\n",
     "experience": [
       {
         "period": "2021.07-2025.03",
         "role": "项目管理",
-        "company": "保密",
-        "description": "保密"
+        "company": "重庆农村商业银行股份有限公司",
+        "description": "待补充"
       },
       {
         "period": "2025.07-2026.05",
         "role": "项目管理",
-        "company": "保密",
+        "company": "深圳路特创新科技有限公司",
         "description": "保密"
       }
     ],
@@ -32,6 +32,7 @@
   },
   "family": [
     {
+      "_id": "4b6a6276-21c0-4850-b64c-8ec910ce4ac8",
       "name": "Meimei",
       "label": "铲屎官1号",
       "description": "",
@@ -41,25 +42,29 @@
       "name": "Hichens",
       "label": "铲屎官2号",
       "description": "",
-      "avatar": "/uploads/1785053317907-hichens.jpg"
+      "avatar": "/uploads/1785053317907-hichens.jpg",
+      "_id": "64470953-5f65-44bd-8bbe-5a461a3606fa"
     },
     {
       "name": "加贝",
       "label": "边牧妹妹",
       "description": "家里最聪明的大姐姐",
-      "avatar": "/uploads/1785053144263-加贝正面照.jpg"
+      "avatar": "/uploads/1785053144263-加贝正面照.jpg",
+      "_id": "06543463-529d-4ce3-8c98-129a8872aa54"
     },
     {
       "name": "joy",
       "label": "橘白猫",
       "description": "从不埋屎，优雅自信的美女🦢",
-      "avatar": "/uploads/1785053254985-joy.jpg"
+      "avatar": "/uploads/1785053254985-joy.jpg",
+      "_id": "364f3db7-111f-4285-8f5c-1c75b52bf618"
     },
     {
       "name": "emo",
       "label": "胖橘",
       "description": "小太监，也是聪明的小猫",
-      "avatar": "/uploads/1785053188209-emo.jpg"
+      "avatar": "/uploads/1785053188209-emo.jpg",
+      "_id": "a1165fb9-4cbd-430f-bf77-4a1014e03110"
     }
   ],
   "photos": [
@@ -70,30 +75,24 @@
     {
       "src": "/uploads/1785053441913-近期旅行照2.jpg",
       "alt": ""
-    },
-    {
-      "src": "",
-      "alt": ""
-    },
-    {
-      "src": "",
-      "alt": ""
     }
   ],
   "works": [
     {
+      "_id": "8857f8ab-cbcd-44c4-bc24-53c558797edd",
       "title": "视频作品一",
       "description": "",
-      "videoUrl": "",
-      "cover": "",
-      "category": "视频创作"
+      "category": "视频创作",
+      "cover": "/uploads/1785247055732-风格参考.png",
+      "videoUrl": ""
     },
     {
+      "_id": "1a7172e1-4abf-4fbd-b184-966006015d82",
       "title": "个人网站",
       "description": "",
       "category": "",
-      "videoUrl": "http://localhost:3000/admin",
-      "cover": ""
+      "cover": "/uploads/1785247018566-近期旅行照2.jpg",
+      "videoUrl": "http://localhost:3000/admin"
     }
   ]
 }
