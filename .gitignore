@@ -61,3 +61,4 @@ public/globe.svg
 public/next.svg
 public/vercel.svg
 public/window.svg
+cloudfunctions/*/node_modules/
