@@ -5,10 +5,7 @@ export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
-
-    if (!file) {
-      return NextResponse.json({ error: "没有文件" }, { status: 400 });
-    }
+    if (!file) return NextResponse.json({ error: "没有文件" }, { status: 400 });
 
     const buffer = Buffer.from(await file.arrayBuffer());
     const base64 = buffer.toString("base64");
@@ -21,12 +18,11 @@ export async function POST(req: NextRequest) {
     });
 
     if (result.code !== 0) {
-      return NextResponse.json({ error: result.error || "上传失败" }, { status: 500 });
+      return NextResponse.json({ error: (result as Record<string, string>).error || "上传失败" }, { status: 500 });
     }
 
     return NextResponse.json({ url: (result as Record<string, string>).url || "" });
   } catch (err) {
-    const msg = err instanceof Error ? err.message : "未知错误";
-    return NextResponse.json({ error: msg }, { status: 500 });
+    return NextResponse.json({ error: (err as Error).message || "上传失败" }, { status: 500 });
   }
 }
