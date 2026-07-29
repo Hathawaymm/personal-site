@@ -1,17 +1,20 @@
 import Image from "next/image";
 import type { ResumeData, ResumeItem, EducationItem } from "@/lib/data";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface ResumeSectionProps {
   data: ResumeData;
 }
 
 export default function ResumeSection({ data }: ResumeSectionProps) {
+  const { isAdmin, permissions } = useAuth();
+  const showPhoto = isAdmin || permissions.resume_photo === true;
   return (
     <section id="resume" className="px-4 py-24 sm:px-6">
       <div className="mx-auto max-w-3xl space-y-16">
         <div className="flex flex-col items-center gap-8 md:flex-row md:items-start md:gap-10">
           <div className="shrink-0">
-            {data.avatar ? (
+            {showPhoto && data.avatar ? (
               <Image
                 src={data.avatar}
                 alt={data.name}

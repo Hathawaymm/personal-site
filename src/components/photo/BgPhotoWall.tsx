@@ -14,12 +14,15 @@ export default function BgPhotoWall() {
   const [photos, setPhotos] = useState<PhotoItem[]>([]);
   const { isLoggedIn, isAdmin, permissions } = useAuth();
 
+  const showWall = isAdmin || permissions.photos === true;
+
   useEffect(() => {
+    if (!showWall) return;
     fetch("/api/site-data")
       .then((res) => res.json())
       .then((data) => setPhotos(data.photos || []))
       .catch((err) => { console.error("加载照片失败:", err); });
-  }, []);
+  }, [showWall]);
 
   useEffect(() => {
     let raf = 0;
@@ -38,10 +41,8 @@ export default function BgPhotoWall() {
     };
   }, []);
 
-  if (photos.length === 0) return null;
-
-  const showWall = isAdmin || permissions.photos === true;
   if (!showWall) return null;
+  if (photos.length === 0) return null;
 
   return (
     <div ref={wallRef} className="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden="true">
