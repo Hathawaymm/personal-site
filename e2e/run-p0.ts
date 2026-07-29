@@ -77,10 +77,13 @@ test("TC-HOME-03", "pending用户首页显示管理员还没开门", "pending", 
 test("TC-HOME-04", "有照片墙权限访客首页有背景", "full", async (page) => {
   await page.goto(BASE, { waitUntil: "domcontentloaded" });
   await new Promise(r => setTimeout(r, 5000));
-  const bgCount = await page.evaluate(() => {
-    return Array.from(document.querySelectorAll("img")).filter(i => !i.offsetParent && i.src).length;
+  const bgCheck = await page.evaluate(() => {
+    const wallEl = document.querySelector('[class*="pointer-events-none fixed"]');
+    if (!wallEl) return "❌ 无BgPhotoWall容器";
+    const imgs = (wallEl as HTMLElement).querySelectorAll("img");
+    return imgs.length > 0 ? `✅ ${imgs.length}张背景图` : "❌ 容器空";
   });
-  return bgCount > 0 ? `✅ ${bgCount}张背景图` : "❌ 无背景图";
+  return bgCheck;
 });
 
 test("TC-HOME-05", "无照片墙权限首页纯色背景", "textonly", async (page) => {

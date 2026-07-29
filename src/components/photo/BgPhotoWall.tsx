@@ -42,7 +42,6 @@ export default function BgPhotoWall() {
   }, []);
 
   if (!showWall) return null;
-  if (photos.length === 0) return null;
 
   return (
     <div ref={wallRef} className="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden="true">
