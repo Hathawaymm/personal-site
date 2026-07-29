@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@cloudbase/js-sdk": "^1.7.1",
+    "@cloudbase/manager-node": "^5.6.5",
     "@tiptap/extension-image": "^3.29.1",
     "@tiptap/pm": "^3.29.1",
     "@tiptap/react": "^3.29.1",
