@@ -1,19 +1,26 @@
-const CLOUDBASE_API = "https://psn-site-m5-d2g6kt88h3b1d7da8.ap-shanghai.tcb-api.tencentcloudapi.com/web";
+import cloudbase from "@cloudbase/manager-node";
+
+let cachedManager: ReturnType<typeof cloudbase.init> | null = null;
+
+function getManager() {
+  if (!cachedManager) {
+    cachedManager = cloudbase.init({
+      envId: process.env.NEXT_PUBLIC_TCB_ENV_ID || "psn-site-m5-d2g6kt88h3b1d7da8",
+      secretId: process.env.TENCENTCLOUD_SECRETID || "",
+      secretKey: process.env.TENCENTCLOUD_SECRETKEY || "",
+    });
+  }
+  return cachedManager;
+}
 
 export async function invokeCloudFunction(
   functionName: string,
   data: Record<string, unknown>
 ): Promise<Record<string, unknown>> {
-  const res = await fetch(`${CLOUDBASE_API}?name=${functionName}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-
-  if (!res.ok) {
-    throw new Error(`CloudBase HTTP ${res.status}`);
+  const manager = getManager();
+  const res = await manager.functions.invokeFunction(functionName, data);
+  if (typeof res.RetMsg === "string") {
+    try { return JSON.parse(res.RetMsg); } catch {}
   }
-
-  const json = await res.json();
-  return json.result || json;
+  return res as unknown as Record<string, unknown>;
 }
