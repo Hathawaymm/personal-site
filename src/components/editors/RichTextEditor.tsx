@@ -1,6 +1,5 @@
 "use client";
 
-import { uploadToCloudBase } from "@/lib/cloudbase-upload";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import ImageExtension from "@tiptap/extension-image";
@@ -44,9 +43,9 @@ export default function RichTextEditor({ content, onChange, className = "" }: Ri
       setUploading(true);
       const fd = new FormData();
       try {
-        const url = await uploadToCloudBase(file);
-        if (url) {
-          editor.chain().focus().setImage({ src: url }).run();
+        const fd = new FormData(); fd.append("file", file); const res = await fetch("/api/admin/upload", { method: "POST", body: fd }); const data = await res.json();
+        if (data.url) {
+          editor.chain().focus().setImage({ src: data.url }).run();
         }
       } catch { /* ignore */ }
       setUploading(false);

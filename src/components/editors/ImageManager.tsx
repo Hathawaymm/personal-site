@@ -1,6 +1,5 @@
 "use client";
 
-import { uploadToCloudBase } from "@/lib/cloudbase-upload";
 import { useState, useEffect } from "react";
 
 interface ImageItem { url: string; name: string }
@@ -39,10 +38,10 @@ export default function ImageManager() {
       setMsg("");
       const fd = new FormData();
       try {
-        const url = await uploadToCloudBase(file);
-        if (!url) throw new Error("上传返回异常");
-        setImages(prev => [...prev, { url, name: file.name }]);
-        setMsg("上传成功！复制路径: " + url);
+        const fd = new FormData(); fd.append("file", file); const res = await fetch("/api/admin/upload", { method: "POST", body: fd }); const data = await res.json();
+        if (!data.url) throw new Error("上传返回异常");
+        setImages(prev => [...prev, { url: data.url, name: file.name }]);
+        setMsg("上传成功！复制路径: " + data.url);
       } catch (err) {
         setMsg("上传失败：" + (err instanceof Error ? err.message : "未知错误"));
       } finally {

@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from "react";
 import type { SiteData, ResumeData, ResumeItem, EducationItem } from "@/lib/data";
 import { emptyResume } from "@/lib/constants";
-import { uploadToCloudBase } from "@/lib/cloudbase-upload";
 
 const emptyItemId = () => crypto.randomUUID?.() || Math.random().toString(36).slice(2);
 
@@ -73,9 +72,11 @@ export default function ResumeEditor() {
     if (!file) return;
     setUploading(true);
     try {
-      const url = await uploadToCloudBase(file);
-      if (url) {
-        setData({ ...data, avatar: url });
+      const fd = new FormData(); fd.append("file", file);
+      const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+      const json = await res.json();
+      if (json.url) {
+        setData({ ...data, avatar: json.url });
         setMsg("✅ 照片已上传，请保存！");
       } else {
         setMsg("上传失败");
