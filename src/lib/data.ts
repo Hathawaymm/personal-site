@@ -1,7 +1,4 @@
-import fs from "fs";
 import path from "path";
-
-const DATA_PATH = path.join(process.cwd(), "data/site-data.json");
 
 export interface ResumeItem {
   period: string;
@@ -60,47 +57,40 @@ export interface SiteSettings {
   watermarkText: string;
 }
 
-const defaultData: SiteData = {
+const DEFAULT_DATA: SiteData = {
   title: "欢迎来到我的空间，我的朋友",
   subtitle: "用镜头记录每一个温暖日常",
-  resume: {
-    avatar: "",
-    name: "",
-    bio: "",
-    experience: [],
-    education: [],
-    skills: [],
-  },
-  family: [],
-  photos: [],
-  works: [],
-  settings: {
-    adminEmail: "",
-    watermarkText: "Hathawaymm",
-  },
+  resume: { avatar: "", name: "", bio: "", experience: [], education: [], skills: [] },
+  family: [], photos: [], works: [],
+  settings: { adminEmail: "", watermarkText: "Hathawaymm" },
 };
 
-export function readSiteData(): SiteData {
+const CLOUDBASE_API = "https://psn-site-m5-d2g6kt88h3b1d7da8.ap-shanghai.tcb-api.tencentcloudapi.com/web";
+
+async function callSiteData(action: string, data?: SiteData): Promise<SiteData> {
+  const res = await fetch(`${CLOUDBASE_API}?name=site-data`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data ? { action, data } : { action }),
+  });
+  const json = await res.json();
+  const result = json.result || json;
+  if (result.code !== 0) {
+    console.error("site-data cloud function error:", result.error);
+    return DEFAULT_DATA;
+  }
+  return (result.data || DEFAULT_DATA) as SiteData;
+}
+
+export async function readSiteData(): Promise<SiteData> {
   try {
-    const raw = fs.readFileSync(DATA_PATH, "utf-8");
-    return JSON.parse(raw);
-  } catch (err) {
-    if (err instanceof Error && "code" in err && (err as NodeJS.ErrnoException).code === "ENOENT") {
-      return defaultData;
-    }
-    throw err;
+    return await callSiteData("get");
+  } catch {
+    console.error("readSiteData failed, using default");
+    return { ...DEFAULT_DATA };
   }
 }
 
-export function writeSiteData(data: SiteData): void {
-  const dir = path.dirname(DATA_PATH);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-  try {
-    fs.writeFileSync(DATA_PATH, JSON.stringify(data, null, 2), "utf-8");
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : "未知错误";
-    throw new Error(`写入站点数据失败: ${msg}`);
-  }
+export async function writeSiteData(data: SiteData): Promise<void> {
+  await callSiteData("put", data);
 }
