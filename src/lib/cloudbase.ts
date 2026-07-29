@@ -1,26 +1,42 @@
-import cloudbase from "@cloudbase/manager-node";
+import { scf } from "tencentcloud-sdk-nodejs-scf";
 
-let cachedManager: ReturnType<typeof cloudbase.init> | null = null;
+const ScfClient = scf.v20180416.Client;
 
-function getManager() {
-  if (!cachedManager) {
-    cachedManager = cloudbase.init({
-      envId: process.env.NEXT_PUBLIC_TCB_ENV_ID || "psn-site-m5-d2g6kt88h3b1d7da8",
-      secretId: process.env.TENCENTCLOUD_SECRETID || "",
-      secretKey: process.env.TENCENTCLOUD_SECRETKEY || "",
+let cachedClient: InstanceType<typeof ScfClient> | null = null;
+
+function getClient() {
+  if (!cachedClient) {
+    cachedClient = new ScfClient({
+      credential: {
+        secretId: process.env.TENCENTCLOUD_SECRETID || "",
+        secretKey: process.env.TENCENTCLOUD_SECRETKEY || "",
+      },
+      region: "ap-shanghai",
     });
   }
-  return cachedManager;
+  return cachedClient;
 }
 
 export async function invokeCloudFunction(
   functionName: string,
   data: Record<string, unknown>
 ): Promise<Record<string, unknown>> {
-  const manager = getManager();
-  const res = await manager.functions.invokeFunction(functionName, data);
-  if (typeof res.RetMsg === "string") {
-    try { return JSON.parse(res.RetMsg); } catch {}
+  const client = getClient();
+  const response = await client.Invoke({
+    FunctionName: functionName,
+    InvocationType: "RequestResponse",
+    ClientContext: JSON.stringify(data),
+  });
+
+  const retMsg = response.Result?.RetMsg;
+  if (retMsg) {
+    try { return JSON.parse(retMsg); } catch {}
   }
-  return res as unknown as Record<string, unknown>;
+
+  const errMsg = response.Result?.ErrMsg;
+  if (errMsg) {
+    return { code: -1, error: errMsg };
+  }
+
+  return {};
 }
