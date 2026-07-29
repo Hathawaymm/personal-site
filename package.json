@@ -27,8 +27,7 @@
     "playwright": "^1.62.0",
     "puppeteer-core": "^25.4.0",
     "react": "19.2.4",
-    "react-dom": "19.2.4",
-    "tencentcloud-sdk-nodejs-scf": "^4.1.168"
+    "react-dom": "19.2.4"
   },
   "devDependencies": {
     "@playwright/test": "^1.62.0",
