@@ -1,4 +1,4 @@
-import { invokeCloudFunction } from "./cloudbase";
+import { invokeCloudFunction } from "@/lib/cloudbase";
 
 export interface ResumeItem {
   period: string;
