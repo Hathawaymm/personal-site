@@ -5,7 +5,7 @@
   "functions": [
     {
       "name": "auth",
-      "timeout": 10
+      "timeout": 30
     },
     {
       "name": "content",

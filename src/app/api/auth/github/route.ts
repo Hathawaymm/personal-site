@@ -34,7 +34,7 @@ export async function POST(req: Request) {
     if (gid && login) {
       const signed = await signToken(JSON.stringify({ g: String(gid), l: String(login) }));
       const res = NextResponse.json({ success: true });
-      res.cookies.set("github_token", signed, { path: "/", maxAge: 604800, sameSite: "lax", secure: true });
+      res.cookies.set("github_token", signed, { path: "/", maxAge: 604800, sameSite: "lax" });
       return res;
     }
 
@@ -65,7 +65,7 @@ export async function POST(req: Request) {
 
     const signed = cbResult.token || (await signToken(JSON.stringify({ g: ghUser.gid, l: ghUser.login })));
     const res = NextResponse.json({ success: true });
-    res.cookies.set("github_token", signed, { path: "/", maxAge: 604800, sameSite: "lax", secure: true });
+    res.cookies.set("github_token", signed, { path: "/", maxAge: 604800, sameSite: "lax" });
     return res;
   } catch (err) {
     const msg = err instanceof Error ? err.message : "未知错误";
