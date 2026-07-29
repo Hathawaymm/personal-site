@@ -1,4 +1,4 @@
-import path from "path";
+import { invokeCloudFunction } from "./cloudbase";
 
 export interface ResumeItem {
   period: string;
@@ -65,32 +65,17 @@ const DEFAULT_DATA: SiteData = {
   settings: { adminEmail: "", watermarkText: "Hathawaymm" },
 };
 
-const CLOUDBASE_API = "https://psn-site-m5-d2g6kt88h3b1d7da8.ap-shanghai.tcb-api.tencentcloudapi.com/web";
-
-async function callSiteData(action: string, data?: SiteData): Promise<SiteData> {
-  const res = await fetch(`${CLOUDBASE_API}?name=site-data`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data ? { action, data } : { action }),
-  });
-  const json = await res.json();
-  const result = json.result || json;
-  if (result.code !== 0) {
-    console.error("site-data cloud function error:", result.error);
-    return DEFAULT_DATA;
-  }
-  return (result.data || DEFAULT_DATA) as SiteData;
-}
-
 export async function readSiteData(): Promise<SiteData> {
   try {
-    return await callSiteData("get");
+    const result = await invokeCloudFunction("site-data", { action: "get" });
+    if (result.code === 0 && result.data) return result.data as SiteData;
+    return { ...DEFAULT_DATA };
   } catch {
-    console.error("readSiteData failed, using default");
     return { ...DEFAULT_DATA };
   }
 }
 
 export async function writeSiteData(data: SiteData): Promise<void> {
-  await callSiteData("put", data);
+  const result = await invokeCloudFunction("site-data", { action: "put", data });
+  if (result.code !== 0) throw new Error(result.error as string || "保存失败");
 }
