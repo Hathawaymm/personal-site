@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { PERMISSION_LABELS, ALL_PERMISSIONS, TEXT_ONLY_PERMISSIONS, type Permissions } from "@/lib/permissions";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface UserRecord {
   _id: string;
@@ -28,11 +29,14 @@ export default function VisitorManager() {
   const [msg, setMsg] = useState("");
   const [permModal, setPermModal] = useState<{ user: UserRecord; permissions: Permissions; saving: boolean } | null>(null);
   const [rejectedOpen, setRejectedOpen] = useState(false);
+  const { githubUser } = useAuth();
+
+  const adminUid = githubUser?.gid || "admin";
 
   const loadUsers = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await callFn("visitors", { action: "list", data: { uid: "admin" } });
+      const res = await callFn("visitors", { action: "list", data: { uid: adminUid } });
       const data = (res.data as UserRecord[]) || [];
       setUsers(data.filter((u: UserRecord) => u.status !== "rejected"));
     } catch {
@@ -43,7 +47,7 @@ export default function VisitorManager() {
 
   const loadRejected = useCallback(async () => {
     try {
-      const res = await callFn("visitors", { action: "list", data: { uid: "admin", filter: "rejected" } });
+      const res = await callFn("visitors", { action: "list", data: { uid: adminUid, filter: "rejected" } });
       const data = (res.data as UserRecord[]) || [];
       return data.filter((u: UserRecord) => u.status === "rejected");
     } catch {
@@ -52,7 +56,7 @@ export default function VisitorManager() {
     }
   }, []);
 
-  useEffect(() => { loadUsers(); }, [loadUsers]);
+  useEffect(() => { loadUsers(); }, [loadUsers, adminUid]);
 
   const openPermModal = async (user: UserRecord) => {
     setLoading(true);
@@ -107,7 +111,7 @@ export default function VisitorManager() {
       await callFn("permissions", {
         action: "update",
         data: {
-          admin_uid: "admin",
+          admin_uid: adminUid,
           visitor_uid: permModal.user.github_id,
           modules: permModal.permissions,
         },
@@ -123,7 +127,7 @@ export default function VisitorManager() {
 
   const handleReject = async (githubId: string) => {
     try {
-      await callFn("visitors", { action: "reject", data: { admin_uid: "admin", visitor_uid: githubId } });
+      await callFn("visitors", { action: "reject", data: { admin_uid: adminUid, visitor_uid: githubId } });
       setMsg("已拒绝");
       loadUsers();
     } catch {
