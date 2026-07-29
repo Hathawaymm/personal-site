@@ -1,5 +1,6 @@
 "use client";
 
+import { uploadToCloudBase } from "@/lib/cloudbase-upload";
 import { useState, useEffect, useCallback } from "react";
 import type { SiteData, PhotoItem } from "@/lib/data";
 
@@ -31,12 +32,9 @@ export default function PhotosManager() {
     for (let i = 0; i < files.length; i++) {
       setMsg(`正在上传 ${i + 1}/${files.length} 张照片...`);
       try {
-        const fd = new FormData();
-        fd.append("file", files[i]);
-        const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
-        const json = await res.json();
-        if (json.url) {
-          urls.push(json.url);
+        const url = await uploadToCloudBase(files[i]);
+        if (url) {
+          urls.push(url);
         } else {
           failed++;
         }

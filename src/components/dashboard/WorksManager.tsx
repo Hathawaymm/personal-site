@@ -1,5 +1,6 @@
 "use client";
 
+import { uploadToCloudBase } from "@/lib/cloudbase-upload";
 import { useState, useEffect, useCallback } from "react";
 import type { SiteData, WorkItem } from "@/lib/data";
 
@@ -84,10 +85,8 @@ export default function WorksManager() {
   const uploadCover = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; if (!file) return;
     try {
-      const fd = new FormData(); fd.append("file", file);
-      const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
-      const json = await res.json();
-      if (json.url) { setCover(json.url); setMsg("封面已上传"); } else { setMsg("上传失败"); }
+      const url = await uploadToCloudBase(file);
+      if (url) { setCover(url); setMsg("封面已上传"); } else { setMsg("上传失败"); }
     } catch { setMsg("上传失败"); }
   };
 
