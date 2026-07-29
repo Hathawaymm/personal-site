@@ -17,23 +17,20 @@ export async function GET(req: NextRequest) {
 
   try {
     const result = await invokeCloudFunction("auth", { action: "getCurrentUser", data: { uid: user.gid } });
-
-    const retMsgRaw = (result.RetMsg as string) || "{}";
-    const cbResult = JSON.parse(retMsgRaw);
+    const cbResult = result as { code: number; user?: Record<string, unknown> };
 
     if (cbResult.code !== 0 || !cbResult.user) {
       return NextResponse.json({ isLoggedIn: true, isAdmin: false, status: "pending", permissions: {} }, { status: 200 });
     }
 
-    const dbUser = cbResult.user as Record<string, unknown>;
+    const dbUser = cbResult.user;
 
     let permissions: Record<string, boolean> = {};
     try {
       const permResult = await invokeCloudFunction("permissions", { action: "get", data: { uid: user.gid } });
-      const permRetMsg = (permResult.RetMsg as string) || "{}";
-      const permCbResult = JSON.parse(permRetMsg);
+      const permCbResult = permResult as { code: number; permissions?: Record<string, boolean> };
       if (permCbResult.code === 0 && permCbResult.permissions) {
-        permissions = permCbResult.permissions as Record<string, boolean>;
+        permissions = permCbResult.permissions;
       }
     } catch {
       console.error("获取权限失败:", user.gid);
@@ -43,8 +40,7 @@ export async function GET(req: NextRequest) {
     if (dbUser.is_admin !== true) {
       try {
         const initResult = await invokeCloudFunction("auth", { action: "checkInit", data: {} });
-        const initRetMsg = (initResult.RetMsg as string) || "{}";
-        const initCbResult = JSON.parse(initRetMsg);
+        const initCbResult = initResult as { hasAdmin?: boolean };
         needsInit = initCbResult.hasAdmin === false;
       } catch {
         console.error("检查系统初始化状态失败");

@@ -46,32 +46,24 @@ export async function POST(req: Request) {
       data: { code, clientId, clientSecret },
     });
 
-    const retMsgRaw = (result.RetMsg as string) || "{}";
-    const cbResult = JSON.parse(retMsgRaw);
+    const cbResult = result as {
+      code: number;
+      token?: string;
+      user?: { gid: string; login: string; avatar: string; email: string };
+      error?: string;
+    };
 
     if (cbResult.code !== 0) {
-      const errMsg = (cbResult.error as string) || "云函数交换失败";
+      const errMsg = cbResult.error || "云函数交换失败";
       return NextResponse.json({ error: errMsg }, { status: 500 });
     }
 
-    const ghUser = cbResult.user as { gid: string; login: string; avatar: string; email: string };
-
-    try {
-      await invokeCloudFunction("auth", {
-        action: "onLogin",
-        data: {
-          uid: ghUser.gid,
-          username: ghUser.login,
-          avatarUrl: ghUser.avatar,
-          email: ghUser.email,
-          adminGithubId: process.env.ADMIN_GITHUB_ID || "",
-        },
-      });
-    } catch (err) {
-      console.error("onLogin 失败:", err);
+    const ghUser = cbResult.user;
+    if (!ghUser) {
+      return NextResponse.json({ error: "未获取到用户信息" }, { status: 500 });
     }
 
-    const signed = await signToken(JSON.stringify({ g: ghUser.gid, l: ghUser.login }));
+    const signed = cbResult.token || (await signToken(JSON.stringify({ g: ghUser.gid, l: ghUser.login })));
     const res = NextResponse.json({ success: true });
     res.headers.set("Set-Cookie", getCookieHeader(signed));
     return res;
