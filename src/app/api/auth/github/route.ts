@@ -1,13 +1,53 @@
 import { NextResponse } from "next/server";
+import https from "node:https";
 import { signToken } from "@/lib/token";
 import { invokeCloudFunction } from "@/lib/cloudbase";
 
 const REDIRECT_URI = process.env.GITHUB_REDIRECT_URI || "http://localhost:3000/auth/callback";
 
-function getCookieHeader(token: string): string {
-  const isSecure = process.env.NODE_ENV === "production";
-  const cookie = `github_token=${encodeURIComponent(token)}; Path=/; Max-Age=604800; SameSite=Lax`;
-  return isSecure ? `${cookie}; Secure` : cookie;
+function httpPost(url: string, headers: Record<string, string>, body: string): Promise<Record<string, unknown>> {
+  return new Promise((resolve, reject) => {
+    const u = new URL(url);
+    const req = https.request({
+      hostname: u.hostname,
+      path: u.pathname + u.search,
+      method: "POST",
+      headers: { ...headers, "Content-Length": String(Buffer.byteLength(body)) },
+      timeout: 15000,
+    }, (res) => {
+      let data = "";
+      res.on("data", (c) => data += c);
+      res.on("end", () => {
+        try { resolve(JSON.parse(data)); } catch { resolve({ raw: data }); }
+      });
+    });
+    req.on("error", reject);
+    req.on("timeout", () => { req.destroy(); reject(new Error("GitHub API 超时")); });
+    req.write(body);
+    req.end();
+  });
+}
+
+function httpGet(url: string, headers: Record<string, string>): Promise<Record<string, unknown>> {
+  return new Promise((resolve, reject) => {
+    const u = new URL(url);
+    const req = https.request({
+      hostname: u.hostname,
+      path: u.pathname + u.search,
+      method: "GET",
+      headers,
+      timeout: 15000,
+    }, (res) => {
+      let data = "";
+      res.on("data", (c) => data += c);
+      res.on("end", () => {
+        try { resolve(JSON.parse(data)); } catch { resolve({ raw: data }); }
+      });
+    });
+    req.on("error", reject);
+    req.on("timeout", () => { req.destroy(); reject(new Error("GitHub API 超时")); });
+    req.end();
+  });
 }
 
 export async function GET() {
@@ -24,8 +64,8 @@ export async function POST(req: Request) {
     const clientId = process.env.GITHUB_CLIENT_ID;
     const clientSecret = process.env.GITHUB_CLIENT_SECRET;
 
-    if (!clientSecret) {
-      return NextResponse.json({ error: "GITHUB_CLIENT_SECRET 未配置" }, { status: 500 });
+    if (!clientId || !clientSecret) {
+      return NextResponse.json({ error: "GitHub OAuth 配置未完成" }, { status: 500 });
     }
 
     const body = await req.json() as Record<string, string>;
@@ -41,35 +81,42 @@ export async function POST(req: Request) {
     const { code } = body;
     if (!code) return NextResponse.json({ error: "缺少 code" }, { status: 400 });
 
-    const result = await invokeCloudFunction("auth", {
-      action: "exchangeCode",
-      data: { code, clientId, clientSecret },
+    // Exchange code for token directly via GitHub API
+    const tokenData = await httpPost(
+      "https://github.com/login/oauth/access_token",
+      { "Content-Type": "application/json", "Accept": "application/json" },
+      JSON.stringify({ client_id: clientId, client_secret: clientSecret, code })
+    );
+
+    if ((tokenData as Record<string, string>).error) {
+      const err = tokenData as Record<string, string>;
+      return NextResponse.json({ error: err.error_description || err.error || "GitHub token 交换失败" }, { status: 500 });
+    }
+
+    const accessToken = (tokenData as Record<string, string>).access_token;
+    if (!accessToken) {
+      return NextResponse.json({ error: "GitHub 返回异常：缺少 access_token" }, { status: 500 });
+    }
+
+    // Get user info from GitHub
+    const userData = await httpGet("https://api.github.com/user", {
+      "Authorization": `Bearer ${accessToken}`,
+      "User-Agent": "psn-site",
     });
 
-    const cbResult = result as {
-      code: number;
-      token?: string;
-      user?: { gid: string; login: string; avatar: string; email: string };
-      error?: string;
-    };
-
-    if (cbResult.code !== 0) {
-      const errMsg = cbResult.error || "云函数交换失败";
-      return NextResponse.json({ error: errMsg }, { status: 500 });
+    const ghUser = userData as Record<string, string | number>;
+    if (!ghUser.id || !ghUser.login) {
+      return NextResponse.json({ error: "获取 GitHub 用户信息失败" }, { status: 500 });
     }
 
-    const ghUser = cbResult.user;
-    if (!ghUser) {
-      return NextResponse.json({ error: "未获取到用户信息" }, { status: 500 });
-    }
-
-    const signed = cbResult.token || (await signToken(JSON.stringify({ g: ghUser.gid, l: ghUser.login })));
+    // Sign token and set cookie
+    const signed = await signToken(JSON.stringify({ g: String(ghUser.id), l: String(ghUser.login) }));
     const res = NextResponse.json({ success: true });
     res.cookies.set("github_token", signed, { path: "/", maxAge: 604800, sameSite: "lax" });
     return res;
   } catch (err) {
     const msg = err instanceof Error ? err.message : "未知错误";
     console.error("GitHub auth error:", msg);
-    return NextResponse.json({ error: "服务异常，请稍后再试" }, { status: 500 });
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

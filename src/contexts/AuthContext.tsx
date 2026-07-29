@@ -17,7 +17,7 @@ interface AuthState {
 }
 
 interface AuthContextValue extends AuthState {
-  login: () => Promise<void>;
+  login: () => void;
   logout: () => Promise<void>;
 }
 
@@ -101,15 +101,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => { checkAuth(); }, [checkAuth]);
 
-  const login = async () => {
-    try {
-      const res = await fetch("/api/auth/github");
-      if (!res.ok) throw new Error(`请求失败 (${res.status})`);
-      const { url } = await res.json();
-      if (url) window.location.href = url;
-    } catch (err) {
-      console.error("GitHub login error:", err);
-    }
+  const login = () => {
+    const clientId = "Ov23liAZEOhhQKdiTspx";
+    const redirectUri = "https://hathawaymmspace.vercel.app/auth/callback";
+    window.location.href = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=read:user`;
   };
 
   const logout = async () => {
