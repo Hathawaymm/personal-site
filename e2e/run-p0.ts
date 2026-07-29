@@ -78,9 +78,9 @@ test("TC-HOME-04", "有照片墙权限访客首页有背景", "full", async (pag
   await page.goto(BASE, { waitUntil: "domcontentloaded" });
   await new Promise(r => setTimeout(r, 5000));
   const bgCheck = await page.evaluate(() => {
-    const wallEl = document.querySelector('[class*="pointer-events-none fixed"]');
+    const wallEl = document.querySelector('[class*="overflow-hidden"][class*="pointer-events-none fixed"]');
     if (!wallEl) return "❌ 无BgPhotoWall容器";
-    const imgs = (wallEl as HTMLElement).querySelectorAll("img");
+    const imgs = wallEl.querySelectorAll("img");
     return imgs.length > 0 ? `✅ ${imgs.length}张背景图` : "❌ 容器空";
   });
   return bgCheck;
@@ -202,7 +202,12 @@ test("TC-NAV-02", "full用户菜单无锁", "full", async (page) => {
     const page = await browser.newPage();
     try {
       // Set cookie for this user type
-      if (t.user === "none") { const cdp = await page.target().createCDPSession(); await cdp.send("Network.clearBrowserCookies"); await new Promise(r => setTimeout(r, 500)); } else if (tokens[t.user]) {
+      if (t.user === "none") {
+        const cookies = await page.cookies();
+        for (const c of cookies) {
+          if (c.name === "github_token") await page.deleteCookie(c);
+        }
+      } else if (tokens[t.user]) {
         await page.setCookie({
           name: "github_token",
           value: tokens[t.user],
