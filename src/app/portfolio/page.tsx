@@ -19,7 +19,7 @@ export default function PortfolioPage() {
 
   return (
     <AuthGuard requirePermissions={["portfolio"]}>
-      <div className="min-h-screen pt-6 pb-16">
+      <div className="min-h-screen pt-24 pb-16">
         <WorksSection works={works} />
       </div>
     </AuthGuard>

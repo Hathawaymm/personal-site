@@ -16,7 +16,7 @@ export default function WorksSection({ works }: WorksSectionProps) {
         </div>
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-          {works.filter(w => w.videoUrl || w.cover).map((work) => (
+          {works.map((work) => (
             <div
               key={work.title}
               className="overflow-hidden rounded-lg border border-accent-gold/20 bg-bg-cream/85 shadow-paper backdrop-blur transition-all duration-300 hover:shadow-paper-hover"
