@@ -14,14 +14,13 @@ interface Article {
   status: "published" | "draft";
 }
 
-async function callFn(name: string, data: Record<string, unknown>) {
-  const res = await fetch(`https://psn-site-m5-d2g6kt88h3b1d7da8.ap-shanghai.tcb-api.tencentcloudapi.com/web?name=${name}`, {
-    method: "POST",
+async function callApi(path: string, method: string, body?: Record<string, unknown>) {
+  const res = await fetch(path, {
+    method,
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
+    body: body ? JSON.stringify(body) : undefined,
   });
-  const json = await res.json();
-  return json.result || json;
+  return await res.json();
 }
 
 function generateSlug(title: string): string {
@@ -45,9 +44,8 @@ export default function BlogManager() {
 
   const load = useCallback(async () => {
     try {
-      const res = await callFn("content", { action: "get", type: "blog" });
-      const data = (res.data as Article[]) || [];
-      setArticles(data.sort((a, b) => b.date.localeCompare(a.date)));
+      const data = await callApi("/api/content", "GET");
+      setArticles((Array.isArray(data) ? data : []).sort((a: Article, b: Article) => b.date.localeCompare(a.date)));
     } catch { setMsg("加载失败"); }
   }, []);
 
@@ -68,8 +66,8 @@ export default function BlogManager() {
         readTime: `${Math.max(1, Math.ceil(excerpt.length / 500))} min`,
         status,
       };
-      const res = await callFn("content", { action: "save", type: "blog", data: article, id: modal?.editing?._id || undefined });
-      if (res.code === 0) {
+      const res = await callApi("/api/content", "POST", { type: "blog", item: article, id: modal?.editing?._id });
+      if (res.success || res.code === 0 || !res.error) {
         setMsg(status === "published" ? `🎉 新文章《${title}》已发布！` : "📝 草稿已保存");
         setModal(null);
         load();
@@ -81,10 +79,8 @@ export default function BlogManager() {
   const remove = async (article: Article) => {
     if (!confirm(`确定删除《${article.title}》吗？`)) return;
     try {
-      const res = await callFn("content", { action: "delete", id: article._id });
-      if (res.code !== 0) { setMsg("删除失败: " + (res.error || "未知错误")); return; }
-      setMsg(`已删除《${article.title}》`);
-      load();
+      const res = await callApi("/api/content", "DELETE", { id: article._id });
+      if (!res.error) { setMsg(`已删除《${article.title}》`); load(); } else { setMsg("删除失败: " + res.error); }
     } catch { setMsg("删除失败"); }
   };
 
