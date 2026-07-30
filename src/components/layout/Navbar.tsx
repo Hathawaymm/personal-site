@@ -114,6 +114,11 @@ export default function Navbar() {
                 后台管理
               </Link>
             )}
+            {isAdmin && (
+              <Link href="/profile" className="relative px-4 py-2 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary">
+                个人设置
+              </Link>
+            )}
             {isLoggedIn && (
               <button onClick={logout} className="px-4 py-2 text-sm text-text-muted hover:text-text-primary">
                 退出
@@ -172,6 +177,11 @@ export default function Navbar() {
           {isAdmin && (
             <Link href="/dashboard" className="font-display text-2xl text-accent-rose" style={{ transitionDelay: `${NAV_LINKS.length * 80}ms` }}>
               后台管理
+            </Link>
+          )}
+          {isAdmin && (
+            <Link href="/profile" className="font-display text-2xl text-text-secondary" style={{ transitionDelay: `${(NAV_LINKS.length + 1) * 80}ms` }}>
+              个人设置
             </Link>
           )}
           {isLoggedIn ? (
