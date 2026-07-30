@@ -13,14 +13,9 @@ interface UserRecord {
   created_at: string;
 }
 
-async function callFn(name: string, data: Record<string, unknown>) {
-  const res = await fetch(`https://psn-site-m5-d2g6kt88h3b1d7da8.ap-shanghai.tcb-api.tencentcloudapi.com/web?name=${name}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-  const json = await res.json();
-  return json.result || json;
+async function callApi(path: string, method: string, body?: Record<string, unknown>) {
+  const res = await fetch(path, { method, headers: { "Content-Type": "application/json" }, body: body ? JSON.stringify(body) : undefined });
+  return await res.json();
 }
 
 export default function VisitorManager() {
@@ -36,9 +31,10 @@ export default function VisitorManager() {
   const loadUsers = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await callFn("visitors", { action: "list", data: { uid: adminUid } });
-      const data = (res.data as UserRecord[]) || [];
-      setUsers(data.filter((u: UserRecord) => u.status !== "rejected"));
+      const res = await fetch("/api/visitors");
+      const data = await res.json();
+      const users = Array.isArray(data) ? data : (data.data || []);
+      setUsers(users.filter((u: UserRecord) => u.status !== "rejected"));
     } catch {
       setMsg("加载失败");
     }
@@ -47,9 +43,10 @@ export default function VisitorManager() {
 
   const loadRejected = useCallback(async () => {
     try {
-      const res = await callFn("visitors", { action: "list", data: { uid: adminUid, filter: "rejected" } });
-      const data = (res.data as UserRecord[]) || [];
-      return data.filter((u: UserRecord) => u.status === "rejected");
+      const res = await fetch("/api/visitors");
+      const data = await res.json();
+      const users = Array.isArray(data) ? data : (data.data || []);
+      return users.filter((u: UserRecord) => u.status === "rejected");
     } catch {
       setMsg("加载已拒绝列表失败");
       return [];
@@ -61,8 +58,8 @@ export default function VisitorManager() {
   const openPermModal = async (user: UserRecord) => {
     setLoading(true);
     try {
-      const res = await callFn("permissions", { action: "get", data: { uid: user.github_id } });
-      const perms = (res.permissions as Record<string, boolean>) || {};
+      const res = await fetch("/api/permissions?uid=" + user.github_id);
+      const perms = await res.json();
       setPermModal({
         user,
         permissions: {
@@ -108,17 +105,23 @@ export default function VisitorManager() {
     if (!permModal) return;
     setPermModal({ ...permModal, saving: true });
     try {
-      await callFn("permissions", {
-        action: "update",
-        data: {
-          admin_uid: adminUid,
+      const res = await fetch("/api/permissions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
           visitor_uid: permModal.user.github_id,
           modules: permModal.permissions,
-        },
+        }),
       });
-      setMsg(`✅ ${permModal.user.github_username} 的权限已保存`);
-      setPermModal(null);
-      loadUsers();
+      const result = await res.json();
+      if (!result.error) {
+        setMsg(`✅ ${permModal.user.github_username} 的权限已保存`);
+        setPermModal(null);
+        loadUsers();
+      } else {
+        setMsg("保存失败: " + result.error);
+        setPermModal({ ...permModal, saving: false });
+      }
     } catch {
       setMsg("保存失败");
       setPermModal({ ...permModal, saving: false });
@@ -127,12 +130,14 @@ export default function VisitorManager() {
 
   const handleReject = async (githubId: string) => {
     try {
-      await callFn("visitors", { action: "reject", data: { admin_uid: adminUid, visitor_uid: githubId } });
-      setMsg("已拒绝");
-      loadUsers();
-    } catch {
-      setMsg("操作失败，请重试");
-    }
+      const res = await fetch("/api/visitors", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "reject", visitor_uid: githubId }),
+      });
+      const result = await res.json();
+      if (!result.error) { setMsg("已拒绝"); loadUsers(); } else { setMsg("操作失败"); }
+    } catch { setMsg("操作失败，请重试"); }
   };
 
   const pendingUsers = users.filter(u => u.status === "pending");
