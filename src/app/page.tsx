@@ -12,6 +12,7 @@ import { fetchBlogPosts, type BlogPost } from "@/lib/blog";
 import { useEffect, useState } from "react";
 import type { ResumeData, WorkItem, FamilyMember } from "@/lib/data";
 import { emptyResume } from "@/lib/constants";
+import InlineEditor from "@/components/home/InlineEditor";
 
 export default function Home() {
   const { isLoggedIn, isAdmin, status, loading, needsInit, permissions, nickname } = useAuth();
@@ -20,6 +21,8 @@ export default function Home() {
   const [works, setWorks] = useState<WorkItem[]>([]);
   const [family, setFamily] = useState<FamilyMember[]>([]);
   const [recentPosts, setRecentPosts] = useState<BlogPost[]>([]);
+  const [siteTitle, setSiteTitle] = useState("欢迎来到我的空间，我的朋友");
+  const [siteSubtitle, setSiteSubtitle] = useState("用镜头记录每一个温暖日常");
 
   const canShowResume = isAdmin || permissions.resume_text === true;
   const canShowWorks = isAdmin || permissions.portfolio === true;
@@ -34,6 +37,8 @@ export default function Home() {
         setResume(d.resume || emptyResume);
         setWorks(d.works || []);
         setFamily(d.family || []);
+        setSiteTitle(d.title || siteTitle);
+        setSiteSubtitle(d.subtitle || siteSubtitle);
       }).catch((err) => { console.error("加载站点数据失败:", err); });
     }
     if (canShowBlog) {
@@ -62,14 +67,28 @@ export default function Home() {
     );
   }
 
-  const headerTitle = isLoggedIn ? `你好，${nickname || "朋友"}！` : "欢迎来到我的空间，我的朋友";
-  const headerSub = isLoggedIn ? "欢迎回来" : "用镜头记录每一个温暖日常";
-
   return (
     <>
-      <header className="px-4 pt-28 pb-16 text-center sm:pt-36 sm:pb-24">
-        <h1 className="diary-title text-3xl sm:text-5xl">{headerTitle}</h1>
-        <p className="caption-text mt-4 text-base sm:text-lg">{headerSub}</p>
+      <header className="relative px-4 pt-28 pb-16 text-center sm:pt-36 sm:pb-24">
+        {isAdmin && !previewing && (
+          <InlineEditor
+            title="编辑欢迎信息"
+            fields={[
+              { label: "标题", key: "title", value: siteTitle },
+              { label: "副标题", key: "subtitle", value: siteSubtitle, type: "textarea" },
+            ]}
+            onSave={async (data) => {
+              const current = await fetch("/api/admin/site-data").then(r => r.json());
+              current.title = data.title;
+              current.subtitle = data.subtitle;
+              await fetch("/api/admin/site-data", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(current) });
+              setSiteTitle(data.title);
+              setSiteSubtitle(data.subtitle);
+            }}
+          />
+        )}
+        <h1 className="diary-title text-3xl sm:text-5xl">{siteTitle}</h1>
+        <p className="caption-text mt-4 text-base sm:text-lg">{siteSubtitle}</p>
         {!isLoggedIn && (
           <Link href="/login" className="mt-6 inline-block rounded-full bg-accent-gold px-6 py-3 text-sm font-medium text-white hover:opacity-90">
             GitHub 登录

@@ -1,6 +1,9 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import dynamic from "next/dynamic";
+
+const RichTextEditor = dynamic(() => import("@/components/editors/RichTextEditor"), { ssr: false });
 
 interface Article {
   _id?: string;
@@ -118,7 +121,9 @@ export default function BlogManager() {
               <textarea value={excerpt} onChange={e => setExcerpt(e.target.value)} rows={2} className="w-full rounded border border-accent-gold/20 px-3 py-2 text-sm" placeholder="文章摘要 *" />
               <div>
                 <label className="block text-sm text-text-secondary mb-1">正文</label>
-                <textarea value={content} onChange={e => setContent(e.target.value)} rows={8} className="w-full rounded border border-accent-gold/20 px-3 py-2 text-sm" placeholder="文章正文（支持 HTML）" />
+                <div className="rounded border border-accent-gold/20 min-h-[200px]">
+                  <RichTextEditor content={content} onChange={setContent} />
+                </div>
               </div>
               <input value={tagsStr} onChange={e => setTagsStr(e.target.value)} className="w-full rounded border border-accent-gold/20 px-3 py-2 text-sm" placeholder="标签（逗号分隔）" />
             </div>

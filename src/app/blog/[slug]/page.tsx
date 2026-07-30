@@ -76,7 +76,7 @@ export default function BlogDetailPage() {
 
               <div className="prose prose-stone mx-auto max-w-none">
                 {post.content ? (
-                  <div className="text-text-secondary leading-relaxed text-lg" dangerouslySetInnerHTML={{ __html: post.content }} />
+                  <div className="post-content text-text-secondary leading-relaxed text-lg" dangerouslySetInnerHTML={{ __html: post.content }} />
                 ) : (
                   <p className="text-text-secondary leading-relaxed text-lg">{post.excerpt}</p>
                 )}

@@ -108,6 +108,19 @@ body {
   color: var(--color-text-muted);
 }
 
+/* Rich text content styling */
+.post-content h1, .post-content h2 { font-family: var(--font-display); color: var(--color-text-primary); margin-top: 1.5em; margin-bottom: 0.5em; }
+.post-content h2 { font-size: 1.5rem; }
+.post-content h3 { font-size: 1.25rem; color: var(--color-accent-gold); margin-top: 1.25em; }
+.post-content p { margin-bottom: 1em; line-height: 1.8; color: var(--color-text-secondary); }
+.post-content ul, .post-content ol { margin: 0.75em 0; padding-left: 1.5em; }
+.post-content li { margin-bottom: 0.5em; color: var(--color-text-secondary); }
+.post-content blockquote { border-left: 3px solid var(--color-accent-gold); padding-left: 1em; margin: 1em 0; color: var(--color-text-muted); }
+.post-content code { background: var(--color-bg-warm); padding: 0.15em 0.4em; border-radius: 3px; font-size: 0.9em; }
+.post-content pre { background: var(--color-bg-warm); padding: 1em; border-radius: 0.5em; overflow-x: auto; margin: 1em 0; }
+.post-content img { max-width: 100%; border-radius: 0.5em; margin: 1em 0; }
+.post-content a { color: var(--color-accent-gold); text-decoration: underline; }
+
 /* Scrollbar */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--color-bg-cream); }
