@@ -12,7 +12,7 @@ export default function VisitorBanner() {
     return (
       <div className="sticky top-16 z-40 bg-amber-50 border-b border-amber-200">
         <div className="mx-auto max-w-5xl px-4 py-3 text-center text-sm text-amber-800">
-          🙋‍♂️ 嘿，收到你的申请啦！我已经把你的来访消息悄悄递给管理员了。等管理员小手一点"通过"，你就能看到全貌啦，请稍等片刻哦~
+          🙋‍♂️ 嘿，收到你的申请啦！我已经把你的来访消息悄悄递给管理员了。等管理员小手一点"通过"，你就能看到管理员的小窝全貌啦，请稍等片刻哦~
         </div>
       </div>
     );
