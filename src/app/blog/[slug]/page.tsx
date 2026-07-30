@@ -32,14 +32,15 @@ export default function BlogDetailPage() {
   }, [slug]);
 
   useEffect(() => {
-    if (post) {
+    if (post && typeof window !== "undefined") {
       try {
-        const stored = typeof window !== "undefined"
-          ? JSON.parse(localStorage.getItem(`blog_views_${slug}`) || "null")
-          : null;
-        setViews(stored ? stored.count : 0);
+        const key = `blog_views_${slug}`;
+        const stored = JSON.parse(localStorage.getItem(key) || "null");
+        const newCount = (stored?.count || 0) + 1;
+        localStorage.setItem(key, JSON.stringify({ count: newCount }));
+        setViews(newCount);
       } catch {
-        setViews(0);
+        setViews(1);
       }
     }
   }, [slug, post]);
