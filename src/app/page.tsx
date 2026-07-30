@@ -136,6 +136,23 @@ export default function Home() {
 
       <PreviewToggle />
 
+      {isLoggedIn && (
+        <button
+          onClick={async () => {
+            try {
+              const r = await fetch("/api/site-data");
+              const d = await r.json();
+              const email = d?.settings?.adminEmail || "暂未设置";
+              alert(`如有问题请联系管理员：${email}`);
+            } catch { alert("暂无法获取管理员联系方式"); }
+          }}
+          className="fixed bottom-6 left-6 z-50 flex items-center justify-center w-10 h-10 rounded-full bg-bg-paper border border-accent-gold/30 text-accent-gold text-lg shadow-paper hover:shadow-paper-hover transition-all"
+          title="帮助"
+        >
+          ❓
+        </button>
+      )}
+
       {isAdmin && !previewing && (
         <Link
           href="/dashboard"
