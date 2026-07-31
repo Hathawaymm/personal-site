@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { PERMISSION_LABELS, ALL_PERMISSIONS, TEXT_ONLY_PERMISSIONS, type Permissions } from "@/lib/permissions";
 import { useAuth } from "@/contexts/AuthContext";
+import { logAdminAction } from "@/lib/adminLog";
 
 interface UserRecord {
   _id: string;
@@ -10,6 +11,15 @@ interface UserRecord {
   github_username: string;
   nickname: string;
   status: string;
+  created_at: string;
+}
+
+interface VisitLog {
+  _id: string;
+  visitor_id: string;
+  visitor_username: string;
+  module_visited: string;
+  page_url: string;
   created_at: string;
 }
 
@@ -24,9 +34,29 @@ export default function VisitorManager() {
   const [msg, setMsg] = useState("");
   const [permModal, setPermModal] = useState<{ user: UserRecord; permissions: Permissions; saving: boolean } | null>(null);
   const [rejectedOpen, setRejectedOpen] = useState(false);
+  const [visitTab, setVisitTab] = useState<"users" | "logs">("users");
+  const [visitLogs, setVisitLogs] = useState<VisitLog[]>([]);
   const { githubUser } = useAuth();
 
   const adminUid = githubUser?.gid || "admin";
+
+  const loadVisitLogs = useCallback(async () => {
+    try {
+      const res = await fetch(`https://psn-site-m5-d2g6kt88h3b1d7da8.ap-shanghai.tcb-api.tencentcloudapi.com/web?name=logs`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "query", data: {} }),
+      });
+      const json = await res.json();
+      setVisitLogs((json.result?.data) || []);
+    } catch {
+      setMsg("加载浏览日志失败");
+    }
+  }, []);
+
+  useEffect(() => {
+    if (visitTab === "logs") loadVisitLogs();
+  }, [visitTab, loadVisitLogs]);
 
   const loadUsers = useCallback(async () => {
     setLoading(true);
@@ -116,6 +146,7 @@ export default function VisitorManager() {
       const result = await res.json();
       if (!result.error) {
         setMsg(`✅ ${permModal.user.github_username} 的权限已保存`);
+        logAdminAction("修改访客权限", `为 ${permModal.user.github_username} 更新权限`);
         setPermModal(null);
         loadUsers();
       } else {
@@ -151,6 +182,46 @@ export default function VisitorManager() {
           <button className="ml-3 text-xs underline" onClick={() => setMsg("")}>关闭</button>
         </div>
       )}
+
+      <div className="flex gap-1 rounded-lg border border-accent-gold/20 bg-bg-paper p-1 max-w-md">
+        <button onClick={() => setVisitTab("users")} className={`flex-1 rounded-md px-4 py-2 text-sm font-medium ${visitTab === "users" ? "bg-accent-gold text-white" : "text-text-muted hover:text-text-primary"}`}>访客管理</button>
+        <button onClick={() => setVisitTab("logs")} className={`flex-1 rounded-md px-4 py-2 text-sm font-medium ${visitTab === "logs" ? "bg-accent-gold text-white" : "text-text-muted hover:text-text-primary"}`}>访客浏览日志</button>
+      </div>
+
+      {visitTab === "logs" ? (
+        <section>
+          <h2 className="diary-title text-xl mb-4">访客浏览日志</h2>
+          {visitLogs.length === 0 ? (
+            <p className="text-text-muted caption-text">暂无浏览记录</p>
+          ) : (
+            <div className="overflow-x-auto rounded-lg border border-accent-gold/20 bg-bg-paper p-4">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-accent-gold/20 text-left text-text-muted">
+                    <th className="pb-2 pr-4 font-medium">访客ID</th>
+                    <th className="pb-2 pr-4 font-medium">访客昵称</th>
+                    <th className="pb-2 pr-4 font-medium">访问板块</th>
+                    <th className="pb-2 pr-4 font-medium">页面URL</th>
+                    <th className="pb-2 font-medium">访问时间</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {visitLogs.map((l) => (
+                    <tr key={l._id} className="border-b border-accent-gold/10">
+                      <td className="py-3 pr-4 text-text-muted text-xs">{l.visitor_id}</td>
+                      <td className="py-3 pr-4">{l.visitor_username}</td>
+                      <td className="py-3 pr-4">{l.module_visited}</td>
+                      <td className="py-3 pr-4 text-text-muted text-xs">{l.page_url}</td>
+                      <td className="py-3 text-text-muted text-xs whitespace-nowrap">{new Date(l.created_at).toLocaleString("zh-CN")}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
+      ) : (
+        <>
 
       <section>
         <h2 className="diary-title text-xl mb-4">待审批列表</h2>
@@ -215,6 +286,9 @@ export default function VisitorManager() {
         </button>
         {/* Rejected list collapsed by default for simplicity */}
       </section>
+
+        </>
+      )}
 
       {permModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => !permModal.saving && setPermModal(null)}>

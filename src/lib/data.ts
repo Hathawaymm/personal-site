@@ -87,7 +87,12 @@ export interface FooterConfig {
   copyright: string;
 }
 
-export type HomeModuleKey = "works" | "resume" | "family" | "blog";
+export type HomeModuleKey = "works" | "resume" | "family" | "blog" | "photos";
+
+export interface HomeModuleItem {
+  key: HomeModuleKey;
+  label: string;
+}
 
 export interface HomepageConfig {
   heroTitle: string;
@@ -95,7 +100,7 @@ export interface HomepageConfig {
   heroImage: string;
   buttonText: string;
   buttonLink: string;
-  moduleOrder: HomeModuleKey[];
+  moduleOrder: HomeModuleItem[];
 }
 
 export interface SiteData {
@@ -155,7 +160,12 @@ export const DEFAULT_HOMEPAGE: HomepageConfig = {
   heroImage: "",
   buttonText: "",
   buttonLink: "",
-  moduleOrder: ["works", "resume", "family", "blog"],
+  moduleOrder: [
+    { key: "works", label: "作品集" },
+    { key: "resume", label: "关于我" },
+    { key: "family", label: "家庭" },
+    { key: "blog", label: "博客" },
+  ],
 };
 
 export const HOME_MODULE_LABELS: Record<HomeModuleKey, string> = {
@@ -163,7 +173,16 @@ export const HOME_MODULE_LABELS: Record<HomeModuleKey, string> = {
   resume: "关于我",
   family: "家庭",
   blog: "博客",
+  photos: "照片墙",
 };
+
+export const HOME_MODULE_PRESETS: HomeModuleItem[] = [
+  { key: "works", label: "作品集" },
+  { key: "resume", label: "关于我" },
+  { key: "family", label: "家庭" },
+  { key: "blog", label: "博客" },
+  { key: "photos", label: "照片墙" },
+];
 
 const DEFAULT_DATA: SiteData = {
   title: "欢迎来到我的空间，我的朋友",

@@ -1,16 +1,49 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import type { HomepageConfig, HomeModuleKey } from "@/lib/data";
-import { DEFAULT_HOMEPAGE, HOME_MODULE_LABELS } from "@/lib/data";
+import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
+import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import type { HomepageConfig, HomeModuleItem, HomeModuleKey, FooterConfig } from "@/lib/data";
+import { DEFAULT_HOMEPAGE, DEFAULT_FOOTER, HOME_MODULE_PRESETS, HOME_MODULE_LABELS } from "@/lib/data";
+import { logAdminAction } from "@/lib/adminLog";
 
-const MODULE_KEYS: HomeModuleKey[] = ["works", "resume", "family", "blog"];
+function SortableModule({ item, index, onLabel, onRemove, disabled }: {
+  item: HomeModuleItem;
+  index: number;
+  onLabel: (v: string) => void;
+  onRemove: () => void;
+  disabled: boolean;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: `mod-${index}` });
+  return (
+    <div
+      ref={setNodeRef}
+      style={{ transform: CSS.Transform.toString(transform), transition }}
+      className={`flex items-center gap-2 rounded-lg border border-accent-gold/20 bg-bg-paper px-3 py-2.5 text-sm ${isDragging ? "opacity-50" : ""}`}
+    >
+      <span {...attributes} {...listeners} className="cursor-grab text-text-muted select-none">☰</span>
+      <input
+        type="text"
+        value={item.label}
+        onChange={e => onLabel(e.target.value)}
+        disabled={disabled}
+        className="flex-1 rounded border border-transparent bg-transparent px-2 py-1 text-text-primary focus:border-accent-gold/40 focus:outline-none"
+      />
+      <span className="text-xs text-text-muted">#{index + 1}</span>
+      <button onClick={onRemove} disabled={disabled} className="text-xs text-accent-rose hover:underline">删除</button>
+    </div>
+  );
+}
 
 export default function HomepageConfig() {
   const [config, setConfig] = useState<HomepageConfig>({ ...DEFAULT_HOMEPAGE });
+  const [footer, setFooter] = useState<FooterConfig>(DEFAULT_FOOTER);
   const [msg, setMsg] = useState("");
   const [saving, setSaving] = useState(false);
-  const [dragIdx, setDragIdx] = useState<number | null>(null);
+  const [pendingModule, setPendingModule] = useState<HomeModuleKey>("works");
+
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
   const flashMsg = useCallback((text: string) => {
     setMsg(text);
@@ -21,20 +54,30 @@ export default function HomepageConfig() {
     try {
       const res = await fetch("/api/config");
       const data: HomepageConfig = await res.json();
-      setConfig({ ...DEFAULT_HOMEPAGE, ...data });
+      setConfig({ ...DEFAULT_HOMEPAGE, ...data, moduleOrder: data.moduleOrder || DEFAULT_HOMEPAGE.moduleOrder });
     } catch {
       flashMsg("加载失败");
+    }
+    try {
+      const res = await fetch("/api/config?key=footer");
+      const data = await res.json();
+      setFooter({ ...DEFAULT_FOOTER, ...data });
+    } catch {
+      setFooter(DEFAULT_FOOTER);
     }
   }, [flashMsg]);
 
   useEffect(() => { load(); }, [load]);
 
-  const save = async () => {
+  const saveHomepage = async () => {
     setSaving(true);
     try {
       const res = await fetch("/api/admin/config", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(config) });
-      if (res.ok) flashMsg("✅ 首页配置已保存！");
-      else flashMsg("保存失败");
+      const footerRes = await fetch("/api/admin/config?key=footer", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(footer) });
+      if (res.ok && footerRes.ok) {
+        flashMsg("✅ 首页配置已保存！");
+        logAdminAction("更新首页配置", `欢迎语：${config.heroTitle}`);
+      } else flashMsg("保存失败");
     } catch {
       flashMsg("保存失败");
     }
@@ -56,18 +99,61 @@ export default function HomepageConfig() {
     }
   };
 
-  const onDragStart = (idx: number) => setDragIdx(idx);
-  const onDragOver = (e: React.DragEvent) => e.preventDefault();
-  const onDrop = (targetIdx: number) => {
-    if (dragIdx === null || dragIdx === targetIdx) { setDragIdx(null); return; }
+  const onDragEnd = (event: DragEndEvent) => {
+    if (!event.over) return;
+    const oldIndex = Number(String(event.active.id).replace("mod-", ""));
+    const newIndex = Number(String(event.over.id).replace("mod-", ""));
+    if (oldIndex === newIndex) return;
+    setConfig(prev => ({ ...prev, moduleOrder: arrayMove(prev.moduleOrder, oldIndex, newIndex) }));
+  };
+
+  const updateLabel = (idx: number, label: string) => {
     setConfig(prev => {
-      const order = [...prev.moduleOrder];
-      const [moved] = order.splice(dragIdx, 1);
-      order.splice(targetIdx, 0, moved);
+      const order = prev.moduleOrder.map((m, i) => i === idx ? { ...m, label } : m);
       return { ...prev, moduleOrder: order };
     });
-    setDragIdx(null);
   };
+
+  const removeModule = (idx: number) => {
+    setConfig(prev => ({ ...prev, moduleOrder: prev.moduleOrder.filter((_, i) => i !== idx) }));
+  };
+
+  const addModule = () => {
+    const preset = HOME_MODULE_PRESETS.find(p => p.key === pendingModule);
+    if (!preset) return;
+    if (config.moduleOrder.some(m => m.key === pendingModule)) {
+      flashMsg("该模块已存在，请直接重命名");
+      return;
+    }
+    setConfig(prev => ({ ...prev, moduleOrder: [...prev.moduleOrder, { ...preset }] }));
+  };
+
+  const updateFooterLinks = (type: "siteLinks" | "socialLinks", idx: number, field: "label" | "href", value: string) => {
+    setFooter(prev => {
+      const list = [...(prev[type] || [])];
+      list[idx] = { ...list[idx], [field]: value };
+      return { ...prev, [type]: list };
+    });
+  };
+  const addFooterLink = (type: "siteLinks" | "socialLinks") => {
+    setFooter(prev => ({ ...prev, [type]: [...(prev[type] || []), { label: "", href: "" }] }));
+  };
+  const removeFooterLink = (type: "siteLinks" | "socialLinks", idx: number) => {
+    setFooter(prev => ({ ...prev, [type]: (prev[type] || []).filter((_, i) => i !== idx) }));
+  };
+
+  const footerLinks = (type: "siteLinks" | "socialLinks") => (
+    <div className="space-y-2">
+      {(footer[type] || []).map((link, idx) => (
+        <div key={idx} className="flex items-center gap-2">
+          <input type="text" value={link.label} onChange={e => updateFooterLinks(type, idx, "label", e.target.value)} className="w-32 rounded border border-accent-gold/20 bg-bg-paper px-2 py-1.5 text-sm text-text-primary focus:outline-none" placeholder="名称" />
+          <input type="text" value={link.href} onChange={e => updateFooterLinks(type, idx, "href", e.target.value)} className="flex-1 rounded border border-accent-gold/20 bg-bg-paper px-2 py-1.5 text-sm text-text-primary focus:outline-none" placeholder="https://..." />
+          <button onClick={() => removeFooterLink(type, idx)} className="text-xs text-accent-rose hover:underline">删除</button>
+        </div>
+      ))}
+      <button onClick={() => addFooterLink(type)} className="rounded-full border border-accent-gold/30 px-3 py-1 text-xs text-accent-gold hover:bg-accent-gold/5">+ 添加链接</button>
+    </div>
+  );
 
   return (
     <div className="space-y-6">
@@ -95,6 +181,7 @@ export default function HomepageConfig() {
           <div>
             <label className="block text-sm text-text-secondary mb-1">按钮文案</label>
             <input type="text" value={config.buttonText} onChange={e => setConfig({ ...config, buttonText: e.target.value })} className="w-full rounded-lg border border-accent-gold/30 bg-bg-paper px-4 py-2 text-sm text-text-primary focus:border-accent-gold/60 focus:outline-none" placeholder="如：了解更多（留空则不显示）" />
+            <p className="mt-1 text-xs text-text-muted">此按钮位于首页 Hero 区域（欢迎语下方），留空则不显示</p>
           </div>
           <div>
             <label className="block text-sm text-text-secondary mb-1">按钮链接</label>
@@ -105,29 +192,50 @@ export default function HomepageConfig() {
 
       <div className="border-t border-accent-gold/15 pt-6">
         <h3 className="diary-title text-lg mb-1">首页模块顺序</h3>
-        <p className="text-xs text-text-muted mb-4">拖拽调整板块在首页的上下排列顺序</p>
-        <div className="space-y-2 max-w-md">
-          {config.moduleOrder.map((key, idx) => (
-            <div
-              key={key}
-              draggable
-              onDragStart={() => onDragStart(idx)}
-              onDragOver={onDragOver}
-              onDrop={() => onDrop(idx)}
-              className={`flex items-center justify-between rounded-lg border border-accent-gold/20 bg-bg-paper px-4 py-3 text-sm cursor-grab ${dragIdx === idx ? "opacity-50" : ""}`}
-            >
-              <span className="flex items-center gap-2 text-text-primary">
-                <span className="text-text-muted">☰</span>
-                {HOME_MODULE_LABELS[key]}
-              </span>
-              <span className="text-xs text-text-muted">#{idx + 1}</span>
+        <p className="text-xs text-text-muted mb-4">拖拽调整板块顺序，可重命名、删除、新增模块</p>
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+          <SortableContext items={config.moduleOrder.map((_, i) => `mod-${i}`)} strategy={verticalListSortingStrategy}>
+            <div className="space-y-2 max-w-md">
+              {config.moduleOrder.map((item, idx) => (
+                <SortableModule key={`mod-${idx}`} item={item} index={idx} onLabel={v => updateLabel(idx, v)} onRemove={() => removeModule(idx)} disabled={saving} />
+              ))}
             </div>
-          ))}
+          </SortableContext>
+        </DndContext>
+        <div className="mt-3 flex items-center gap-2 max-w-md">
+          <select value={pendingModule} onChange={e => setPendingModule(e.target.value as HomeModuleKey)} className="rounded-lg border border-accent-gold/30 bg-bg-paper px-3 py-2 text-sm text-text-primary focus:outline-none">
+            {HOME_MODULE_PRESETS.map(p => (
+              <option key={p.key} value={p.key}>{HOME_MODULE_LABELS[p.key]}</option>
+            ))}
+          </select>
+          <button onClick={addModule} className="rounded-full border border-accent-gold/30 px-4 py-2 text-sm text-accent-gold hover:bg-accent-gold/5">+ 添加模块</button>
         </div>
-        {config.moduleOrder.length === 0 && <p className="text-text-muted text-sm">没有模块，无法显示内容</p>}
+        {config.moduleOrder.length === 0 && <p className="text-text-muted text-sm mt-2">没有模块，无法显示内容</p>}
       </div>
 
-      <button onClick={save} disabled={saving} className={`rounded-full px-6 py-2.5 text-sm font-medium text-white ${saving ? "bg-text-muted" : "bg-accent-gold hover:opacity-90"}`}>
+      <div className="border-t border-accent-gold/15 pt-6">
+        <h3 className="diary-title text-lg mb-4">底部信息</h3>
+        <div className="space-y-5 max-w-md">
+          <div>
+            <label className="block text-sm text-text-secondary mb-1">底部描述文字</label>
+            <textarea value={footer.tagline} onChange={e => setFooter({ ...footer, tagline: e.target.value })} rows={3} className="w-full rounded-lg border border-accent-gold/30 bg-bg-paper px-4 py-2 text-sm text-text-primary focus:border-accent-gold/60 focus:outline-none" />
+          </div>
+          <div>
+            <label className="block text-sm text-text-secondary mb-1">版权署名</label>
+            <input type="text" value={footer.copyright} onChange={e => setFooter({ ...footer, copyright: e.target.value })} className="w-full rounded-lg border border-accent-gold/30 bg-bg-paper px-4 py-2 text-sm text-text-primary focus:border-accent-gold/60 focus:outline-none" />
+          </div>
+          <div>
+            <label className="block text-sm text-text-secondary mb-2">Navigate 导航链接</label>
+            {footerLinks("siteLinks")}
+          </div>
+          <div>
+            <label className="block text-sm text-text-secondary mb-2">Connect 社交链接</label>
+            {footerLinks("socialLinks")}
+          </div>
+        </div>
+      </div>
+
+      <button onClick={saveHomepage} disabled={saving} className={`rounded-full px-6 py-2.5 text-sm font-medium text-white ${saving ? "bg-text-muted" : "bg-accent-gold hover:opacity-90"}`}>
         {saving ? "⏳ 保存中..." : "保存配置"}
       </button>
     </div>

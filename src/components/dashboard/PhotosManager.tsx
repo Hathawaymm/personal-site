@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import type { SiteData, PhotoItem } from "@/lib/data";
 import { proxyImageUrl } from "@/lib/image";
 import { compressImage } from "@/lib/compress";
+import { logAdminAction } from "@/lib/adminLog";
 
 export default function PhotosManager() {
   const [photos, setPhotos] = useState<PhotoItem[]>([]);
@@ -64,6 +65,7 @@ export default function PhotosManager() {
         setSiteData(updated);
         const message = failed > 0 ? `已成功上传 ${urls.length} 张，${failed} 张失败` : `🎉 已成功上传 ${urls.length} 张照片！`;
         setMsg(message);
+        logAdminAction("上传照片", `上传 ${urls.length} 张照片`);
         load();
       } else {
         setMsg("保存到数据文件失败");
@@ -82,7 +84,7 @@ export default function PhotosManager() {
       const filtered = photos.filter(p => p.src !== src);
       const updated: SiteData = { ...siteData, photos: filtered };
       const res = await fetch("/api/admin/site-data", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(updated) });
-      if (res.ok) { setSiteData(updated); setPhotos(filtered); setMsg("已删除"); } else { setMsg("删除失败"); }
+      if (res.ok) { setSiteData(updated); setPhotos(filtered); setMsg("已删除"); logAdminAction("删除照片", "删除一张照片"); } else { setMsg("删除失败"); }
     } catch { setMsg("删除失败"); }
   };
 

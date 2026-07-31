@@ -10,7 +10,7 @@ import BlogCard from "@/components/blog/BlogCard";
 import { blogPosts as fallbackPosts } from "@/data/blog-posts";
 import { fetchBlogPosts, type BlogPost } from "@/lib/blog";
 import { useEffect, useState } from "react";
-import type { ResumeData, WorkItem, FamilyMember, SectionTitles, HomepageConfig, HomeModuleKey } from "@/lib/data";
+import type { ResumeData, WorkItem, FamilyMember, SectionTitles, HomepageConfig, HomeModuleItem } from "@/lib/data";
 import { emptyResume } from "@/lib/constants";
 import { DEFAULT_SECTIONS, DEFAULT_HOMEPAGE } from "@/lib/data";
 import { proxyImageUrl } from "@/lib/image";
@@ -22,6 +22,7 @@ export default function Home() {
   const [resume, setResume] = useState<ResumeData>(emptyResume);
   const [works, setWorks] = useState<WorkItem[]>([]);
   const [family, setFamily] = useState<FamilyMember[]>([]);
+  const [photos, setPhotos] = useState<{ src: string; alt: string }[]>([]);
   const [recentPosts, setRecentPosts] = useState<BlogPost[]>([]);
   const [sections, setSections] = useState<SectionTitles>({ ...DEFAULT_SECTIONS });
   const [homepage, setHomepage] = useState<HomepageConfig>({ ...DEFAULT_HOMEPAGE });
@@ -46,6 +47,7 @@ export default function Home() {
         setResume(d.resume || emptyResume);
         setWorks(d.works || []);
         setFamily(d.family || []);
+        setPhotos(d.photos || []);
         setSections({ ...DEFAULT_SECTIONS, ...(d.sections || {}) });
       }).catch((err) => { console.error("加载站点数据失败:", err); });
     }
@@ -61,7 +63,8 @@ export default function Home() {
 
   const showHeroButton = homepage.buttonText && homepage.buttonLink;
 
-  const renderModule = (key: HomeModuleKey) => {
+  const renderModule = (item: HomeModuleItem) => {
+    const key = item.key;
     switch (key) {
       case "works":
         return canShowWorks && works.length > 0 ? (
@@ -69,9 +72,8 @@ export default function Home() {
             {isAdmin && !previewing && (
               <>
                 <InlineEditor
-                  title="编辑作品区标题"
+                  title="编辑作品区副标题"
                   fields={[
-                    { label: "标题", key: "worksTitle", value: sections.worksTitle },
                     { label: "副标题", key: "worksSubtitle", value: sections.worksSubtitle, type: "textarea" },
                   ]}
                   onSave={saveSections}
@@ -81,7 +83,7 @@ export default function Home() {
                 </Link>
               </>
             )}
-            <WorksSection works={works} title={sections.worksTitle} subtitle={sections.worksSubtitle} />
+            <WorksSection works={works} title={item.label || sections.worksTitle} subtitle={sections.worksSubtitle} />
           </div>
         ) : null;
       case "resume":
@@ -101,9 +103,8 @@ export default function Home() {
             {isAdmin && !previewing && (
               <>
                 <InlineEditor
-                  title="编辑家庭区标题"
+                  title="编辑家庭区副标题"
                   fields={[
-                    { label: "标题", key: "familyTitle", value: sections.familyTitle },
                     { label: "副标题", key: "familySubtitle", value: sections.familySubtitle, type: "textarea" },
                   ]}
                   onSave={saveSections}
@@ -113,24 +114,15 @@ export default function Home() {
                 </Link>
               </>
             )}
-            <FamilySection members={family} title={sections.familyTitle} subtitle={sections.familySubtitle} />
+            <FamilySection members={family} title={item.label || sections.familyTitle} subtitle={sections.familySubtitle} />
           </div>
         ) : null;
       case "blog":
         return canShowBlog ? (
           <section key="blog" className="relative px-4 py-24 sm:px-6">
-            {isAdmin && !previewing && (
-              <InlineEditor
-                title="编辑博客区标题"
-                fields={[
-                  { label: "标题", key: "blogTitle", value: sections.blogTitle },
-                ]}
-                onSave={saveSections}
-              />
-            )}
             <div className="mx-auto max-w-5xl space-y-12">
               <div className="text-center">
-                <h2 className="diary-title text-2xl sm:text-3xl">{sections.blogTitle}</h2>
+                <h2 className="diary-title text-2xl sm:text-3xl">{item.label || sections.blogTitle}</h2>
               </div>
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {recentPosts.map((post) => (<BlogCard key={post.slug} {...post} />))}
@@ -140,6 +132,23 @@ export default function Home() {
                   查看更多文章
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
                 </Link>
+              </div>
+            </div>
+          </section>
+        ) : null;
+      case "photos":
+        return photos.length > 0 ? (
+          <section key="photos" className="px-4 py-24 sm:px-6">
+            <div className="mx-auto max-w-5xl">
+              <div className="mb-10 text-center">
+                <h2 className="diary-title text-2xl sm:text-3xl">{item.label}</h2>
+              </div>
+              <div className="columns-2 gap-4 sm:columns-3 lg:columns-4">
+                {photos.map((photo, i) => (
+                  <div key={i} className="mb-4 break-inside-avoid overflow-hidden rounded-lg">
+                    <img src={proxyImageUrl(photo.src)} alt={photo.alt || ""} className="w-full object-cover" loading="lazy" />
+                  </div>
+                ))}
               </div>
             </div>
           </section>
@@ -196,7 +205,7 @@ export default function Home() {
         </div>
       </header>
 
-      {homepage.moduleOrder.map(key => renderModule(key))}
+      {homepage.moduleOrder.map(item => renderModule(item))}
 
       <PreviewToggle />
 

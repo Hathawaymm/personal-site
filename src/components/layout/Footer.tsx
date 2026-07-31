@@ -8,10 +8,10 @@ export default function Footer() {
   const [footer, setFooter] = useState<FooterConfig>(DEFAULT_FOOTER);
 
   useEffect(() => {
-    fetch("/api/site-data")
+    fetch("/api/config?key=footer")
       .then(r => r.json())
       .then(d => {
-        if (d?.footer) setFooter({ ...DEFAULT_FOOTER, ...d.footer });
+        if (d && (d.tagline || d.siteLinks || d.socialLinks)) setFooter({ ...DEFAULT_FOOTER, ...d });
       })
       .catch(() => {});
   }, []);

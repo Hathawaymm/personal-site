@@ -50,6 +50,24 @@ exports.main = async (event) => {
       return { code: 0 };
     }
 
+    if (action === "addAdminLog") {
+      const { action: act, detail } = data || {};
+      if (!act) return { code: -1, error: "缺少 action" };
+      const adminLogs = db.collection("admin_logs");
+      await adminLogs.add({
+        action: act,
+        detail: detail || "",
+        created_at: new Date().toISOString(),
+      });
+      return { code: 0 };
+    }
+
+    if (action === "listAdminLogs") {
+      const adminLogs = db.collection("admin_logs");
+      const result = await adminLogs.orderBy("created_at", "desc").limit(200).get();
+      return { code: 0, data: result.data };
+    }
+
     return { code: -1, error: "未知操作: " + (action || "empty") };
   } catch (err) {
     return { code: -1, error: err instanceof Error ? err.message : "服务器内部错误" };

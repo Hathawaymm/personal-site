@@ -137,11 +137,6 @@ export default function Navbar() {
               </Link>
             )}
             {isAdmin && (
-              <Link href="/profile" className="relative px-4 py-2 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary">
-                {navLabels.profile}
-              </Link>
-            )}
-            {isAdmin && (
               <InlineEditor title="编辑顶部导航名称" fields={editFields} onSave={saveNav} position="inline" />
             )}
             {isLoggedIn && (
@@ -201,12 +196,7 @@ export default function Navbar() {
           })}
           {isAdmin && (
             <Link href="/dashboard" className="font-display text-2xl text-accent-rose" style={{ transitionDelay: `${NAV_LINKS.length * 80}ms` }}>
-              后台管理
-            </Link>
-          )}
-          {isAdmin && (
-            <Link href="/profile" className="font-display text-2xl text-text-secondary" style={{ transitionDelay: `${(NAV_LINKS.length + 1) * 80}ms` }}>
-              个人设置
+              {navLabels.dashboard}
             </Link>
           )}
           {isLoggedIn ? (

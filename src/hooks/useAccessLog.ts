@@ -7,7 +7,16 @@ export function useAccessLog(module: string) {
   const { isLoggedIn, githubUser } = useAuth();
 
   useEffect(() => {
-    if (!isLoggedIn || !githubUser) return;
+    // 节流：同一会话内同一模块只记录一次
+    const key = `visit_logged_${module}`;
+    if (typeof sessionStorage !== "undefined") {
+      try {
+        if (sessionStorage.getItem(key)) return;
+      } catch { /* ignore */ }
+    }
+
+    const visitorId = githubUser?.gid ? `github_${githubUser.gid}` : `anon_${Math.random().toString(36).slice(2, 8)}`;
+    const username = githubUser?.login || "匿名访客";
 
     const record = () => {
       fetch(
@@ -18,14 +27,18 @@ export function useAccessLog(module: string) {
           body: JSON.stringify({
             action: "record",
             data: {
-              uid: githubUser.gid,
-              username: githubUser.login,
+              visitorId,
+              username,
               module,
               pageUrl: window.location.pathname,
             },
           }),
         }
-      ).catch(() => {});
+      )
+        .then(() => {
+          try { sessionStorage.setItem(key, "1"); } catch { /* ignore */ }
+        })
+        .catch(() => {});
     };
 
     record();

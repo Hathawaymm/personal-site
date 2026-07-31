@@ -5,6 +5,7 @@ import type { SiteData, WorkItem, WorkType, WorkCategory } from "@/lib/data";
 import { WORK_CATEGORY_LABELS } from "@/lib/data";
 import { proxyImageUrl } from "@/lib/image";
 import { compressImage } from "@/lib/compress";
+import { logAdminAction } from "@/lib/adminLog";
 
 const newId = () => crypto.randomUUID?.() || Math.random().toString(36).slice(2);
 
@@ -73,6 +74,7 @@ export default function WorksManager() {
         setWorks(currentWorks);
         setMsg("✅ 作品已保存！");
         setModal(null);
+        logAdminAction("上传/编辑作品", `《${title}》`);
       } else { setMsg("保存失败"); }
     } catch { setMsg("保存失败"); }
     setSaving(false);
@@ -84,7 +86,7 @@ export default function WorksManager() {
       const filtered = works.filter(x => x._id !== w._id);
       const updated: SiteData = { ...siteData, works: filtered };
       const res = await fetch("/api/admin/site-data", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(updated) });
-      if (res.ok) { setSiteData(updated); setWorks(filtered); setMsg(`已删除《${w.title}》`); } else { setMsg("删除失败"); }
+      if (res.ok) { setSiteData(updated); setWorks(filtered); setMsg(`已删除《${w.title}》`); logAdminAction("删除作品", `《${w.title}》`); } else { setMsg("删除失败"); }
     } catch { setMsg("删除失败"); }
   };
 
