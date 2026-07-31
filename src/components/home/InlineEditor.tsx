@@ -6,9 +6,11 @@ interface InlineEditorProps {
   title: string;
   fields: { label: string; key: string; type?: "text" | "textarea"; value: string }[];
   onSave: (data: Record<string, string>) => Promise<void>;
+  position?: "top-right" | "inline";
+  topOffset?: number;
 }
 
-export default function InlineEditor({ title, fields, onSave }: InlineEditorProps) {
+export default function InlineEditor({ title, fields, onSave, position = "top-right", topOffset = 0 }: InlineEditorProps) {
   const [open, setOpen] = useState(false);
   const [values, setValues] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
@@ -36,7 +38,7 @@ export default function InlineEditor({ title, fields, onSave }: InlineEditorProp
 
   return (
     <>
-      <button onClick={openModal} className="absolute top-4 right-6 z-10 rounded-full bg-bg-paper border border-accent-gold/30 px-3 py-1.5 text-xs text-accent-gold shadow-paper hover:bg-accent-gold/5">
+      <button onClick={openModal} style={position === "top-right" ? { top: 16 + topOffset } : undefined} className={position === "inline" ? "inline-flex items-center gap-1 rounded-full border border-accent-gold/30 px-3 py-1.5 text-xs text-accent-gold hover:bg-accent-gold/5" : "absolute right-6 z-10 rounded-full bg-bg-paper border border-accent-gold/30 px-3 py-1.5 text-xs text-accent-gold shadow-paper hover:bg-accent-gold/5"}>
         ✏ 编辑
       </button>
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import type { SiteData, WorkItem } from "@/lib/data";
+import type { SiteData, WorkItem, WorkType } from "@/lib/data";
 import { proxyImageUrl } from "@/lib/image";
 import { compressImage } from "@/lib/compress";
 
@@ -23,6 +23,8 @@ export default function WorksManager() {
   const [category, setCategory] = useState("");
   const [cover, setCover] = useState("");
   const [videoUrl, setVideoUrl] = useState("");
+  const [type, setType] = useState<WorkType>("image");
+  const [fileUrl, setFileUrl] = useState("");
   const [saving, setSaving] = useState(false);
 
   const load = useCallback(async () => {
@@ -37,12 +39,13 @@ export default function WorksManager() {
   useEffect(() => { load(); }, [load]);
 
   const openNew = () => {
-    setTitle(""); setDescription(""); setCategory(""); setCover(""); setVideoUrl("");
+    setTitle(""); setDescription(""); setCategory(""); setCover(""); setVideoUrl(""); setType("image"); setFileUrl("");
     setModal({});
   };
 
   const openEdit = (w: WorkWithId) => {
     setTitle(w.title); setDescription(w.description); setCategory(w.category); setCover(w.cover); setVideoUrl(w.videoUrl);
+    setType(w.type || "image"); setFileUrl(w.fileUrl || "");
     setModal({ editing: w });
   };
 
@@ -51,7 +54,7 @@ export default function WorksManager() {
     setSaving(true);
     try {
       const currentWorks = [...works];
-      const newWork: WorkWithId = { _id: modal?.editing?._id || newId(), title, description, category, cover, videoUrl };
+      const newWork: WorkWithId = { _id: modal?.editing?._id || newId(), title, description, category, cover, videoUrl, type, fileUrl };
 
       if (modal?.editing) {
         const idx = currentWorks.findIndex(w => w._id === modal.editing!._id);
@@ -95,6 +98,17 @@ export default function WorksManager() {
     } catch (err) { setMsg(err instanceof Error ? err.message : "上传失败"); }
   };
 
+  const uploadFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]; if (!file) return;
+    try {
+      const fd = new FormData();
+      fd.append("file", file, file.name);
+      const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+      const json = await res.json();
+      if (json.url) { setFileUrl(json.url); setMsg("文件已上传"); } else { setMsg("上传失败"); }
+    } catch (err) { setMsg(err instanceof Error ? err.message : "上传失败"); }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -129,11 +143,29 @@ export default function WorksManager() {
               <input value={title} onChange={e => setTitle(e.target.value)} className="w-full rounded border border-accent-gold/20 px-3 py-2 text-sm" placeholder="作品标题 *" />
               <input value={category} onChange={e => setCategory(e.target.value)} className="w-full rounded border border-accent-gold/20 px-3 py-2 text-sm" placeholder="分类" />
               <textarea value={description} onChange={e => setDescription(e.target.value)} rows={3} className="w-full rounded border border-accent-gold/20 px-3 py-2 text-sm" placeholder="描述" />
-              <div className="flex gap-2 items-center">
-                <input value={cover} onChange={e => setCover(e.target.value)} className="flex-1 rounded border border-accent-gold/20 px-3 py-2 text-sm" placeholder="封面图 URL" />
-                <label className="cursor-pointer rounded border border-accent-gold/30 px-3 py-2 text-xs text-accent-gold">上传<input type="file" accept="image/*" onChange={uploadCover} className="hidden" /></label>
+              <div>
+                <label className="block text-sm text-text-secondary mb-1">作品类型</label>
+                <div className="flex flex-wrap gap-2">
+                  {(["image", "video", "pdf", "text"] as WorkType[]).map(t => (
+                    <button key={t} onClick={() => setType(t)} className={`rounded-full px-3 py-1 text-xs ${type === t ? "bg-accent-gold text-white" : "border border-accent-gold/30 text-accent-gold"}`}>{t === "image" ? "图片" : t === "video" ? "视频" : t === "pdf" ? "PDF" : "文本"}</button>
+                  ))}
+                </div>
               </div>
-              <input value={videoUrl} onChange={e => setVideoUrl(e.target.value)} className="w-full rounded border border-accent-gold/20 px-3 py-2 text-sm" placeholder="视频 URL（可选）" />
+              {(type === "video" || type === "image") && (
+                <div className="flex gap-2 items-center">
+                  <input value={cover} onChange={e => setCover(e.target.value)} className="flex-1 rounded border border-accent-gold/20 px-3 py-2 text-sm" placeholder="封面图 URL" />
+                  <label className="cursor-pointer rounded border border-accent-gold/30 px-3 py-2 text-xs text-accent-gold">上传<input type="file" accept="image/*" onChange={uploadCover} className="hidden" /></label>
+                </div>
+              )}
+              {type === "video" && (
+                <input value={videoUrl} onChange={e => setVideoUrl(e.target.value)} className="w-full rounded border border-accent-gold/20 px-3 py-2 text-sm" placeholder="视频 URL（可上传 mp4）" />
+              )}
+              {(type === "pdf" || type === "text") && (
+                <div className="flex gap-2 items-center">
+                  <input value={fileUrl} onChange={e => setFileUrl(e.target.value)} className="flex-1 rounded border border-accent-gold/20 px-3 py-2 text-sm" placeholder={type === "pdf" ? "PDF 文件 URL" : "文本文件 URL（txt/md）"} />
+                  <label className="cursor-pointer rounded border border-accent-gold/30 px-3 py-2 text-xs text-accent-gold">上传<input type="file" accept={type === "pdf" ? "application/pdf" : ".txt,.md,.markdown"} onChange={uploadFile} className="hidden" /></label>
+                </div>
+              )}
             </div>
             <div className="mt-6 flex justify-end gap-3">
               <button onClick={() => setModal(null)} className="rounded-full border border-accent-gold/30 px-4 py-2 text-sm text-text-muted">取消</button>

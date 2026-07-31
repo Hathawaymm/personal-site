@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { proxyImageUrl } from "@/lib/image";
 
@@ -14,8 +15,10 @@ export default function BgPhotoWall() {
   const wallRef = useRef<HTMLDivElement>(null);
   const [photos, setPhotos] = useState<PhotoItem[]>([]);
   const { isLoggedIn, isAdmin, permissions } = useAuth();
+  const pathname = usePathname();
 
-  const showWall = isAdmin || permissions.photos === true;
+  const isBackend = pathname.startsWith("/dashboard") || pathname.startsWith("/admin");
+  const showWall = !isBackend && (isAdmin || permissions.photos === true);
 
   useEffect(() => {
     if (!showWall) return;
@@ -46,15 +49,15 @@ export default function BgPhotoWall() {
 
   return (
     <div ref={wallRef} className="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden="true">
-      <div className="columns-3 gap-2 px-2 pt-24">
+      <div className="grid grid-cols-4 gap-1 p-1 sm:grid-cols-6 md:grid-cols-8">
         {photos.filter(p => p.src).map((photo, i) => (
-          <div key={i} className="mb-2 break-inside-avoid overflow-hidden rounded-sm opacity-25">
+          <div key={i} className="overflow-hidden rounded-sm opacity-30">
             <Image
               src={proxyImageUrl(photo.src)}
               alt=""
               width={400}
               height={400}
-              className="w-full object-cover"
+              className="aspect-square w-full object-cover"
               unoptimized
             />
           </div>

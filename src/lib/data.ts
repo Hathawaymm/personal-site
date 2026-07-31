@@ -34,12 +34,16 @@ export interface PhotoItem {
   alt: string;
 }
 
+export type WorkType = "image" | "video" | "pdf" | "text";
+
 export interface WorkItem {
   title: string;
   description: string;
   category: string;
   videoUrl: string;
   cover: string;
+  type?: WorkType;
+  fileUrl?: string;
 }
 
 export interface SectionTitles {
@@ -48,6 +52,29 @@ export interface SectionTitles {
   familyTitle: string;
   familySubtitle: string;
   blogTitle: string;
+}
+
+export interface NavLabels {
+  home: string;
+  resume: string;
+  works: string;
+  family: string;
+  blog: string;
+  photos: string;
+  dashboard: string;
+  profile: string;
+}
+
+export interface FooterLink {
+  label: string;
+  href: string;
+}
+
+export interface FooterConfig {
+  tagline: string;
+  siteLinks: FooterLink[];
+  socialLinks: FooterLink[];
+  copyright: string;
 }
 
 export interface SiteData {
@@ -59,6 +86,8 @@ export interface SiteData {
   works: WorkItem[];
   settings: SiteSettings;
   sections?: SectionTitles;
+  nav?: Partial<NavLabels>;
+  footer?: Partial<FooterConfig>;
 }
 
 export interface SiteSettings {
@@ -72,6 +101,31 @@ export const DEFAULT_SECTIONS: SectionTitles = {
   familyTitle: "我们的家庭",
   familySubtitle: "两个人和三只毛孩子的温暖日常",
   blogTitle: "最近文章",
+};
+
+export const DEFAULT_NAV: NavLabels = {
+  home: "Home",
+  resume: "简历",
+  works: "作品",
+  family: "家庭",
+  blog: "Blog",
+  photos: "照片墙",
+  dashboard: "后台管理",
+  profile: "个人设置",
+};
+
+export const DEFAULT_FOOTER: FooterConfig = {
+  tagline: "用镜头记录每一个温暖日常。Built with Next.js and Tailwind CSS.",
+  siteLinks: [
+    { label: "Home", href: "/" },
+    { label: "Blog", href: "/blog" },
+  ],
+  socialLinks: [
+    { label: "GitHub", href: "https://github.com" },
+    { label: "Twitter / X", href: "https://x.com" },
+    { label: "Email", href: "mailto:hello@example.com" },
+  ],
+  copyright: "我们的时光",
 };
 
 const DEFAULT_DATA: SiteData = {

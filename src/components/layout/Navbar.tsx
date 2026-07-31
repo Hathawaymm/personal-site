@@ -6,20 +6,22 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/components/ui/Toast";
 import type { Permissions } from "@/lib/permissions";
+import { DEFAULT_NAV, type NavLabels } from "@/lib/data";
+import InlineEditor from "@/components/home/InlineEditor";
 
 interface NavLink {
   href: string;
-  label: string;
+  key: keyof NavLabels;
   permission?: keyof Permissions;
 }
 
 const NAV_LINKS: NavLink[] = [
-  { href: "/", label: "Home" },
-  { href: "/resume", label: "简历", permission: "resume_text" },
-  { href: "/portfolio", label: "作品", permission: "portfolio" },
-  { href: "/family", label: "家庭", permission: "family" },
-  { href: "/blog", label: "Blog", permission: "blog" },
-  { href: "/photos", label: "照片墙", permission: "photos" },
+  { href: "/", key: "home" },
+  { href: "/resume", key: "resume", permission: "resume_text" },
+  { href: "/portfolio", key: "works", permission: "portfolio" },
+  { href: "/family", key: "family", permission: "family" },
+  { href: "/blog", key: "blog", permission: "blog" },
+  { href: "/photos", key: "photos", permission: "photos" },
 ];
 
 export default function Navbar() {
@@ -28,6 +30,26 @@ export default function Navbar() {
   const { toast } = useToast();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [navLabels, setNavLabels] = useState<NavLabels>({ ...DEFAULT_NAV });
+
+  useEffect(() => {
+    fetch("/api/site-data").then(r => r.json()).then(d => {
+      if (d?.nav) setNavLabels({ ...DEFAULT_NAV, ...d.nav });
+    }).catch(() => {});
+  }, []);
+
+  const saveNav = async (data: Record<string, string>) => {
+    const current = await fetch("/api/admin/site-data").then(r => r.json());
+    current.nav = { ...(current.nav || {}), ...data };
+    await fetch("/api/admin/site-data", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(current) });
+    setNavLabels(prev => ({ ...prev, ...data }));
+  };
+
+  const editFields = (Object.keys(DEFAULT_NAV) as (keyof NavLabels)[]).map(k => ({
+    label: k,
+    key: k,
+    value: navLabels[k] || DEFAULT_NAV[k],
+  }));
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -101,7 +123,7 @@ export default function Navbar() {
                         : "text-text-secondary hover:text-text-primary"
                   }`}
                 >
-                  {link.label}
+                  {navLabels[link.key]}
                   {locked && <span className="ml-1 text-xs">🔒</span>}
                   {isActive(link.href) && accessible && (
                     <span className="absolute bottom-0 left-1/2 h-[2px] w-3/5 -translate-x-1/2 rounded-full bg-accent-gold/70" />
@@ -111,13 +133,16 @@ export default function Navbar() {
             })}
             {isAdmin && (
               <Link href="/dashboard" className="relative px-4 py-2 text-sm font-medium text-accent-rose transition-colors hover:opacity-80">
-                后台管理
+                {navLabels.dashboard}
               </Link>
             )}
             {isAdmin && (
               <Link href="/profile" className="relative px-4 py-2 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary">
-                个人设置
+                {navLabels.profile}
               </Link>
+            )}
+            {isAdmin && (
+              <InlineEditor title="编辑顶部导航名称" fields={editFields} onSave={saveNav} position="inline" />
             )}
             {isLoggedIn && (
               <button onClick={logout} className="px-4 py-2 text-sm text-text-muted hover:text-text-primary">
@@ -170,7 +195,7 @@ export default function Navbar() {
                 }`}
                 style={{ transitionDelay: menuOpen ? `${i * 80}ms` : "0ms" }}
               >
-                {link.label}{locked ? " 🔒" : ""}
+                {navLabels[link.key]}{locked ? " 🔒" : ""}
               </Link>
             );
           })}

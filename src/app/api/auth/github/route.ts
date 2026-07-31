@@ -109,6 +109,23 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "获取 GitHub 用户信息失败" }, { status: 500 });
     }
 
+    const adminGithubId = process.env.ADMIN_GITHUB_ID || "";
+
+    try {
+      await invokeCloudFunction("auth", {
+        action: "onLogin",
+        data: {
+          uid: String(ghUser.id),
+          username: String(ghUser.login),
+          avatarUrl: String(ghUser.avatar_url || ""),
+          email: String(ghUser.email || ""),
+          adminGithubId,
+        },
+      });
+    } catch (writeErr) {
+      console.error("写入访客记录失败:", writeErr);
+    }
+
     // Sign token and set cookie
     const signed = await signToken(JSON.stringify({ g: String(ghUser.id), l: String(ghUser.login) }));
     const res = NextResponse.json({ success: true });

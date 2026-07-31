@@ -4,7 +4,7 @@ import COS from "cos-nodejs-sdk-v5";
 const STATIC_BUCKET = "d793-static-psn-site-m5-d2g6kt88h3b1d7da8-1303247881";
 const STATIC_REGION = "ap-shanghai";
 const STATIC_DOMAIN = "https://psn-site-m5-d2g6kt88h3b1d7da8-1303247881.tcloudbaseapp.com";
-const ALLOWED_EXT = ["jpg", "jpeg", "png", "gif", "webp", "mp4", "mov", "pdf"];
+const ALLOWED_EXT = ["jpg", "jpeg", "png", "gif", "webp", "mp4", "mov", "pdf", "md", "txt"];
 
 const cos = new COS({
   SecretId: process.env.TENCENTCLOUD_SECRETID || "",

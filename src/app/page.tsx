@@ -83,6 +83,7 @@ export default function Home() {
         {isAdmin && !previewing && (
           <InlineEditor
             title="编辑欢迎信息"
+            topOffset={88}
             fields={[
               { label: "标题", key: "title", value: siteTitle },
               { label: "副标题", key: "subtitle", value: siteSubtitle, type: "textarea" },
