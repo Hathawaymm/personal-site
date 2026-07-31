@@ -51,7 +51,7 @@ export default function WorksSection({ works, title = "视频创作", subtitle =
     setTextContent(null);
     setNumPages(0);
     if (work.type === "text" && work.fileUrl) {
-      fetch(proxyFile(work.fileUrl)).then(r => r.text()).then(t => setTextContent(t)).catch(() => setTextContent("（内容加载失败）"));
+      fetch(proxyFile(work.fileUrl)).then(r => r.text()).then(t => setTextContent(renderMarkdown(t))).catch(() => setTextContent("（内容加载失败）"));
     }
   };
 
