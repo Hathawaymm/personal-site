@@ -3,17 +3,19 @@ import { proxyImageUrl } from "@/lib/image";
 
 interface WorksSectionProps {
   works: WorkItem[];
+  title?: string;
+  subtitle?: string;
 }
 
-export default function WorksSection({ works }: WorksSectionProps) {
+export default function WorksSection({ works, title = "视频创作", subtitle = "一些用镜头讲述的故事" }: WorksSectionProps) {
   if (works.length === 0) return null;
 
   return (
     <section id="works" className="px-4 py-24 sm:px-6">
       <div className="mx-auto max-w-5xl space-y-12">
         <div className="text-center">
-          <h2 className="diary-title text-2xl sm:text-3xl">视频创作</h2>
-          <p className="caption-text mt-2 text-sm">一些用镜头讲述的故事</p>
+          <h2 className="diary-title text-2xl sm:text-3xl">{title}</h2>
+          <p className="caption-text mt-2 text-sm">{subtitle}</p>
         </div>
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">

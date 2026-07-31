@@ -42,6 +42,14 @@ export interface WorkItem {
   cover: string;
 }
 
+export interface SectionTitles {
+  worksTitle: string;
+  worksSubtitle: string;
+  familyTitle: string;
+  familySubtitle: string;
+  blogTitle: string;
+}
+
 export interface SiteData {
   title: string;
   subtitle: string;
@@ -50,6 +58,7 @@ export interface SiteData {
   photos: PhotoItem[];
   works: WorkItem[];
   settings: SiteSettings;
+  sections?: SectionTitles;
 }
 
 export interface SiteSettings {
@@ -57,12 +66,21 @@ export interface SiteSettings {
   watermarkText: string;
 }
 
+export const DEFAULT_SECTIONS: SectionTitles = {
+  worksTitle: "视频创作",
+  worksSubtitle: "一些用镜头讲述的故事",
+  familyTitle: "我们的家庭",
+  familySubtitle: "两个人和三只毛孩子的温暖日常",
+  blogTitle: "最近文章",
+};
+
 const DEFAULT_DATA: SiteData = {
   title: "欢迎来到我的空间，我的朋友",
   subtitle: "用镜头记录每一个温暖日常",
   resume: { avatar: "", name: "", bio: "", experience: [], education: [], skills: [] },
   family: [], photos: [], works: [],
   settings: { adminEmail: "", watermarkText: "Hathawaymm" },
+  sections: { ...DEFAULT_SECTIONS },
 };
 
 export async function readSiteData(): Promise<SiteData> {

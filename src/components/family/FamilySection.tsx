@@ -4,17 +4,19 @@ import { proxyImageUrl } from "@/lib/image";
 
 interface FamilySectionProps {
   members: FamilyMember[];
+  title?: string;
+  subtitle?: string;
 }
 
-export default function FamilySection({ members }: FamilySectionProps) {
+export default function FamilySection({ members, title = "我们的家庭", subtitle = "两个人和三只毛孩子的温暖日常" }: FamilySectionProps) {
   if (members.length === 0) return null;
 
   return (
     <section id="family" className="px-4 py-24 sm:px-6">
       <div className="mx-auto max-w-5xl space-y-12">
         <div className="text-center">
-          <h2 className="diary-title text-2xl sm:text-3xl">我们的家庭</h2>
-          <p className="caption-text mt-2 text-sm">两个人和三只毛孩子的温暖日常</p>
+          <h2 className="diary-title text-2xl sm:text-3xl">{title}</h2>
+          <p className="caption-text mt-2 text-sm">{subtitle}</p>
         </div>
 
       <div className="flex flex-wrap items-start justify-center gap-8 sm:gap-12">

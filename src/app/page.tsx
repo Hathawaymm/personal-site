@@ -10,8 +10,9 @@ import BlogCard from "@/components/blog/BlogCard";
 import { blogPosts as fallbackPosts } from "@/data/blog-posts";
 import { fetchBlogPosts, type BlogPost } from "@/lib/blog";
 import { useEffect, useState } from "react";
-import type { ResumeData, WorkItem, FamilyMember } from "@/lib/data";
+import type { ResumeData, WorkItem, FamilyMember, SectionTitles } from "@/lib/data";
 import { emptyResume } from "@/lib/constants";
+import { DEFAULT_SECTIONS } from "@/lib/data";
 import InlineEditor from "@/components/home/InlineEditor";
 
 export default function Home() {
@@ -23,6 +24,7 @@ export default function Home() {
   const [recentPosts, setRecentPosts] = useState<BlogPost[]>([]);
   const [siteTitle, setSiteTitle] = useState("欢迎来到我的空间，我的朋友");
   const [siteSubtitle, setSiteSubtitle] = useState("用镜头记录每一个温暖日常");
+  const [sections, setSections] = useState<SectionTitles>({ ...DEFAULT_SECTIONS });
 
   const canShowResume = isAdmin || permissions.resume_text === true;
   const canShowWorks = isAdmin || permissions.portfolio === true;
@@ -30,6 +32,13 @@ export default function Home() {
   const canShowBlog = isAdmin || permissions.blog === true;
 
   const hasAnyContent = canShowResume || canShowWorks || canShowFamily || canShowBlog;
+
+  const saveSections = async (data: Record<string, string>) => {
+    const current = await fetch("/api/admin/site-data").then(r => r.json());
+    current.sections = { ...(current.sections || {}), ...data };
+    await fetch("/api/admin/site-data", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(current) });
+    setSections(prev => ({ ...prev, ...data }));
+  };
 
   useEffect(() => {
     if (hasAnyContent) {
@@ -39,6 +48,7 @@ export default function Home() {
         setFamily(d.family || []);
         setSiteTitle(d.title || siteTitle);
         setSiteSubtitle(d.subtitle || siteSubtitle);
+        setSections({ ...DEFAULT_SECTIONS, ...(d.sections || {}) });
       }).catch((err) => { console.error("加载站点数据失败:", err); });
     }
     if (canShowBlog) {
@@ -115,30 +125,59 @@ export default function Home() {
       {canShowWorks && works.length > 0 && (
         <div className="relative">
           {isAdmin && !previewing && (
-            <Link href="/dashboard?tab=works" className="absolute top-4 right-6 z-10 rounded-full bg-bg-paper border border-accent-gold/30 px-3 py-1.5 text-xs text-accent-gold shadow-paper hover:bg-accent-gold/5">
-              ✏ 编辑
-            </Link>
+            <>
+              <InlineEditor
+                title="编辑作品区标题"
+                fields={[
+                  { label: "标题", key: "worksTitle", value: sections.worksTitle },
+                  { label: "副标题", key: "worksSubtitle", value: sections.worksSubtitle, type: "textarea" },
+                ]}
+                onSave={saveSections}
+              />
+              <Link href="/dashboard?tab=works" className="absolute top-4 right-28 z-10 rounded-full bg-bg-paper border border-accent-gold/30 px-3 py-1.5 text-xs text-accent-gold shadow-paper hover:bg-accent-gold/5">
+                ✏ 编辑内容
+              </Link>
+            </>
           )}
-          <WorksSection works={works} />
+          <WorksSection works={works} title={sections.worksTitle} subtitle={sections.worksSubtitle} />
         </div>
       )}
 
       {canShowFamily && family.length > 0 && (
         <div className="relative">
           {isAdmin && !previewing && (
-            <Link href="/dashboard?tab=family" className="absolute top-4 right-6 z-10 rounded-full bg-bg-paper border border-accent-gold/30 px-3 py-1.5 text-xs text-accent-gold shadow-paper hover:bg-accent-gold/5">
-              ✏ 编辑
-            </Link>
+            <>
+              <InlineEditor
+                title="编辑家庭区标题"
+                fields={[
+                  { label: "标题", key: "familyTitle", value: sections.familyTitle },
+                  { label: "副标题", key: "familySubtitle", value: sections.familySubtitle, type: "textarea" },
+                ]}
+                onSave={saveSections}
+              />
+              <Link href="/dashboard?tab=family" className="absolute top-4 right-28 z-10 rounded-full bg-bg-paper border border-accent-gold/30 px-3 py-1.5 text-xs text-accent-gold shadow-paper hover:bg-accent-gold/5">
+                ✏ 编辑内容
+              </Link>
+            </>
           )}
-          <FamilySection members={family} />
+          <FamilySection members={family} title={sections.familyTitle} subtitle={sections.familySubtitle} />
         </div>
       )}
 
       {canShowBlog && (
-        <section className="px-4 py-24 sm:px-6">
+        <section className="relative px-4 py-24 sm:px-6">
+          {isAdmin && !previewing && (
+            <InlineEditor
+              title="编辑博客区标题"
+              fields={[
+                { label: "标题", key: "blogTitle", value: sections.blogTitle },
+              ]}
+              onSave={saveSections}
+            />
+          )}
           <div className="mx-auto max-w-5xl space-y-12">
             <div className="text-center">
-              <h2 className="diary-title text-2xl sm:text-3xl">最近文章</h2>
+              <h2 className="diary-title text-2xl sm:text-3xl">{sections.blogTitle}</h2>
             </div>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
               {recentPosts.map((post) => (<BlogCard key={post.slug} {...post} />))}
