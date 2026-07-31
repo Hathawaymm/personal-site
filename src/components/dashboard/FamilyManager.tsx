@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import type { SiteData, FamilyMember } from "@/lib/data";
 import { proxyImageUrl } from "@/lib/image";
+import { compressImage } from "@/lib/compress";
 
 const newId = () => crypto.randomUUID?.() || Math.random().toString(36).slice(2);
 
@@ -70,11 +71,13 @@ export default function FamilyManager() {
   const uploadAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; if (!file) return;
     try {
-      const fd = new FormData(); fd.append("file", file);
+      const fd = new FormData();
+      const { blob, fileName } = await compressImage(file);
+      fd.append("file", blob, fileName);
       const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
       const json = await res.json();
       if (json.url) { setAvatar(json.url); setMsg("头像已上传"); } else { setMsg("上传失败"); }
-    } catch { setMsg("上传失败"); }
+    } catch (err) { setMsg(err instanceof Error ? err.message : "上传失败"); }
   };
 
   return (

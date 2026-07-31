@@ -4,6 +4,7 @@ import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import ImageExtension from "@tiptap/extension-image";
 import { useState } from "react";
+import { compressImage } from "@/lib/compress";
 
 interface RichTextEditorProps {
   content: string;
@@ -43,7 +44,8 @@ export default function RichTextEditor({ content, onChange, className = "" }: Ri
       setUploading(true);
       const fd = new FormData();
       try {
-        const fd = new FormData(); fd.append("file", file); const res = await fetch("/api/admin/upload", { method: "POST", body: fd }); const data = await res.json();
+        const { blob, fileName } = await compressImage(file);
+        const fd = new FormData(); fd.append("file", blob, fileName); const res = await fetch("/api/admin/upload", { method: "POST", body: fd }); const data = await res.json();
         if (data.url) {
           editor.chain().focus().setImage({ src: data.url }).run();
         }

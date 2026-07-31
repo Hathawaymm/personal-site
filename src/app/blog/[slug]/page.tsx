@@ -7,6 +7,7 @@ import Link from "next/link";
 import { blogPosts as fallbackPosts } from "@/data/blog-posts";
 import { fetchBlogPostBySlug, type BlogPostDetail } from "@/lib/blog";
 import { useAccessLog } from "@/hooks/useAccessLog";
+import { proxyHtmlImages } from "@/lib/image";
 
 export default function BlogDetailPage() {
   useAccessLog("博客");
@@ -76,7 +77,7 @@ export default function BlogDetailPage() {
 
               <div className="prose prose-stone mx-auto max-w-none">
                 {post.content ? (
-                  <div className="post-content text-text-secondary leading-relaxed text-lg" dangerouslySetInnerHTML={{ __html: post.content }} />
+                  <div className="post-content text-text-secondary leading-relaxed text-lg" dangerouslySetInnerHTML={{ __html: proxyHtmlImages(post.content) }} />
                 ) : (
                   <p className="text-text-secondary leading-relaxed text-lg">{post.excerpt}</p>
                 )}

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import type { SiteData, ResumeData, ResumeItem, EducationItem } from "@/lib/data";
 import { emptyResume } from "@/lib/constants";
 import { proxyImageUrl } from "@/lib/image";
+import { compressImage } from "@/lib/compress";
 
 const emptyItemId = () => crypto.randomUUID?.() || Math.random().toString(36).slice(2);
 
@@ -73,7 +74,9 @@ export default function ResumeEditor() {
     if (!file) return;
     setUploading(true);
     try {
-      const fd = new FormData(); fd.append("file", file);
+      const fd = new FormData();
+      const { blob, fileName } = await compressImage(file);
+      fd.append("file", blob, fileName);
       const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
       const json = await res.json();
       if (json.url) {
@@ -82,8 +85,8 @@ export default function ResumeEditor() {
       } else {
         setMsg("上传失败");
       }
-    } catch {
-      setMsg("上传失败");
+    } catch (err) {
+      setMsg(err instanceof Error ? err.message : "上传失败");
     }
     setUploading(false);
   };

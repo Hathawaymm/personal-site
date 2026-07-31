@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import type { SiteData, PhotoItem } from "@/lib/data";
 import { proxyImageUrl } from "@/lib/image";
+import { compressImage } from "@/lib/compress";
 
 export default function PhotosManager() {
   const [photos, setPhotos] = useState<PhotoItem[]>([]);
@@ -33,7 +34,8 @@ export default function PhotosManager() {
       setMsg(`正在上传 ${i + 1}/${files.length} 张照片...`);
       try {
         const fd = new FormData();
-        fd.append("file", files[i]);
+        const { blob, fileName } = await compressImage(files[i]);
+        fd.append("file", blob, fileName);
         const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
         const json = await res.json();
         if (json.url) {

@@ -7,3 +7,10 @@ export function proxyImageUrl(src: string): string {
   }
   return src;
 }
+
+export function proxyHtmlImages(html: string): string {
+  if (!html || !html.includes(CDN_HOST)) return html;
+  return html.replace(/src="([^"]*tcb\.qcloud\.la[^"]*)"/g, (match, url: string) => {
+    return `src="${proxyImageUrl(url)}"`;
+  });
+}

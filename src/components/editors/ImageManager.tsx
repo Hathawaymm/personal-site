@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { proxyImageUrl } from "@/lib/image";
+import { compressImage } from "@/lib/compress";
 
 interface ImageItem { url: string; name: string }
 
@@ -39,7 +40,8 @@ export default function ImageManager() {
       setMsg("");
       const fd = new FormData();
       try {
-        const fd = new FormData(); fd.append("file", file); const res = await fetch("/api/admin/upload", { method: "POST", body: fd }); const data = await res.json();
+        const { blob, fileName } = await compressImage(file);
+        const fd = new FormData(); fd.append("file", blob, fileName); const res = await fetch("/api/admin/upload", { method: "POST", body: fd }); const data = await res.json();
         if (!data.url) throw new Error("上传返回异常");
         setImages(prev => [...prev, { url: data.url, name: file.name }]);
         setMsg("上传成功！复制路径: " + data.url);

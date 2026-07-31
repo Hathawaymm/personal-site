@@ -3,6 +3,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
 import AuthGuard from "@/components/auth/AuthGuard";
+import { compressImage } from "@/lib/compress";
 
 export default function ProfilePage() {
   const { nickname, githubUser } = useAuth();
@@ -35,12 +36,17 @@ export default function ProfilePage() {
   const uploadAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const fd = new FormData();
-    fd.append("file", file);
-    const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
-    const json = await res.json();
-    if (json.url) setAvatar(json.url);
-    else setMsg("上传失败");
+    try {
+      const { blob, fileName } = await compressImage(file);
+      const fd = new FormData();
+      fd.append("file", blob, fileName);
+      const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+      const json = await res.json();
+      if (json.url) setAvatar(json.url);
+      else setMsg("上传失败");
+    } catch (err) {
+      setMsg(err instanceof Error ? err.message : "上传失败");
+    }
   };
 
   return (
