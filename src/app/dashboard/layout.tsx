@@ -12,6 +12,7 @@ const MENU_ITEMS = [
   { key: "blog", label: "博客管理", href: "/dashboard?tab=blog" },
   { key: "family", label: "家庭编辑", href: "/dashboard?tab=family" },
   { key: "photos", label: "照片墙管理", href: "/dashboard?tab=photos" },
+  { key: "homepage", label: "首页配置", href: "/dashboard?tab=homepage" },
   { key: "settings", label: "系统设置", href: "/dashboard?tab=settings" },
   { key: "logs", label: "日志中心", href: "/dashboard?tab=logs" },
 ] as const;

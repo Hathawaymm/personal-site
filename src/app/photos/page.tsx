@@ -32,7 +32,7 @@ export default function PhotosPage() {
             {photos.map((photo, idx) => (
               <div
                 key={photo.src}
-                className="mb-4 break-inside-avoid cursor-pointer overflow-hidden rounded-lg transition-transform hover:scale-[1.02]"
+                className="mb-4 break-inside-avoid cursor-pointer overflow-hidden rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-black/20"
                 onClick={() => setSelectedIdx(idx)}
               >
                 <Image

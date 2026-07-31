@@ -9,6 +9,7 @@ import WorksManager from "@/components/dashboard/WorksManager";
 import BlogManager from "@/components/dashboard/BlogManager";
 import FamilyManager from "@/components/dashboard/FamilyManager";
 import PhotosManager from "@/components/dashboard/PhotosManager";
+import HomepageConfig from "@/components/dashboard/HomepageConfig";
 import SystemSettings from "@/components/dashboard/SystemSettings";
 import DashContent from "@/components/dashboard/DashContent";
 
@@ -19,6 +20,7 @@ const TAB_COMPONENTS: Record<string, React.ComponentType> = {
   blog: BlogManager,
   family: FamilyManager,
   photos: PhotosManager,
+  homepage: HomepageConfig,
   settings: SystemSettings,
   logs: DashContent,
 };

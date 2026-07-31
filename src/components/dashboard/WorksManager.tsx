@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import type { SiteData, WorkItem, WorkType } from "@/lib/data";
+import type { SiteData, WorkItem, WorkType, WorkCategory } from "@/lib/data";
+import { WORK_CATEGORY_LABELS } from "@/lib/data";
 import { proxyImageUrl } from "@/lib/image";
 import { compressImage } from "@/lib/compress";
 
@@ -25,6 +26,7 @@ export default function WorksManager() {
   const [videoUrl, setVideoUrl] = useState("");
   const [type, setType] = useState<WorkType>("image");
   const [fileUrl, setFileUrl] = useState("");
+  const [workCategory, setWorkCategory] = useState<WorkCategory>("video");
   const [saving, setSaving] = useState(false);
 
   const load = useCallback(async () => {
@@ -39,13 +41,13 @@ export default function WorksManager() {
   useEffect(() => { load(); }, [load]);
 
   const openNew = () => {
-    setTitle(""); setDescription(""); setCategory(""); setCover(""); setVideoUrl(""); setType("image"); setFileUrl("");
+    setTitle(""); setDescription(""); setCategory(""); setCover(""); setVideoUrl(""); setType("image"); setFileUrl(""); setWorkCategory("video");
     setModal({});
   };
 
   const openEdit = (w: WorkWithId) => {
     setTitle(w.title); setDescription(w.description); setCategory(w.category); setCover(w.cover); setVideoUrl(w.videoUrl);
-    setType(w.type || "image"); setFileUrl(w.fileUrl || "");
+    setType(w.type || "image"); setFileUrl(w.fileUrl || ""); setWorkCategory(w.workCategory || "video");
     setModal({ editing: w });
   };
 
@@ -54,7 +56,7 @@ export default function WorksManager() {
     setSaving(true);
     try {
       const currentWorks = [...works];
-      const newWork: WorkWithId = { _id: modal?.editing?._id || newId(), title, description, category, cover, videoUrl, type, fileUrl };
+      const newWork: WorkWithId = { _id: modal?.editing?._id || newId(), title, description, category, cover, videoUrl, type, fileUrl, workCategory };
 
       if (modal?.editing) {
         const idx = currentWorks.findIndex(w => w._id === modal.editing!._id);
@@ -148,6 +150,14 @@ export default function WorksManager() {
                 <div className="flex flex-wrap gap-2">
                   {(["image", "video", "pdf", "text"] as WorkType[]).map(t => (
                     <button key={t} onClick={() => setType(t)} className={`rounded-full px-3 py-1 text-xs ${type === t ? "bg-accent-gold text-white" : "border border-accent-gold/30 text-accent-gold"}`}>{t === "image" ? "图片" : t === "video" ? "视频" : t === "pdf" ? "PDF" : "文本"}</button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm text-text-secondary mb-1">所属分类</label>
+                <div className="flex flex-wrap gap-2">
+                  {(Object.keys(WORK_CATEGORY_LABELS) as WorkCategory[]).map(c => (
+                    <button key={c} onClick={() => setWorkCategory(c)} className={`rounded-full px-3 py-1 text-xs ${workCategory === c ? "bg-accent-gold text-white" : "border border-accent-gold/30 text-accent-gold"}`}>{WORK_CATEGORY_LABELS[c]}</button>
                   ))}
                 </div>
               </div>

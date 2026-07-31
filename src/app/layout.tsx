@@ -24,14 +24,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <PreviewProvider>
               <ToastProvider>
                 <Watermark />
-                <BgPhotoWall />
-                <div className="relative z-10 flex min-h-full flex-col">
-                  <Navbar />
-                  <VisitorBanner />
-                  <AdminWelcomeToast />
-                  <ApprovedToast />
-                  <main className="relative flex-1">{children}</main>
-                  <Footer />
+                <div className="relative min-h-full">
+                  <BgPhotoWall />
+                  <div className="relative z-10 flex min-h-full flex-col">
+                    <Navbar />
+                    <VisitorBanner />
+                    <AdminWelcomeToast />
+                    <ApprovedToast />
+                    <main className="relative flex-1">{children}</main>
+                    <Footer />
+                  </div>
                 </div>
               </ToastProvider>
             </PreviewProvider>

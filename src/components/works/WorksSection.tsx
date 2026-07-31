@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
-import type { WorkItem, WorkType } from "@/lib/data";
+import type { WorkItem, WorkType, WorkCategory } from "@/lib/data";
+import { WORK_CATEGORY_LABELS } from "@/lib/data";
 import { proxyImageUrl } from "@/lib/image";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`;
@@ -19,6 +20,8 @@ const TYPE_LABEL: Record<WorkType, string> = {
   pdf: "PDF",
   text: "写作",
 };
+
+const ALL_CATEGORIES: WorkCategory[] = ["video", "writing", "photo", "design"];
 
 function renderMarkdown(text: string): string {
   let html = text
@@ -37,10 +40,22 @@ function renderMarkdown(text: string): string {
   return `<p>${html}</p>`;
 }
 
-export default function WorksSection({ works, title = "视频创作", subtitle = "一些用镜头讲述的故事" }: WorksSectionProps) {
+export default function WorksSection({ works, title = "作品集", subtitle = "" }: WorksSectionProps) {
   const [selected, setSelected] = useState<WorkItem | null>(null);
+  const [activeCat, setActiveCat] = useState<"all" | WorkCategory>("all");
   const [textContent, setTextContent] = useState<string | null>(null);
   const [numPages, setNumPages] = useState(0);
+
+  const existingCats = useMemo(() => {
+    const set = new Set<WorkCategory>();
+    works.forEach(w => { if (w.workCategory) set.add(w.workCategory); });
+    return ALL_CATEGORIES.filter(c => set.has(c));
+  }, [works]);
+
+  const filteredWorks = useMemo(() => {
+    if (activeCat === "all") return works;
+    return works.filter(w => w.workCategory === activeCat);
+  }, [works, activeCat]);
 
   if (works.length === 0) return null;
 
@@ -57,14 +72,34 @@ export default function WorksSection({ works, title = "视频创作", subtitle =
 
   return (
     <section id="works" className="px-4 py-24 sm:px-6">
-      <div className="mx-auto max-w-5xl space-y-12">
+      <div className="mx-auto max-w-5xl space-y-10">
         <div className="text-center">
           <h2 className="diary-title text-2xl sm:text-3xl">{title}</h2>
-          <p className="caption-text mt-2 text-sm">{subtitle}</p>
+          {subtitle && <p className="caption-text mt-2 text-sm">{subtitle}</p>}
         </div>
 
+        {existingCats.length > 0 && (
+          <div className="flex flex-wrap justify-center gap-2">
+            <button
+              onClick={() => setActiveCat("all")}
+              className={`rounded-full px-4 py-1.5 text-sm transition-colors ${activeCat === "all" ? "bg-accent-gold text-white" : "border border-accent-gold/30 text-accent-gold hover:bg-accent-gold/5"}`}
+            >
+              全部
+            </button>
+            {existingCats.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setActiveCat(cat)}
+                className={`rounded-full px-4 py-1.5 text-sm transition-colors ${activeCat === cat ? "bg-accent-gold text-white" : "border border-accent-gold/30 text-accent-gold hover:bg-accent-gold/5"}`}
+              >
+                {WORK_CATEGORY_LABELS[cat]}
+              </button>
+            ))}
+          </div>
+        )}
+
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-          {works.map((work) => (
+          {filteredWorks.map((work) => (
             <div
               key={work.title}
               onClick={() => openWork(work)}
@@ -99,6 +134,7 @@ export default function WorksSection({ works, title = "视频创作", subtitle =
               )}
               <div className="p-5">
                 <div className="flex items-center gap-2 mb-2">
+                  {work.workCategory && <span className="rounded-full border border-accent-gold/30 px-2 py-0.5 text-xs text-accent-gold">{WORK_CATEGORY_LABELS[work.workCategory]}</span>}
                   {work.type && <span className="rounded-full border border-accent-gold/30 px-2 py-0.5 text-xs text-accent-gold">{TYPE_LABEL[work.type] || "图片"}</span>}
                   {work.category && <span className="rounded-full border border-accent-gold/30 px-2 py-0.5 text-xs text-accent-gold">{work.category}</span>}
                   <h3 className="diary-title text-lg">{work.title}</h3>
@@ -108,13 +144,19 @@ export default function WorksSection({ works, title = "视频创作", subtitle =
             </div>
           ))}
         </div>
+        {filteredWorks.length === 0 && <p className="text-center text-text-muted caption-text">该分类下暂无作品</p>}
       </div>
 
       {selected && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-4" onClick={() => setSelected(null)}>
           <div className="max-h-[90vh] w-full max-w-4xl overflow-auto rounded-lg bg-bg-paper p-6 shadow-paper-hover" onClick={e => e.stopPropagation()}>
-            <div className="mb-4 flex items-center justify-between">
-              <h3 className="diary-title text-xl">{selected.title}</h3>
+            <div className="mb-4 flex items-center justify-between gap-4">
+              <div>
+                <h3 className="diary-title text-2xl">{selected.title}</h3>
+                {selected.workCategory && (
+                  <p className="mt-1 text-sm text-accent-gold">{WORK_CATEGORY_LABELS[selected.workCategory]}</p>
+                )}
+              </div>
               <button onClick={() => setSelected(null)} className="text-2xl text-text-muted hover:text-text-primary">✕</button>
             </div>
 
@@ -151,3 +193,4 @@ export default function WorksSection({ works, title = "视频创作", subtitle =
     </section>
   );
 }
+

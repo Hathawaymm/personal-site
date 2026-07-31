@@ -14,6 +14,7 @@ exports.main = async (event) => {
   const { action, data } = event || {};
   try {
     const site = db.collection("site");
+    const config = db.collection("config");
 
     if (action === "get") {
       const docs = await site.where({ key: "main" }).get();
@@ -27,6 +28,24 @@ exports.main = async (event) => {
         await site.doc(docs.data[0]._id).update({ value: data, updated_at: new Date().toISOString() });
       } else {
         await site.add({ key: "main", value: data, updated_at: new Date().toISOString() });
+      }
+      return { code: 0 };
+    }
+
+    if (action === "getConfig") {
+      const { configKey = "homepage" } = event;
+      const docs = await config.where({ key: configKey }).get();
+      return { code: 0, data: docs.data.length > 0 ? docs.data[0].value : null };
+    }
+
+    if (action === "putConfig") {
+      if (!data) return { code: -1, error: "缺少 data" };
+      const { configKey = "homepage" } = event;
+      const docs = await config.where({ key: configKey }).get();
+      if (docs.data.length > 0) {
+        await config.doc(docs.data[0]._id).update({ value: data, updated_at: new Date().toISOString() });
+      } else {
+        await config.add({ key: configKey, value: data, updated_at: new Date().toISOString() });
       }
       return { code: 0 };
     }

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { proxyImageUrl } from "@/lib/image";
@@ -10,6 +10,24 @@ interface PhotoItem {
   src: string;
   alt: string;
 }
+
+interface SizedItem {
+  photo: PhotoItem;
+  colSpan: number;
+  rowSpan: number;
+}
+
+const SPAN_PATTERN: [number, number][] = [
+  [2, 2],
+  [1, 1],
+  [1, 2],
+  [1, 1],
+  [2, 1],
+  [1, 1],
+  [1, 1],
+  [2, 2],
+  [1, 1],
+];
 
 export default function BgPhotoWall() {
   const wallRef = useRef<HTMLDivElement>(null);
@@ -29,12 +47,13 @@ export default function BgPhotoWall() {
   }, [showWall]);
 
   useEffect(() => {
+    if (!showWall) return;
     let raf = 0;
     const onScroll = () => {
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => {
         if (wallRef.current) {
-          wallRef.current.style.transform = `translateY(${window.scrollY * 0.05}px)`;
+          wallRef.current.style.transform = `translateY(${window.scrollY * 0.06}px)`;
         }
       });
     };
@@ -43,21 +62,38 @@ export default function BgPhotoWall() {
       window.removeEventListener("scroll", onScroll);
       cancelAnimationFrame(raf);
     };
-  }, []);
+  }, [showWall]);
+
+  const sizedItems = useMemo<SizedItem[]>(() => {
+    const valid = photos.filter(p => p.src);
+    const offset = Math.floor(Math.random() * SPAN_PATTERN.length);
+    return valid.map((photo, i) => {
+      const [colSpan, rowSpan] = SPAN_PATTERN[(i + offset) % SPAN_PATTERN.length];
+      return { photo, colSpan, rowSpan };
+    });
+  }, [photos]);
 
   if (!showWall) return null;
 
   return (
-    <div ref={wallRef} className="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden="true">
-      <div className="grid grid-cols-4 gap-1 p-1 sm:grid-cols-6 md:grid-cols-8">
-        {photos.filter(p => p.src).map((photo, i) => (
-          <div key={i} className="overflow-hidden rounded-sm opacity-30">
+    <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+      <div
+        ref={wallRef}
+        className="grid grid-cols-6 gap-1 p-1"
+        style={{ gridAutoRows: "minmax(80px, auto)", gridAutoFlow: "dense", minHeight: "100%" }}
+      >
+        {sizedItems.map(({ photo, colSpan, rowSpan }, i) => (
+          <div
+            key={i}
+            className="overflow-hidden rounded-sm opacity-40"
+            style={{ gridColumnEnd: `span ${colSpan}`, gridRowEnd: `span ${rowSpan}` }}
+          >
             <Image
               src={proxyImageUrl(photo.src)}
               alt=""
               width={400}
               height={400}
-              className="aspect-square w-full object-cover"
+              className="h-full w-full object-cover"
               unoptimized
             />
           </div>

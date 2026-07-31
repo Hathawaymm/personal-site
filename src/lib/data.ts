@@ -36,6 +36,15 @@ export interface PhotoItem {
 
 export type WorkType = "image" | "video" | "pdf" | "text";
 
+export type WorkCategory = "video" | "writing" | "photo" | "design";
+
+export const WORK_CATEGORY_LABELS: Record<WorkCategory, string> = {
+  video: "📹 影像",
+  writing: "✍️ 写作",
+  photo: "📷 摄影",
+  design: "🎨 设计",
+};
+
 export interface WorkItem {
   title: string;
   description: string;
@@ -44,6 +53,7 @@ export interface WorkItem {
   cover: string;
   type?: WorkType;
   fileUrl?: string;
+  workCategory?: WorkCategory;
 }
 
 export interface SectionTitles {
@@ -77,6 +87,17 @@ export interface FooterConfig {
   copyright: string;
 }
 
+export type HomeModuleKey = "works" | "resume" | "family" | "blog";
+
+export interface HomepageConfig {
+  heroTitle: string;
+  heroSubtitle: string;
+  heroImage: string;
+  buttonText: string;
+  buttonLink: string;
+  moduleOrder: HomeModuleKey[];
+}
+
 export interface SiteData {
   title: string;
   subtitle: string;
@@ -96,8 +117,8 @@ export interface SiteSettings {
 }
 
 export const DEFAULT_SECTIONS: SectionTitles = {
-  worksTitle: "视频创作",
-  worksSubtitle: "一些用镜头讲述的故事",
+  worksTitle: "作品集",
+  worksSubtitle: "",
   familyTitle: "我们的家庭",
   familySubtitle: "两个人和三只毛孩子的温暖日常",
   blogTitle: "最近文章",
@@ -126,6 +147,22 @@ export const DEFAULT_FOOTER: FooterConfig = {
     { label: "Email", href: "mailto:hello@example.com" },
   ],
   copyright: "我们的时光",
+};
+
+export const DEFAULT_HOMEPAGE: HomepageConfig = {
+  heroTitle: "欢迎来到我的空间，我的朋友",
+  heroSubtitle: "用镜头记录每一个温暖日常",
+  heroImage: "",
+  buttonText: "",
+  buttonLink: "",
+  moduleOrder: ["works", "resume", "family", "blog"],
+};
+
+export const HOME_MODULE_LABELS: Record<HomeModuleKey, string> = {
+  works: "作品集",
+  resume: "关于我",
+  family: "家庭",
+  blog: "博客",
 };
 
 const DEFAULT_DATA: SiteData = {

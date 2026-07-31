@@ -10,21 +10,21 @@ import BlogCard from "@/components/blog/BlogCard";
 import { blogPosts as fallbackPosts } from "@/data/blog-posts";
 import { fetchBlogPosts, type BlogPost } from "@/lib/blog";
 import { useEffect, useState } from "react";
-import type { ResumeData, WorkItem, FamilyMember, SectionTitles } from "@/lib/data";
+import type { ResumeData, WorkItem, FamilyMember, SectionTitles, HomepageConfig, HomeModuleKey } from "@/lib/data";
 import { emptyResume } from "@/lib/constants";
-import { DEFAULT_SECTIONS } from "@/lib/data";
+import { DEFAULT_SECTIONS, DEFAULT_HOMEPAGE } from "@/lib/data";
+import { proxyImageUrl } from "@/lib/image";
 import InlineEditor from "@/components/home/InlineEditor";
 
 export default function Home() {
-  const { isLoggedIn, isAdmin, status, loading, needsInit, permissions, nickname } = useAuth();
+  const { isLoggedIn, isAdmin, status, loading, needsInit, permissions } = useAuth();
   const { previewing } = usePreview();
   const [resume, setResume] = useState<ResumeData>(emptyResume);
   const [works, setWorks] = useState<WorkItem[]>([]);
   const [family, setFamily] = useState<FamilyMember[]>([]);
   const [recentPosts, setRecentPosts] = useState<BlogPost[]>([]);
-  const [siteTitle, setSiteTitle] = useState("欢迎来到我的空间，我的朋友");
-  const [siteSubtitle, setSiteSubtitle] = useState("用镜头记录每一个温暖日常");
   const [sections, setSections] = useState<SectionTitles>({ ...DEFAULT_SECTIONS });
+  const [homepage, setHomepage] = useState<HomepageConfig>({ ...DEFAULT_HOMEPAGE });
 
   const canShowResume = isAdmin || permissions.resume_text === true;
   const canShowWorks = isAdmin || permissions.portfolio === true;
@@ -46,8 +46,6 @@ export default function Home() {
         setResume(d.resume || emptyResume);
         setWorks(d.works || []);
         setFamily(d.family || []);
-        setSiteTitle(d.title || siteTitle);
-        setSiteSubtitle(d.subtitle || siteSubtitle);
         setSections({ ...DEFAULT_SECTIONS, ...(d.sections || {}) });
       }).catch((err) => { console.error("加载站点数据失败:", err); });
     }
@@ -56,7 +54,100 @@ export default function Home() {
         .then(data => setRecentPosts(data.slice(0, 3)))
         .catch(() => setRecentPosts(fallbackPosts.slice(0, 3)));
     }
+    fetch("/api/config").then(r => r.json()).then(cfg => {
+      setHomepage({ ...DEFAULT_HOMEPAGE, ...cfg });
+    }).catch(() => {});
   }, [hasAnyContent, canShowBlog]);
+
+  const showHeroButton = homepage.buttonText && homepage.buttonLink;
+
+  const renderModule = (key: HomeModuleKey) => {
+    switch (key) {
+      case "works":
+        return canShowWorks && works.length > 0 ? (
+          <div key="works" className="relative">
+            {isAdmin && !previewing && (
+              <>
+                <InlineEditor
+                  title="编辑作品区标题"
+                  fields={[
+                    { label: "标题", key: "worksTitle", value: sections.worksTitle },
+                    { label: "副标题", key: "worksSubtitle", value: sections.worksSubtitle, type: "textarea" },
+                  ]}
+                  onSave={saveSections}
+                />
+                <Link href="/dashboard?tab=works" className="absolute top-4 right-28 z-10 rounded-full bg-bg-paper border border-accent-gold/30 px-3 py-1.5 text-xs text-accent-gold shadow-paper hover:bg-accent-gold/5">
+                  ✏ 编辑内容
+                </Link>
+              </>
+            )}
+            <WorksSection works={works} title={sections.worksTitle} subtitle={sections.worksSubtitle} />
+          </div>
+        ) : null;
+      case "resume":
+        return canShowResume ? (
+          <div key="resume" className="relative">
+            {isAdmin && !previewing && (
+              <Link href="/dashboard?tab=resume" className="absolute top-4 right-6 z-10 rounded-full bg-bg-paper border border-accent-gold/30 px-3 py-1.5 text-xs text-accent-gold shadow-paper hover:bg-accent-gold/5">
+                ✏ 编辑
+              </Link>
+            )}
+            <ResumeSection data={resume} />
+          </div>
+        ) : null;
+      case "family":
+        return canShowFamily && family.length > 0 ? (
+          <div key="family" className="relative">
+            {isAdmin && !previewing && (
+              <>
+                <InlineEditor
+                  title="编辑家庭区标题"
+                  fields={[
+                    { label: "标题", key: "familyTitle", value: sections.familyTitle },
+                    { label: "副标题", key: "familySubtitle", value: sections.familySubtitle, type: "textarea" },
+                  ]}
+                  onSave={saveSections}
+                />
+                <Link href="/dashboard?tab=family" className="absolute top-4 right-28 z-10 rounded-full bg-bg-paper border border-accent-gold/30 px-3 py-1.5 text-xs text-accent-gold shadow-paper hover:bg-accent-gold/5">
+                  ✏ 编辑内容
+                </Link>
+              </>
+            )}
+            <FamilySection members={family} title={sections.familyTitle} subtitle={sections.familySubtitle} />
+          </div>
+        ) : null;
+      case "blog":
+        return canShowBlog ? (
+          <section key="blog" className="relative px-4 py-24 sm:px-6">
+            {isAdmin && !previewing && (
+              <InlineEditor
+                title="编辑博客区标题"
+                fields={[
+                  { label: "标题", key: "blogTitle", value: sections.blogTitle },
+                ]}
+                onSave={saveSections}
+              />
+            )}
+            <div className="mx-auto max-w-5xl space-y-12">
+              <div className="text-center">
+                <h2 className="diary-title text-2xl sm:text-3xl">{sections.blogTitle}</h2>
+              </div>
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {recentPosts.map((post) => (<BlogCard key={post.slug} {...post} />))}
+              </div>
+              <div className="text-center">
+                <Link href="/blog" className="inline-flex items-center gap-2 rounded-full border border-accent-gold/50 px-6 py-3 text-sm font-medium text-accent-gold hover:bg-accent-gold/10">
+                  查看更多文章
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+                </Link>
+              </div>
+            </div>
+          </section>
+        ) : null;
+      default:
+        return null;
+    }
+  };
 
   if (loading) {
     return (
@@ -79,119 +170,33 @@ export default function Home() {
 
   return (
     <>
-      <header className="relative px-4 pt-28 pb-16 text-center sm:pt-36 sm:pb-24">
-        {isAdmin && !previewing && (
-          <InlineEditor
-            title="编辑欢迎信息"
-            topOffset={88}
-            fields={[
-              { label: "标题", key: "title", value: siteTitle },
-              { label: "副标题", key: "subtitle", value: siteSubtitle, type: "textarea" },
-            ]}
-            onSave={async (data) => {
-              const current = await fetch("/api/admin/site-data").then(r => r.json());
-              current.title = data.title;
-              current.subtitle = data.subtitle;
-              await fetch("/api/admin/site-data", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(current) });
-              setSiteTitle(data.title);
-              setSiteSubtitle(data.subtitle);
-            }}
-          />
-        )}
-        <h1 className="diary-title text-3xl sm:text-5xl">{siteTitle}</h1>
-        <p className="caption-text mt-4 text-base sm:text-lg">{siteSubtitle}</p>
-        {!isLoggedIn && (
-          <Link href="/login" className="mt-6 inline-block rounded-full bg-accent-gold px-6 py-3 text-sm font-medium text-white hover:opacity-90">
-            GitHub 登录
-          </Link>
-        )}
-        {isLoggedIn && !isAdmin && status === "pending" && (
-          <p className="mt-6 caption-text text-text-muted">
-            🏠 管理员还没开门，稍等片刻哦~
-          </p>
-        )}
-      </header>
-
-      {canShowResume && (
+      <header
+        className="relative flex flex-col items-center justify-center px-4 pt-32 pb-20 text-center sm:pt-40 sm:pb-28"
+        style={homepage.heroImage ? { backgroundImage: `url(${proxyImageUrl(homepage.heroImage)})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}
+      >
+        {homepage.heroImage && <div className="absolute inset-0 bg-bg-cream/70" />}
         <div className="relative">
-          {isAdmin && !previewing && (
-            <Link href="/dashboard?tab=resume" className="absolute top-4 right-6 z-10 rounded-full bg-bg-paper border border-accent-gold/30 px-3 py-1.5 text-xs text-accent-gold shadow-paper hover:bg-accent-gold/5">
-              ✏ 编辑
+          <h1 className="diary-title text-3xl sm:text-5xl">{homepage.heroTitle}</h1>
+          {homepage.heroSubtitle && <p className="caption-text mt-4 text-base sm:text-lg">{homepage.heroSubtitle}</p>}
+          {showHeroButton && (
+            <Link href={homepage.buttonLink} className="mt-8 inline-block rounded-full bg-accent-gold px-8 py-3 text-sm font-medium text-white shadow-lg transition-all hover:scale-105">
+              {homepage.buttonText}
             </Link>
           )}
-          <ResumeSection data={resume} />
-        </div>
-      )}
-
-      {canShowWorks && works.length > 0 && (
-        <div className="relative">
-          {isAdmin && !previewing && (
-            <>
-              <InlineEditor
-                title="编辑作品区标题"
-                fields={[
-                  { label: "标题", key: "worksTitle", value: sections.worksTitle },
-                  { label: "副标题", key: "worksSubtitle", value: sections.worksSubtitle, type: "textarea" },
-                ]}
-                onSave={saveSections}
-              />
-              <Link href="/dashboard?tab=works" className="absolute top-4 right-28 z-10 rounded-full bg-bg-paper border border-accent-gold/30 px-3 py-1.5 text-xs text-accent-gold shadow-paper hover:bg-accent-gold/5">
-                ✏ 编辑内容
-              </Link>
-            </>
+          {!isLoggedIn && !showHeroButton && (
+            <Link href="/login" className="mt-6 inline-block rounded-full bg-accent-gold px-6 py-3 text-sm font-medium text-white hover:opacity-90">
+              GitHub 登录
+            </Link>
           )}
-          <WorksSection works={works} title={sections.worksTitle} subtitle={sections.worksSubtitle} />
-        </div>
-      )}
-
-      {canShowFamily && family.length > 0 && (
-        <div className="relative">
-          {isAdmin && !previewing && (
-            <>
-              <InlineEditor
-                title="编辑家庭区标题"
-                fields={[
-                  { label: "标题", key: "familyTitle", value: sections.familyTitle },
-                  { label: "副标题", key: "familySubtitle", value: sections.familySubtitle, type: "textarea" },
-                ]}
-                onSave={saveSections}
-              />
-              <Link href="/dashboard?tab=family" className="absolute top-4 right-28 z-10 rounded-full bg-bg-paper border border-accent-gold/30 px-3 py-1.5 text-xs text-accent-gold shadow-paper hover:bg-accent-gold/5">
-                ✏ 编辑内容
-              </Link>
-            </>
+          {isLoggedIn && !isAdmin && status === "pending" && (
+            <p className="mt-6 caption-text text-text-muted">
+              🏠 管理员还没开门，稍等片刻哦~
+            </p>
           )}
-          <FamilySection members={family} title={sections.familyTitle} subtitle={sections.familySubtitle} />
         </div>
-      )}
+      </header>
 
-      {canShowBlog && (
-        <section className="relative px-4 py-24 sm:px-6">
-          {isAdmin && !previewing && (
-            <InlineEditor
-              title="编辑博客区标题"
-              fields={[
-                { label: "标题", key: "blogTitle", value: sections.blogTitle },
-              ]}
-              onSave={saveSections}
-            />
-          )}
-          <div className="mx-auto max-w-5xl space-y-12">
-            <div className="text-center">
-              <h2 className="diary-title text-2xl sm:text-3xl">{sections.blogTitle}</h2>
-            </div>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {recentPosts.map((post) => (<BlogCard key={post.slug} {...post} />))}
-            </div>
-            <div className="text-center">
-              <Link href="/blog" className="inline-flex items-center gap-2 rounded-full border border-accent-gold/50 px-6 py-3 text-sm font-medium text-accent-gold hover:bg-accent-gold/10">
-                查看更多文章
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
-              </Link>
-            </div>
-          </div>
-        </section>
-      )}
+      {homepage.moduleOrder.map(key => renderModule(key))}
 
       <PreviewToggle />
 
