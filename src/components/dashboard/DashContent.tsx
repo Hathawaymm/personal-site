@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { invokeCloudFunction } from "@/lib/cloudbase";
 
 interface AdminLog {
   _id: string;
@@ -18,8 +17,9 @@ export default function DashContent() {
   const loadLogs = useCallback(async () => {
     setLoading(true);
     try {
-      const result = await invokeCloudFunction("site-data", { action: "listAdminLogs" });
-      setLogs((result.data as AdminLog[]) || []);
+      const res = await fetch("/api/admin/log");
+      const data = await res.json();
+      setLogs(Array.isArray(data) ? data : []);
     } catch {
       setMsg("加载失败");
     }
