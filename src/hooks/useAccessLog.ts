@@ -19,22 +19,11 @@ export function useAccessLog(module: string) {
     const username = githubUser?.login || "匿名访客";
 
     const record = () => {
-      fetch(
-        `https://psn-site-m5-d2g6kt88h3b1d7da8.ap-shanghai.tcb-api.tencentcloudapi.com/web?name=logs`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            action: "record",
-            data: {
-              visitorId,
-              username,
-              module,
-              pageUrl: window.location.pathname,
-            },
-          }),
-        }
-      )
+      fetch("/api/visit-log", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ visitorId, username, module, pageUrl: window.location.pathname }),
+      })
         .then(() => {
           try { sessionStorage.setItem(key, "1"); } catch { /* ignore */ }
         })

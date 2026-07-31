@@ -42,13 +42,9 @@ export default function VisitorManager() {
 
   const loadVisitLogs = useCallback(async () => {
     try {
-      const res = await fetch(`https://psn-site-m5-d2g6kt88h3b1d7da8.ap-shanghai.tcb-api.tencentcloudapi.com/web?name=logs`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "query", data: {} }),
-      });
-      const json = await res.json();
-      setVisitLogs((json.result?.data) || []);
+      const res = await fetch("/api/visit-log");
+      const data = await res.json();
+      setVisitLogs(Array.isArray(data) ? data : []);
     } catch {
       setMsg("加载浏览日志失败");
     }
