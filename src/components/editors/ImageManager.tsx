@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { proxyImageUrl } from "@/lib/image";
 
 interface ImageItem { url: string; name: string }
 
@@ -70,7 +71,7 @@ export default function ImageManager() {
         <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
           {images.map((img, i) => (
             <div key={i} className="group relative overflow-hidden rounded-md border border-accent-gold/15 bg-bg-cream">
-              <img src={img.url} alt={img.name} className="aspect-square w-full object-cover" />
+              <img src={proxyImageUrl(img.url)} alt={img.name} className="aspect-square w-full object-cover" />
               <div className="absolute inset-0 flex items-end justify-center bg-gradient-to-t from-black/60 to-transparent p-2 opacity-0 transition-opacity group-hover:opacity-100">
                 <button onClick={() => handleCopy(img.url)} className="rounded bg-white/90 px-2 py-1 text-xs text-black">复制路径</button>
               </div>

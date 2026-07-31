@@ -1,6 +1,7 @@
 import Image from "next/image";
 import type { ResumeData, ResumeItem, EducationItem } from "@/lib/data";
 import { useAuth } from "@/contexts/AuthContext";
+import { proxyImageUrl } from "@/lib/image";
 
 interface ResumeSectionProps {
   data: ResumeData;
@@ -16,7 +17,7 @@ export default function ResumeSection({ data }: ResumeSectionProps) {
           <div className="shrink-0">
             {showPhoto && data.avatar ? (
               <Image
-                src={data.avatar}
+                src={proxyImageUrl(data.avatar)}
                 alt={data.name}
                 width={120}
                 height={120}

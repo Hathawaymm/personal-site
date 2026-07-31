@@ -10,10 +10,17 @@ exports.main = async (event) => {
       const ext = (fileName.split(".").pop() || "").toLowerCase();
       const allowed = ["jpg", "jpeg", "png", "gif", "webp", "mp4", "mov", "pdf"];
       if (!allowed.includes(ext)) return { code: -1, error: "不支持的文件类型: " + ext };
-      const cloudPath = folder + "/" + Date.now() + "-" + fileName;
+      const safeName = Date.now() + "-" + Math.random().toString(36).slice(2, 8) + "." + ext;
+      const cloudPath = folder + "/" + safeName;
       const uploadRes = await app.uploadFile({ cloudPath, fileContent });
-      const urlRes = await app.getTempFileURL({ fileList: [uploadRes.fileID] });
+      const urlRes = await app.getTempFileURL({ fileList: [uploadRes.fileID], maxAge: 315360000 });
       return { code: 0, fileID: uploadRes.fileID, url: urlRes.fileList[0].tempFileURL };
+    }
+    if (action === "getUrl") {
+      if (!event.filePath) return { code: -1, error: "缺少 filePath" };
+      const fileID = "cloud://psn-site-m5-d2g6kt88h3b1d7da8.7073-psn-site-m5-d2g6kt88h3b1d7da8-1303247881/" + event.filePath;
+      const urlRes = await app.getTempFileURL({ fileList: [fileID], maxAge: 315360000 });
+      return { code: 0, fileID, url: urlRes.fileList[0].tempFileURL };
     }
     return { code: -1, error: "未知操作: " + (action || "empty") };
   } catch (err) {

@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import type { PhotoItem } from "@/lib/data";
 import { useAccessLog } from "@/hooks/useAccessLog";
+import { proxyImageUrl } from "@/lib/image";
 
 export default function PhotosPage() {
   useAccessLog("照片墙");
@@ -35,7 +36,7 @@ export default function PhotosPage() {
                 onClick={() => setSelectedIdx(idx)}
               >
                 <Image
-                  src={photo.src}
+                  src={proxyImageUrl(photo.src)}
                   alt={photo.alt || ""}
                   width={400}
                   height={400}
@@ -63,7 +64,7 @@ export default function PhotosPage() {
               ✕
             </button>
             <Image
-              src={photos[selectedIdx].src}
+              src={proxyImageUrl(photos[selectedIdx].src)}
               alt={photos[selectedIdx].alt || ""}
               width={1200}
               height={900}

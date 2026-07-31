@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import type { SiteData, PhotoItem } from "@/lib/data";
+import { proxyImageUrl } from "@/lib/image";
 
 export default function PhotosManager() {
   const [photos, setPhotos] = useState<PhotoItem[]>([]);
@@ -96,7 +97,7 @@ export default function PhotosManager() {
       <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-5">
         {photos.map(p => (
           <div key={p.src} className="group relative aspect-square overflow-hidden rounded-lg bg-bg-warm">
-            <img src={p.src} alt="" className="h-full w-full object-cover" />
+            <img src={proxyImageUrl(p.src)} alt="" className="h-full w-full object-cover" />
             <button onClick={() => remove(p.src)} className="absolute top-1 right-1 rounded-full bg-black/50 p-1 text-xs text-white opacity-0 group-hover:opacity-100 transition-opacity">✕</button>
           </div>
         ))}

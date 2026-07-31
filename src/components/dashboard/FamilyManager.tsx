@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import type { SiteData, FamilyMember } from "@/lib/data";
+import { proxyImageUrl } from "@/lib/image";
 
 const newId = () => crypto.randomUUID?.() || Math.random().toString(36).slice(2);
 
@@ -86,7 +87,7 @@ export default function FamilyManager() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {members.map(m => (
           <div key={m._id} className="flex items-center gap-4 rounded-lg border border-accent-gold/20 bg-bg-paper p-4">
-            {m.avatar && <img src={m.avatar} alt="" className="size-14 rounded-full object-cover" />}
+            {m.avatar && <img src={proxyImageUrl(m.avatar)} alt="" className="size-14 rounded-full object-cover" />}
             <div className="flex-1"><h3 className="font-semibold text-text-primary">{m.name}</h3>{m.label && <p className="text-xs text-accent-gold">{m.label}</p>}</div>
             <div className="flex gap-2">
               <button onClick={() => openEdit(m)} className="text-xs text-accent-gold">✏</button>

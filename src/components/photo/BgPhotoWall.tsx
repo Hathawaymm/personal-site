@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { proxyImageUrl } from "@/lib/image";
 
 interface PhotoItem {
   src: string;
@@ -49,7 +50,7 @@ export default function BgPhotoWall() {
         {photos.filter(p => p.src).map((photo, i) => (
           <div key={i} className="mb-2 break-inside-avoid overflow-hidden rounded-sm opacity-25">
             <Image
-              src={photo.src}
+              src={proxyImageUrl(photo.src)}
               alt=""
               width={400}
               height={400}

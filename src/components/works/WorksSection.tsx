@@ -1,4 +1,5 @@
 import type { WorkItem } from "@/lib/data";
+import { proxyImageUrl } from "@/lib/image";
 
 interface WorksSectionProps {
   works: WorkItem[];
@@ -26,7 +27,7 @@ export default function WorksSection({ works }: WorksSectionProps) {
                   <video
                     className="h-full w-full object-cover"
                     src={work.videoUrl}
-                    poster={work.cover}
+                    poster={proxyImageUrl(work.cover)}
                     controls
                     preload="metadata"
                   >
@@ -35,7 +36,7 @@ export default function WorksSection({ works }: WorksSectionProps) {
                 </div>
               ) : (
                 <div className="relative aspect-video w-full bg-bg-warm">
-                  {work.cover && <img src={work.cover} alt="" className="h-full w-full object-cover" />}
+                  {work.cover && <img src={proxyImageUrl(work.cover)} alt="" className="h-full w-full object-cover" />}
                 </div>
               )}
               <div className="p-5">

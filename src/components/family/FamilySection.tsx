@@ -1,5 +1,6 @@
 import Image from "next/image";
 import type { FamilyMember } from "@/lib/data";
+import { proxyImageUrl } from "@/lib/image";
 
 interface FamilySectionProps {
   members: FamilyMember[];
@@ -21,7 +22,7 @@ export default function FamilySection({ members }: FamilySectionProps) {
             <div key={member.name} className="flex w-36 flex-col items-center gap-3 text-center sm:w-40">
               {member.avatar ? (
                 <Image
-                  src={member.avatar}
+                  src={proxyImageUrl(member.avatar)}
                   alt={member.name}
                   width={128}
                   height={128}

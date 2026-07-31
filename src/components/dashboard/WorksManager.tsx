@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import type { SiteData, WorkItem } from "@/lib/data";
+import { proxyImageUrl } from "@/lib/image";
 
 const newId = () => crypto.randomUUID?.() || Math.random().toString(36).slice(2);
 
@@ -102,7 +103,7 @@ export default function WorksManager() {
         {works.map(w => (
           <div key={w._id} className="rounded-lg border border-accent-gold/20 bg-bg-paper p-4">
             <div className="flex items-start gap-4">
-              {w.cover && <img src={w.cover} alt="" className="h-20 w-32 rounded object-cover" />}
+               {w.cover && <img src={proxyImageUrl(w.cover)} alt="" className="h-20 w-32 rounded object-cover" />}
               <div className="flex-1 min-w-0">
                 <h3 className="font-semibold text-text-primary">{w.title}</h3>
                 {w.category && <span className="text-xs text-accent-gold">{w.category}</span>}

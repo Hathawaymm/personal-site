@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { proxyImageUrl } from "@/lib/image";
 
 interface MasonryWallProps {
   photos: { src: string; alt: string }[];
@@ -13,7 +14,7 @@ export default function MasonryWall({ photos }: MasonryWallProps) {
           className="group mb-3 break-inside-avoid overflow-hidden rounded-md sm:mb-4"
         >
           <Image
-            src={photo.src}
+            src={proxyImageUrl(photo.src)}
             alt={photo.alt}
             width={600}
             height={600}

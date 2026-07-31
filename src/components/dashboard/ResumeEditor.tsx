@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import type { SiteData, ResumeData, ResumeItem, EducationItem } from "@/lib/data";
 import { emptyResume } from "@/lib/constants";
+import { proxyImageUrl } from "@/lib/image";
 
 const emptyItemId = () => crypto.randomUUID?.() || Math.random().toString(36).slice(2);
 
@@ -144,7 +145,7 @@ export default function ResumeEditor() {
         <div>
           <label className="block text-sm text-text-secondary mb-1">头像</label>
           <div className="flex items-center gap-4">
-            {data.avatar && <img src={data.avatar} alt="" className="size-16 rounded-full object-cover" />}
+            {data.avatar && <img src={proxyImageUrl(data.avatar)} alt="" className="size-16 rounded-full object-cover" />}
             <label className="cursor-pointer rounded-full border border-accent-gold/30 px-4 py-2 text-sm text-accent-gold hover:bg-accent-gold/5">
               {uploading ? "上传中..." : "更换照片"}
               <input type="file" accept="image/*" onChange={uploadAvatar} className="hidden" disabled={uploading} />
