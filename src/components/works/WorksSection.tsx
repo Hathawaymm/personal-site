@@ -44,12 +44,14 @@ export default function WorksSection({ works, title = "视频创作", subtitle =
 
   if (works.length === 0) return null;
 
+  const proxyFile = (url: string) => `/api/file-proxy?url=${encodeURIComponent(url)}`;
+
   const openWork = (work: WorkItem) => {
     setSelected(work);
     setTextContent(null);
     setNumPages(0);
     if (work.type === "text" && work.fileUrl) {
-      fetch(work.fileUrl).then(r => r.text()).then(t => setTextContent(t)).catch(() => setTextContent("（内容加载失败）"));
+      fetch(proxyFile(work.fileUrl)).then(r => r.text()).then(t => setTextContent(t)).catch(() => setTextContent("（内容加载失败）"));
     }
   };
 
@@ -121,7 +123,7 @@ export default function WorksSection({ works, title = "视频创作", subtitle =
             )}
 
             {selected.type === "pdf" && selected.fileUrl && (
-              <Document file={selected.fileUrl} onLoadSuccess={({ numPages }) => setNumPages(numPages)}>
+              <Document file={proxyFile(selected.fileUrl)} onLoadSuccess={({ numPages }) => setNumPages(numPages)}>
                 {Array.from(new Array(numPages), (_, i) => (
                   <Page key={i + 1} pageNumber={i + 1} renderTextLayer={false} renderAnnotationLayer={false} className="mb-4" />
                 ))}
