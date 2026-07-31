@@ -23,6 +23,7 @@
     "@tiptap/pm": "^3.29.1",
     "@tiptap/react": "^3.29.1",
     "@tiptap/starter-kit": "^3.29.1",
+    "cos-nodejs-sdk-v5": "^2.14.0",
     "jsonwebtoken": "^9.0.3",
     "next": "16.2.10",
     "playwright": "^1.62.0",
