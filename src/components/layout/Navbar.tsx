@@ -6,23 +6,8 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/components/ui/Toast";
 import type { Permissions } from "@/lib/permissions";
-import { DEFAULT_NAV, type NavLabels } from "@/lib/data";
+import { DEFAULT_NAV, type NavLabels, type NavItem } from "@/lib/data";
 import InlineEditor from "@/components/home/InlineEditor";
-
-interface NavLink {
-  href: string;
-  key: keyof NavLabels;
-  permission?: keyof Permissions;
-}
-
-const NAV_LINKS: NavLink[] = [
-  { href: "/", key: "home" },
-  { href: "/resume", key: "resume", permission: "resume_text" },
-  { href: "/portfolio", key: "works", permission: "portfolio" },
-  { href: "/family", key: "family", permission: "family" },
-  { href: "/blog", key: "blog", permission: "blog" },
-  { href: "/photos", key: "photos", permission: "photos" },
-];
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -31,10 +16,14 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [navLabels, setNavLabels] = useState<NavLabels>({ ...DEFAULT_NAV });
+  const [customNavigation, setCustomNavigation] = useState<NavItem[]>([]);
 
   useEffect(() => {
     fetch("/api/site-data").then(r => r.json()).then(d => {
       if (d?.nav) setNavLabels({ ...DEFAULT_NAV, ...d.nav });
+    }).catch(() => {});
+    fetch("/api/config?key=navigation").then(r => r.json()).then(d => {
+      if (Array.isArray(d)) setCustomNavigation(d);
     }).catch(() => {});
   }, []);
 
@@ -73,14 +62,14 @@ export default function Navbar() {
     return pathname.startsWith(href);
   };
 
-  const canAccess = (link: NavLink) => {
+  const canAccess = (link: NavItem) => {
     if (isAdmin) return true;
     if (!isLoggedIn) return false;
     if (!link.permission) return true;
     return permissions[link.permission] === true;
   };
 
-  const handleLockedClick = (link: NavLink, e: React.MouseEvent) => {
+  const handleLockedClick = (link: NavItem, e: React.MouseEvent) => {
     if (!isLoggedIn || !link.permission) return;
     if (status === "pending") {
       toast("哎呀，这个房间暂时上锁啦，管理员还没给你钥匙哦~", "warning");
@@ -91,6 +80,15 @@ export default function Navbar() {
     }
     e.preventDefault();
   };
+
+  const navigationItems = customNavigation.length > 0 ? customNavigation : [
+    { id: "home", label: navLabels.home, href: "/", permission: undefined },
+    { id: "resume", label: navLabels.resume, href: "/resume", permission: "resume_text" as keyof Permissions },
+    { id: "works", label: navLabels.works, href: "/portfolio", permission: "portfolio" as keyof Permissions },
+    { id: "family", label: navLabels.family, href: "/family", permission: "family" as keyof Permissions },
+    { id: "blog", label: navLabels.blog, href: "/blog", permission: "blog" as keyof Permissions },
+    { id: "photos", label: navLabels.photos, href: "/photos", permission: "photos" as keyof Permissions },
+  ];
 
   const showMenu = isLoggedIn;
 
@@ -107,12 +105,12 @@ export default function Navbar() {
           <span />
 
           <div className="hidden items-center gap-1 sm:flex">
-            {showMenu && NAV_LINKS.map(link => {
+            {showMenu && navigationItems.map(link => {
               const accessible = canAccess(link);
               const locked = isLoggedIn && !isAdmin && link.permission && !accessible;
               return (
                 <Link
-                  key={link.href}
+                  key={link.id}
                   href={accessible ? link.href : "#"}
                   onClick={(e) => locked ? handleLockedClick(link, e) : undefined}
                   className={`relative px-4 py-2 text-sm font-medium transition-colors duration-200 ${
@@ -123,7 +121,7 @@ export default function Navbar() {
                         : "text-text-secondary hover:text-text-primary"
                   }`}
                 >
-                  {navLabels[link.key]}
+                  {link.label}
                   {locked && <span className="ml-1 text-xs">🔒</span>}
                   {isActive(link.href) && accessible && (
                     <span className="absolute bottom-0 left-1/2 h-[2px] w-3/5 -translate-x-1/2 rounded-full bg-accent-gold/70" />
@@ -171,12 +169,12 @@ export default function Navbar() {
         aria-hidden={!menuOpen}
       >
         <div className="flex h-full flex-col items-center justify-center gap-8" onClick={(e) => e.stopPropagation()}>
-          {showMenu && NAV_LINKS.map((link, i) => {
+          {showMenu && navigationItems.map((link, i) => {
             const accessible = canAccess(link);
             const locked = isLoggedIn && !isAdmin && link.permission && !accessible;
             return (
               <Link
-                key={link.href}
+                key={link.id}
                 href={accessible ? link.href : "#"}
                 onClick={(e) => locked ? handleLockedClick(link, e) : undefined}
                 className={`font-display text-2xl tracking-wide transition-all duration-300 ${
@@ -190,21 +188,21 @@ export default function Navbar() {
                 }`}
                 style={{ transitionDelay: menuOpen ? `${i * 80}ms` : "0ms" }}
               >
-                {navLabels[link.key]}{locked ? " 🔒" : ""}
+                {link.label}{locked ? " 🔒" : ""}
               </Link>
             );
           })}
           {isAdmin && (
-            <Link href="/dashboard" className="font-display text-2xl text-accent-rose" style={{ transitionDelay: `${NAV_LINKS.length * 80}ms` }}>
+            <Link href="/dashboard" className="font-display text-2xl text-accent-rose" style={{ transitionDelay: `${navigationItems.length * 80}ms` }}>
               {navLabels.dashboard}
             </Link>
           )}
           {isLoggedIn ? (
-            <button onClick={logout} className="text-base text-text-muted" style={{ transitionDelay: `${(NAV_LINKS.length + 1) * 80}ms` }}>
+            <button onClick={logout} className="text-base text-text-muted" style={{ transitionDelay: `${(navigationItems.length + 1) * 80}ms` }}>
               退出登录
             </button>
           ) : (
-            <Link href="/login" className="text-base text-accent-gold" style={{ transitionDelay: `${(NAV_LINKS.length + 1) * 80}ms` }}>
+            <Link href="/login" className="text-base text-accent-gold" style={{ transitionDelay: `${(navigationItems.length + 1) * 80}ms` }}>
               登录
             </Link>
           )}

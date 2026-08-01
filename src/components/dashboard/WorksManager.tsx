@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import type { SiteData, WorkItem, WorkType, WorkCategory } from "@/lib/data";
-import { WORK_CATEGORY_LABELS } from "@/lib/data";
+import type { SiteData, WorkItem, WorkType } from "@/lib/data";
+import { normalizeWorkCategories } from "@/lib/data";
 import { proxyImageUrl } from "@/lib/image";
 import { compressImage } from "@/lib/compress";
 import { logAdminAction } from "@/lib/adminLog";
@@ -27,7 +27,7 @@ export default function WorksManager() {
   const [videoUrl, setVideoUrl] = useState("");
   const [type, setType] = useState<WorkType>("image");
   const [fileUrl, setFileUrl] = useState("");
-  const [workCategory, setWorkCategory] = useState<WorkCategory>("video");
+  const [excerpt, setExcerpt] = useState("");
   const [saving, setSaving] = useState(false);
 
   const load = useCallback(async () => {
@@ -35,20 +35,20 @@ export default function WorksManager() {
       const res = await fetch("/api/admin/site-data");
       const json: SiteData = await res.json();
       setSiteData(json);
-      setWorks(withIds(json.works || []));
+      setWorks(withIds(normalizeWorkCategories(json.works || [])));
     } catch { setMsg("加载失败"); }
   }, []);
 
   useEffect(() => { load(); }, [load]);
 
   const openNew = () => {
-    setTitle(""); setDescription(""); setCategory(""); setCover(""); setVideoUrl(""); setType("image"); setFileUrl(""); setWorkCategory("video");
+    setTitle(""); setDescription(""); setCategory(""); setCover(""); setVideoUrl(""); setType("image"); setFileUrl(""); setExcerpt("");
     setModal({});
   };
 
   const openEdit = (w: WorkWithId) => {
     setTitle(w.title); setDescription(w.description); setCategory(w.category); setCover(w.cover); setVideoUrl(w.videoUrl);
-    setType(w.type || "image"); setFileUrl(w.fileUrl || ""); setWorkCategory(w.workCategory || "video");
+    setType(w.type || "image"); setFileUrl(w.fileUrl || ""); setExcerpt(w.excerpt || "");
     setModal({ editing: w });
   };
 
@@ -57,7 +57,7 @@ export default function WorksManager() {
     setSaving(true);
     try {
       const currentWorks = [...works];
-      const newWork: WorkWithId = { _id: modal?.editing?._id || newId(), title, description, category, cover, videoUrl, type, fileUrl, workCategory };
+      const newWork: WorkWithId = { _id: modal?.editing?._id || newId(), title, description, category, cover, videoUrl, type, fileUrl, excerpt };
 
       if (modal?.editing) {
         const idx = currentWorks.findIndex(w => w._id === modal.editing!._id);
@@ -109,7 +109,19 @@ export default function WorksManager() {
       fd.append("file", file, file.name);
       const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
       const json = await res.json();
-      if (json.url) { setFileUrl(json.url); setMsg("文件已上传"); } else { setMsg("上传失败"); }
+      if (json.url) {
+        setFileUrl(json.url);
+        
+        // 如果是文本文件，自动生成摘要
+        if (type === "text" && (file.name.endsWith('.txt') || file.name.endsWith('.md') || file.name.endsWith('.markdown'))) {
+          const text = await file.text();
+          const plainText = text.replace(/[#*_`~\[\](){}>#+-=|\.!]/g, '').replace(/\s+/g, ' ').trim();
+          const excerptText = plainText.slice(0, 60);
+          setExcerpt(excerptText + (plainText.length > 60 ? "..." : ""));
+        }
+        
+        setMsg("文件已上传");
+      } else { setMsg("上传失败"); }
     } catch (err) { setMsg(err instanceof Error ? err.message : "上传失败"); }
   };
 
@@ -147,22 +159,18 @@ export default function WorksManager() {
               <input value={title} onChange={e => setTitle(e.target.value)} className="w-full rounded border border-accent-gold/20 px-3 py-2 text-sm" placeholder="作品标题 *" />
               <input value={category} onChange={e => setCategory(e.target.value)} className="w-full rounded border border-accent-gold/20 px-3 py-2 text-sm" placeholder="分类" />
               <textarea value={description} onChange={e => setDescription(e.target.value)} rows={3} className="w-full rounded border border-accent-gold/20 px-3 py-2 text-sm" placeholder="描述" />
-              <div>
-                <label className="block text-sm text-text-secondary mb-1">作品类型</label>
-                <div className="flex flex-wrap gap-2">
-                  {(["image", "video", "pdf", "text"] as WorkType[]).map(t => (
-                    <button key={t} onClick={() => setType(t)} className={`rounded-full px-3 py-1 text-xs ${type === t ? "bg-accent-gold text-white" : "border border-accent-gold/30 text-accent-gold"}`}>{t === "image" ? "图片" : t === "video" ? "视频" : t === "pdf" ? "PDF" : "文本"}</button>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm text-text-secondary mb-1">所属分类</label>
-                <div className="flex flex-wrap gap-2">
-                  {(Object.keys(WORK_CATEGORY_LABELS) as WorkCategory[]).map(c => (
-                    <button key={c} onClick={() => setWorkCategory(c)} className={`rounded-full px-3 py-1 text-xs ${workCategory === c ? "bg-accent-gold text-white" : "border border-accent-gold/30 text-accent-gold"}`}>{WORK_CATEGORY_LABELS[c]}</button>
-                  ))}
-                </div>
-              </div>
+               <div>
+                 <label className="block text-sm text-text-secondary mb-1">作品类型</label>
+                 <div className="flex flex-wrap gap-2">
+                   {(["image", "video", "pdf", "text"] as WorkType[]).map(t => (
+                     <button key={t} onClick={() => setType(t)} className={`rounded-full px-3 py-1 text-xs ${type === t ? "bg-accent-gold text-white" : "border border-accent-gold/30 text-accent-gold"}`}>{t === "image" ? "图片" : t === "video" ? "视频" : t === "pdf" ? "PDF" : "文本"}</button>
+                   ))}
+                 </div>
+               </div>
+               <div>
+                 <label className="block text-sm text-text-secondary mb-1">作品分类</label>
+                 <input value={category} onChange={e => setCategory(e.target.value)} className="w-full rounded border border-accent-gold/20 px-3 py-2 text-sm" placeholder="输入分类名称（如：短片、散文、UI设计）" />
+               </div>
               {(type === "video" || type === "image") && (
                 <div className="flex gap-2 items-center">
                   <input value={cover} onChange={e => setCover(e.target.value)} className="flex-1 rounded border border-accent-gold/20 px-3 py-2 text-sm" placeholder="封面图 URL" />
@@ -170,12 +178,21 @@ export default function WorksManager() {
                 </div>
               )}
               {type === "video" && (
-                <input value={videoUrl} onChange={e => setVideoUrl(e.target.value)} className="w-full rounded border border-accent-gold/20 px-3 py-2 text-sm" placeholder="视频 URL（可上传 mp4）" />
+                <div className="flex gap-2 items-center">
+                  <input value={videoUrl} onChange={e => setVideoUrl(e.target.value)} className="flex-1 rounded border border-accent-gold/20 px-3 py-2 text-sm" placeholder="视频 URL（可上传 mp4/mov/webm）" />
+                  <label className="cursor-pointer rounded border border-accent-gold/30 px-3 py-2 text-xs text-accent-gold">上传<input type="file" accept="video/mp4,video/quicktime,video/webm,.mp4,.mov,.webm" onChange={uploadFile} className="hidden" /></label>
+                </div>
               )}
               {(type === "pdf" || type === "text") && (
                 <div className="flex gap-2 items-center">
                   <input value={fileUrl} onChange={e => setFileUrl(e.target.value)} className="flex-1 rounded border border-accent-gold/20 px-3 py-2 text-sm" placeholder={type === "pdf" ? "PDF 文件 URL" : "文本文件 URL（txt/md）"} />
                   <label className="cursor-pointer rounded border border-accent-gold/30 px-3 py-2 text-xs text-accent-gold">上传<input type="file" accept={type === "pdf" ? "application/pdf" : ".txt,.md,.markdown"} onChange={uploadFile} className="hidden" /></label>
+                </div>
+              )}
+              {type === "text" && (
+                <div>
+                  <label className="block text-sm text-text-secondary mb-1">内容摘要（显示在首页卡片中，60字以内）</label>
+                  <textarea value={excerpt} onChange={e => setExcerpt(e.target.value)} rows={2} className="w-full rounded border border-accent-gold/20 px-3 py-2 text-sm" placeholder="留空则自动从文本内容中提取前60字" />
                 </div>
               )}
             </div>

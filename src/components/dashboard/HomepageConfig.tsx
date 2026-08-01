@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import type { HomepageConfig, HomeModuleItem, HomeModuleKey, FooterConfig } from "@/lib/data";
+import type { HomepageConfig, HomeModuleItem, HomeModuleKey, FooterConfig, NavItem } from "@/lib/data";
 import { DEFAULT_HOMEPAGE, DEFAULT_FOOTER, HOME_MODULE_PRESETS, HOME_MODULE_LABELS } from "@/lib/data";
 import { logAdminAction } from "@/lib/adminLog";
 
@@ -36,9 +36,46 @@ function SortableModule({ item, index, onLabel, onRemove, disabled }: {
   );
 }
 
+function SortableNavItem({ item, onLabel, onHref, onRemove, disabled }: {
+  item: NavItem;
+  onLabel: (v: string) => void;
+  onHref: (v: string) => void;
+  onRemove: () => void;
+  disabled: boolean;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
+  return (
+    <div
+      ref={setNodeRef}
+      style={{ transform: CSS.Transform.toString(transform), transition }}
+      className={`flex items-center gap-2 rounded-lg border border-accent-gold/20 bg-bg-paper px-3 py-2.5 text-sm ${isDragging ? "opacity-50" : ""}`}
+    >
+      <span {...attributes} {...listeners} className="cursor-grab text-text-muted select-none">☰</span>
+      <input
+        type="text"
+        value={item.label}
+        onChange={e => onLabel(e.target.value)}
+        disabled={disabled}
+        className="flex-1 rounded border border-transparent bg-transparent px-2 py-1 text-text-primary focus:border-accent-gold/40 focus:outline-none"
+        placeholder="显示名称"
+      />
+      <input
+        type="text"
+        value={item.href}
+        onChange={e => onHref(e.target.value)}
+        disabled={disabled}
+        className="w-32 rounded border border-transparent bg-transparent px-2 py-1 text-text-primary focus:border-accent-gold/40 focus:outline-none"
+        placeholder="链接地址"
+      />
+      <button onClick={onRemove} disabled={disabled} className="text-xs text-accent-rose hover:underline">删除</button>
+    </div>
+  );
+}
+
 export default function HomepageConfig() {
   const [config, setConfig] = useState<HomepageConfig>({ ...DEFAULT_HOMEPAGE });
   const [footer, setFooter] = useState<FooterConfig>(DEFAULT_FOOTER);
+  const [navigation, setNavigation] = useState<NavItem[]>([]);
   const [msg, setMsg] = useState("");
   const [saving, setSaving] = useState(false);
   const [pendingModule, setPendingModule] = useState<HomeModuleKey>("works");
@@ -65,6 +102,13 @@ export default function HomepageConfig() {
     } catch {
       setFooter(DEFAULT_FOOTER);
     }
+    try {
+      const res = await fetch("/api/config?key=navigation");
+      const data = await res.json();
+      setNavigation(Array.isArray(data) ? data : []);
+    } catch {
+      setNavigation([]);
+    }
   }, [flashMsg]);
 
   useEffect(() => { load(); }, [load]);
@@ -74,7 +118,8 @@ export default function HomepageConfig() {
     try {
       const res = await fetch("/api/admin/config", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(config) });
       const footerRes = await fetch("/api/admin/config?key=footer", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(footer) });
-      if (res.ok && footerRes.ok) {
+      const navRes = await fetch("/api/admin/config?key=navigation", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(navigation) });
+      if (res.ok && footerRes.ok && navRes.ok) {
         flashMsg("✅ 首页配置已保存！");
         logAdminAction("更新首页配置", `欢迎语：${config.heroTitle}`);
       } else flashMsg("保存失败");
@@ -126,6 +171,23 @@ export default function HomepageConfig() {
       return;
     }
     setConfig(prev => ({ ...prev, moduleOrder: [...prev.moduleOrder, { ...preset }] }));
+  };
+
+  const onNavDragEnd = (event: DragEndEvent) => {
+    const over = event.over;
+    if (!over) return;
+    const oldIndex = navigation.findIndex(n => n.id === String(event.active.id));
+    const newIndex = navigation.findIndex(n => n.id === String(over.id));
+    if (oldIndex < 0 || newIndex < 0 || oldIndex === newIndex) return;
+    setNavigation(arrayMove(navigation, oldIndex, newIndex));
+  };
+
+  const updateNav = (idx: number, field: "label" | "href", value: string) => {
+    setNavigation(prev => prev.map((n, i) => i === idx ? { ...n, [field]: value } : n));
+  };
+
+  const addNavItem = () => {
+    setNavigation(prev => [...prev, { id: `nav-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`, label: "", href: "" }]);
   };
 
   const updateFooterLinks = (type: "siteLinks" | "socialLinks", idx: number, field: "label" | "href", value: string) => {
@@ -217,6 +279,10 @@ export default function HomepageConfig() {
         <h3 className="diary-title text-lg mb-4">底部信息</h3>
         <div className="space-y-5 max-w-md">
           <div>
+            <label className="block text-sm text-text-secondary mb-1">底部标题</label>
+            <input type="text" value={footer.title} onChange={e => setFooter({ ...footer, title: e.target.value })} className="w-full rounded-lg border border-accent-gold/30 bg-bg-paper px-4 py-2 text-sm text-text-primary focus:border-accent-gold/60 focus:outline-none" placeholder="我们的时光" />
+          </div>
+          <div>
             <label className="block text-sm text-text-secondary mb-1">底部描述文字</label>
             <textarea value={footer.tagline} onChange={e => setFooter({ ...footer, tagline: e.target.value })} rows={3} className="w-full rounded-lg border border-accent-gold/30 bg-bg-paper px-4 py-2 text-sm text-text-primary focus:border-accent-gold/60 focus:outline-none" />
           </div>
@@ -233,6 +299,28 @@ export default function HomepageConfig() {
             {footerLinks("socialLinks")}
           </div>
         </div>
+      </div>
+
+      <div className="border-t border-accent-gold/15 pt-6">
+        <h3 className="diary-title text-lg mb-4">顶部导航管理</h3>
+        <p className="text-xs text-text-muted mb-4">拖拽调整排序，可增删导航项</p>
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onNavDragEnd}>
+          <SortableContext items={navigation.map(n => n.id)} strategy={verticalListSortingStrategy}>
+            <div className="space-y-3 max-w-md">
+              {navigation.map((item, idx) => (
+                <SortableNavItem
+                  key={item.id}
+                  item={item}
+                  onLabel={v => updateNav(idx, "label", v)}
+                  onHref={v => updateNav(idx, "href", v)}
+                  onRemove={() => setNavigation(navigation.filter((_, i) => i !== idx))}
+                  disabled={saving}
+                />
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
+        <button onClick={addNavItem} className="mt-3 rounded-full border border-accent-gold/30 px-3 py-1 text-xs text-accent-gold hover:bg-accent-gold/5">+ 添加导航项</button>
       </div>
 
       <button onClick={saveHomepage} disabled={saving} className={`rounded-full px-6 py-2.5 text-sm font-medium text-white ${saving ? "bg-text-muted" : "bg-accent-gold hover:opacity-90"}`}>

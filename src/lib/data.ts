@@ -1,4 +1,5 @@
 import { invokeCloudFunction } from "@/lib/cloudbase";
+import type { Permissions } from "@/lib/permissions";
 
 export interface ResumeItem {
   period: string;
@@ -36,15 +37,6 @@ export interface PhotoItem {
 
 export type WorkType = "image" | "video" | "pdf" | "text";
 
-export type WorkCategory = "video" | "writing" | "photo" | "design";
-
-export const WORK_CATEGORY_LABELS: Record<WorkCategory, string> = {
-  video: "📹 影像",
-  writing: "✍️ 写作",
-  photo: "📷 摄影",
-  design: "🎨 设计",
-};
-
 export interface WorkItem {
   title: string;
   description: string;
@@ -53,7 +45,27 @@ export interface WorkItem {
   cover: string;
   type?: WorkType;
   fileUrl?: string;
-  workCategory?: WorkCategory;
+  excerpt?: string;
+}
+
+// 旧版 workCategory 枚举值 → 中文分类名 的兼容映射（数据迁移用）
+export const LEGACY_WORK_CATEGORY_LABELS: Record<string, string> = {
+  video: "影像",
+  writing: "写作",
+  photo: "摄影",
+  design: "设计",
+};
+
+// 兼容旧数据：若老作品只有 workCategory 而没有 category，则将枚举值转成中文分类名写入 category
+export function normalizeWorkCategories<T extends WorkItem>(works: T[]): T[] {
+  return works.map(w => {
+    if (w.category) return w;
+    const legacy = (w as unknown as Record<string, unknown>).workCategory;
+    if (typeof legacy === "string" && LEGACY_WORK_CATEGORY_LABELS[legacy]) {
+      return { ...w, category: LEGACY_WORK_CATEGORY_LABELS[legacy] };
+    }
+    return w;
+  });
 }
 
 export interface SectionTitles {
@@ -80,7 +92,15 @@ export interface FooterLink {
   href: string;
 }
 
+export interface NavItem {
+  id: string;
+  label: string;
+  href: string;
+  permission?: keyof Permissions;
+}
+
 export interface FooterConfig {
+  title: string;
   tagline: string;
   siteLinks: FooterLink[];
   socialLinks: FooterLink[];
@@ -141,6 +161,7 @@ export const DEFAULT_NAV: NavLabels = {
 };
 
 export const DEFAULT_FOOTER: FooterConfig = {
+  title: "我们的时光",
   tagline: "用镜头记录每一个温暖日常。Built with Next.js and Tailwind CSS.",
   siteLinks: [
     { label: "Home", href: "/" },

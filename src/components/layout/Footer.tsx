@@ -24,7 +24,7 @@ export default function Footer() {
         <div className="grid gap-8 sm:grid-cols-3">
           <div>
             <span className="font-display text-lg font-bold tracking-wide text-accent-gold">
-              我们的时光
+              {footer.title}
             </span>
             <p className="mt-3 text-sm leading-relaxed text-text-muted">
               {footer.tagline}
