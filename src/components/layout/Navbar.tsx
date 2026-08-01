@@ -6,8 +6,15 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/components/ui/Toast";
 import type { Permissions } from "@/lib/permissions";
-import { DEFAULT_NAV, type NavLabels, type NavItem } from "@/lib/data";
+import { DEFAULT_NAV, type NavLabels, type SiteSection, fetchSections } from "@/lib/data";
 import InlineEditor from "@/components/home/InlineEditor";
+
+interface NavLinkItem {
+  id: string;
+  label: string;
+  href: string;
+  permission?: keyof Permissions;
+}
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -16,15 +23,13 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [navLabels, setNavLabels] = useState<NavLabels>({ ...DEFAULT_NAV });
-  const [customNavigation, setCustomNavigation] = useState<NavItem[]>([]);
+  const [sections, setSections] = useState<SiteSection[]>([]);
 
   useEffect(() => {
     fetch("/api/site-data").then(r => r.json()).then(d => {
       if (d?.nav) setNavLabels({ ...DEFAULT_NAV, ...d.nav });
     }).catch(() => {});
-    fetch("/api/config?key=navigation").then(r => r.json()).then(d => {
-      if (Array.isArray(d)) setCustomNavigation(d);
-    }).catch(() => {});
+    fetchSections().then(s => setSections(s)).catch(() => {});
   }, []);
 
   const saveNav = async (data: Record<string, string>) => {
@@ -62,14 +67,14 @@ export default function Navbar() {
     return pathname.startsWith(href);
   };
 
-  const canAccess = (link: NavItem) => {
+  const canAccess = (link: NavLinkItem) => {
     if (isAdmin) return true;
     if (!isLoggedIn) return false;
     if (!link.permission) return true;
     return permissions[link.permission] === true;
   };
 
-  const handleLockedClick = (link: NavItem, e: React.MouseEvent) => {
+  const handleLockedClick = (link: NavLinkItem, e: React.MouseEvent) => {
     if (!isLoggedIn || !link.permission) return;
     if (status === "pending") {
       toast("哎呀，这个房间暂时上锁啦，管理员还没给你钥匙哦~", "warning");
@@ -81,13 +86,15 @@ export default function Navbar() {
     e.preventDefault();
   };
 
-  const navigationItems = customNavigation.length > 0 ? customNavigation : [
-    { id: "home", label: navLabels.home, href: "/", permission: undefined },
-    { id: "resume", label: navLabels.resume, href: "/resume", permission: "resume_text" as keyof Permissions },
-    { id: "works", label: navLabels.works, href: "/portfolio", permission: "portfolio" as keyof Permissions },
-    { id: "family", label: navLabels.family, href: "/family", permission: "family" as keyof Permissions },
-    { id: "blog", label: navLabels.blog, href: "/blog", permission: "blog" as keyof Permissions },
-    { id: "photos", label: navLabels.photos, href: "/photos", permission: "photos" as keyof Permissions },
+  // 固定"首页"首项 + 板块列表（visible=true 才显示在导航栏）
+  const navigationItems: NavLinkItem[] = [
+    { id: "home", label: navLabels.home || "首页", href: "/", permission: undefined },
+    ...sections.filter(s => s.visible).map(s => ({
+      id: s.id,
+      label: s.name,
+      href: s.href || "#",
+      permission: s.permission,
+    })),
   ];
 
   const showMenu = isLoggedIn;

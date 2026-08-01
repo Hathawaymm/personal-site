@@ -197,13 +197,117 @@ export const HOME_MODULE_LABELS: Record<HomeModuleKey, string> = {
   photos: "照片墙",
 };
 
-export const HOME_MODULE_PRESETS: HomeModuleItem[] = [
-  { key: "works", label: "作品集" },
-  { key: "resume", label: "关于我" },
-  { key: "family", label: "家庭" },
-  { key: "blog", label: "博客" },
-  { key: "photos", label: "照片墙" },
+// 统一板块模型：首页内容区块 + 顶部导航共用一份数据
+export type SectionType = "works" | "resume" | "family" | "blog" | "photos" | "custom";
+
+export interface SiteSection {
+  id: string;
+  type: SectionType;
+  name: string;
+  icon?: string;
+  visible: boolean;
+  order: number;
+  href?: string;
+  permission?: keyof Permissions;
+}
+
+export const SECTION_PRESETS: SiteSection[] = [
+  { id: "works", type: "works", name: "作品集", visible: true, order: 0, href: "/portfolio", permission: "portfolio" },
+  { id: "resume", type: "resume", name: "关于我", visible: true, order: 1, href: "/resume", permission: "resume_text" },
+  { id: "family", type: "family", name: "家庭", visible: true, order: 2, href: "/family", permission: "family" },
+  { id: "blog", type: "blog", name: "博客", visible: true, order: 3, href: "/blog", permission: "blog" },
+  { id: "photos", type: "photos", name: "照片墙", visible: true, order: 4, href: "/photos", permission: "photos" },
 ];
+
+export const DEFAULT_SECTIONS_LIST: SiteSection[] = SECTION_PRESETS.map(s => ({ ...s }));
+
+const SECTION_HREF: Record<SectionType, string> = {
+  works: "/portfolio",
+  resume: "/resume",
+  family: "/family",
+  blog: "/blog",
+  photos: "/photos",
+  custom: "",
+};
+
+const SECTION_PERMISSION: Record<SectionType, keyof Permissions | undefined> = {
+  works: "portfolio",
+  resume: "resume_text",
+  family: "family",
+  blog: "blog",
+  photos: "photos",
+  custom: undefined,
+};
+
+export function normalizeSections(raw: SiteSection[] | undefined): SiteSection[] {
+  if (!Array.isArray(raw) || raw.length === 0) return DEFAULT_SECTIONS_LIST.map(s => ({ ...s }));
+  const validTypes: string[] = ["works", "resume", "family", "blog", "photos"];
+  return raw
+    .map<SiteSection>((s, i) => ({
+      ...s,
+      type: s.type !== "custom" && validTypes.includes(s.type) ? s.type : "custom",
+      order: typeof s.order === "number" ? s.order : i,
+      visible: s.visible !== false,
+    }))
+    .sort((a, b) => a.order - b.order);
+}
+
+// 从旧数据（moduleOrder + navigation）合并生成统一板块列表，保证首次迁移时与当前展示一致
+export function buildSectionsFromLegacy(moduleOrder?: HomeModuleItem[], navigation?: NavItem[]): SiteSection[] {
+  const map = new Map<string, SiteSection>();
+  (moduleOrder || []).forEach((item, i) => {
+    const key = item.key;
+    const type = (["works", "resume", "family", "blog", "photos"] as string[]).includes(key) ? key as SectionType : "custom";
+    const preset = SECTION_PRESETS.find(p => p.id === key);
+    map.set(key, {
+      id: key,
+      type,
+      name: item.label || preset?.name || key,
+      icon: preset?.icon,
+      visible: true,
+      order: i,
+      href: SECTION_HREF[type],
+      permission: SECTION_PERMISSION[type],
+    });
+  });
+  (navigation || []).forEach(n => {
+    if (map.has(n.id) || n.id === "home" || n.id === "dashboard") return;
+    const isPreset = SECTION_PRESETS.some(p => p.id === n.id);
+    // 旧数据中存在无效项（空名称 / 非链接地址），过滤掉避免污染板块列表
+    if (!isPreset && (!n.label || !n.label.trim())) return;
+    if (!isPreset && !(n.href && (n.href.startsWith("http://") || n.href.startsWith("https://") || n.href.startsWith("/") || n.href.startsWith("#")))) return;
+    const type = isPreset ? n.id as SectionType : "custom";
+    map.set(n.id, {
+      id: n.id,
+      type,
+      name: n.label,
+      visible: true,
+      order: map.size,
+      href: n.href || SECTION_HREF[type],
+      permission: n.permission || SECTION_PERMISSION[type],
+    });
+  });
+  if (map.size === 0) return DEFAULT_SECTIONS_LIST.map(s => ({ ...s }));
+  return Array.from(map.values()).sort((a, b) => a.order - b.order);
+}
+
+// 统一读取首页板块列表（客户端）：优先 config 集合 home_sections，为空时从旧数据生成
+export async function fetchSections(): Promise<SiteSection[]> {
+  try {
+    const res = await fetch("/api/config?key=home_sections");
+    const data = await res.json();
+    if (Array.isArray(data) && data.length > 0) return normalizeSections(data);
+  } catch { /* fallthrough */ }
+  try {
+    const [homeRes, navRes] = await Promise.all([
+      fetch("/api/config").then(r => r.json()),
+      fetch("/api/config?key=navigation").then(r => r.json()),
+    ]);
+    return normalizeSections(buildSectionsFromLegacy(homeRes?.moduleOrder, Array.isArray(navRes) ? navRes : undefined));
+  } catch {
+    return DEFAULT_SECTIONS_LIST.map(s => ({ ...s }));
+  }
+}
 
 const DEFAULT_DATA: SiteData = {
   title: "欢迎来到我的空间，我的朋友",

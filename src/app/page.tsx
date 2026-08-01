@@ -10,9 +10,9 @@ import BlogCard from "@/components/blog/BlogCard";
 import { blogPosts as fallbackPosts } from "@/data/blog-posts";
 import { fetchBlogPosts, type BlogPost } from "@/lib/blog";
 import { useEffect, useState } from "react";
-import type { ResumeData, WorkItem, FamilyMember, SectionTitles, HomepageConfig, HomeModuleItem } from "@/lib/data";
+import type { ResumeData, WorkItem, FamilyMember, SectionTitles, HomepageConfig, SiteSection } from "@/lib/data";
 import { emptyResume } from "@/lib/constants";
-import { DEFAULT_SECTIONS, DEFAULT_HOMEPAGE } from "@/lib/data";
+import { DEFAULT_SECTIONS, DEFAULT_HOMEPAGE, fetchSections } from "@/lib/data";
 import { proxyImageUrl } from "@/lib/image";
 import InlineEditor from "@/components/home/InlineEditor";
 
@@ -26,6 +26,7 @@ export default function Home() {
   const [recentPosts, setRecentPosts] = useState<BlogPost[]>([]);
   const [sections, setSections] = useState<SectionTitles>({ ...DEFAULT_SECTIONS });
   const [homepage, setHomepage] = useState<HomepageConfig>({ ...DEFAULT_HOMEPAGE });
+  const [pageSections, setPageSections] = useState<SiteSection[]>([]);
 
   const canShowResume = isAdmin || permissions.resume_text === true;
   const canShowWorks = isAdmin || permissions.portfolio === true;
@@ -59,16 +60,17 @@ export default function Home() {
     fetch("/api/config").then(r => r.json()).then(cfg => {
       setHomepage({ ...DEFAULT_HOMEPAGE, ...cfg });
     }).catch(() => {});
+    fetchSections().then(s => setPageSections(s)).catch(() => {});
   }, [hasAnyContent, canShowBlog]);
 
   const showHeroButton = homepage.buttonText && homepage.buttonLink;
 
-  const renderModule = (item: HomeModuleItem) => {
-    const key = item.key;
+  const renderModule = (item: SiteSection) => {
+    const key = item.type;
     switch (key) {
       case "works":
         return canShowWorks && works.length > 0 ? (
-          <div key="works" className="relative">
+          <div key={item.id} className="relative">
             {isAdmin && !previewing && (
               <>
                 <InlineEditor
@@ -83,12 +85,12 @@ export default function Home() {
                 </Link>
               </>
             )}
-            <WorksSection works={works} title={item.label || sections.worksTitle} subtitle={sections.worksSubtitle} />
+            <WorksSection works={works} title={item.name || sections.worksTitle} subtitle={sections.worksSubtitle} />
           </div>
         ) : null;
       case "resume":
         return canShowResume ? (
-          <div key="resume" className="relative">
+          <div key={item.id} className="relative">
             {isAdmin && !previewing && (
               <Link href="/dashboard?tab=resume" className="absolute top-4 right-6 z-10 rounded-full bg-bg-paper border border-accent-gold/30 px-3 py-1.5 text-xs text-accent-gold shadow-paper hover:bg-accent-gold/5">
                 ✏ 编辑
@@ -99,7 +101,7 @@ export default function Home() {
         ) : null;
       case "family":
         return canShowFamily && family.length > 0 ? (
-          <div key="family" className="relative">
+          <div key={item.id} className="relative">
             {isAdmin && !previewing && (
               <>
                 <InlineEditor
@@ -114,15 +116,15 @@ export default function Home() {
                 </Link>
               </>
             )}
-            <FamilySection members={family} title={item.label || sections.familyTitle} subtitle={sections.familySubtitle} />
+            <FamilySection members={family} title={item.name || sections.familyTitle} subtitle={sections.familySubtitle} />
           </div>
         ) : null;
       case "blog":
         return canShowBlog ? (
-          <section key="blog" className="relative px-4 py-24 sm:px-6">
+          <section key={item.id} className="relative px-4 py-24 sm:px-6">
             <div className="mx-auto max-w-5xl space-y-12">
               <div className="text-center">
-                <h2 className="diary-title text-2xl sm:text-3xl">{item.label || sections.blogTitle}</h2>
+                <h2 className="diary-title text-2xl sm:text-3xl">{item.name || sections.blogTitle}</h2>
               </div>
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {recentPosts.map((post) => (<BlogCard key={post.slug} {...post} />))}
@@ -138,10 +140,10 @@ export default function Home() {
         ) : null;
       case "photos":
         return photos.length > 0 ? (
-          <section key="photos" className="px-4 py-24 sm:px-6">
+          <section key={item.id} className="px-4 py-24 sm:px-6">
             <div className="mx-auto max-w-5xl">
               <div className="mb-10 text-center">
-                <h2 className="diary-title text-2xl sm:text-3xl">{item.label}</h2>
+                <h2 className="diary-title text-2xl sm:text-3xl">{item.name}</h2>
               </div>
               <div className="columns-2 gap-4 sm:columns-3 lg:columns-4">
                 {photos.map((photo, i) => (
@@ -153,6 +155,16 @@ export default function Home() {
             </div>
           </section>
         ) : null;
+      case "custom":
+        return (
+          <section key={item.id} className="px-4 py-24 sm:px-6">
+            <div className="mx-auto max-w-5xl text-center">
+              <h2 className="diary-title text-2xl sm:text-3xl">{item.name}</h2>
+              {item.icon && <div className="mt-4 text-3xl">{item.icon}</div>}
+              <p className="mt-4 caption-text text-text-muted">该板块内容待配置</p>
+            </div>
+          </section>
+        );
       default:
         return null;
     }
@@ -205,7 +217,7 @@ export default function Home() {
         </div>
       </header>
 
-      {homepage.moduleOrder.map(item => renderModule(item))}
+      {pageSections.map(item => renderModule(item))}
 
       <PreviewToggle />
 
