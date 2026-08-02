@@ -5,6 +5,7 @@ import type { SiteData, WorkItem, WorkType } from "@/lib/data";
 import { normalizeWorkCategories } from "@/lib/data";
 import { proxyImageUrl } from "@/lib/image";
 import { compressImage } from "@/lib/compress";
+import { uploadToCos } from "@/lib/cos-direct-upload";
 import { logAdminAction } from "@/lib/adminLog";
 
 const newId = () => crypto.randomUUID?.() || Math.random().toString(36).slice(2);
@@ -29,6 +30,8 @@ export default function WorksManager() {
   const [fileUrl, setFileUrl] = useState("");
   const [excerpt, setExcerpt] = useState("");
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadPercent, setUploadPercent] = useState(0);
 
   const load = useCallback(async () => {
     try {
@@ -92,37 +95,33 @@ export default function WorksManager() {
 
   const uploadCover = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; if (!file) return;
+    setUploading(true); setUploadPercent(0); setMsg("上传中...");
     try {
-      const fd = new FormData();
       const { blob, fileName } = await compressImage(file);
-      fd.append("file", blob, fileName);
-      const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
-      const json = await res.json();
-      if (json.url) { setCover(json.url); setMsg("封面已上传"); } else { setMsg("上传失败"); }
+      const url = await uploadToCos(blob, fileName, info => setUploadPercent(info.percent || 0));
+      setCover(url); setMsg("封面已上传");
     } catch (err) { setMsg(err instanceof Error ? err.message : "上传失败"); }
+    setUploading(false);
   };
 
   const uploadFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; if (!file) return;
+    setUploading(true); setUploadPercent(0); setMsg("上传中...");
     try {
-      const fd = new FormData();
-      fd.append("file", file, file.name);
-      const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
-      const json = await res.json();
-      if (json.url) {
-        setFileUrl(json.url);
-        
-        // 如果是文本文件，自动生成摘要
-        if (type === "text" && (file.name.endsWith('.txt') || file.name.endsWith('.md') || file.name.endsWith('.markdown'))) {
-          const text = await file.text();
-          const plainText = text.replace(/[#*_`~\[\](){}>#+-=|\.!]/g, '').replace(/\s+/g, ' ').trim();
-          const excerptText = plainText.slice(0, 60);
-          setExcerpt(excerptText + (plainText.length > 60 ? "..." : ""));
-        }
-        
-        setMsg("文件已上传");
-      } else { setMsg("上传失败"); }
+      const url = await uploadToCos(file, file.name, info => setUploadPercent(info.percent || 0));
+      setFileUrl(url);
+
+      // 如果是文本文件，自动生成摘要
+      if (type === "text" && (file.name.endsWith('.txt') || file.name.endsWith('.md') || file.name.endsWith('.markdown'))) {
+        const text = await file.text();
+        const plainText = text.replace(/[#*_`~\[\](){}>#+-=|\.!]/g, '').replace(/\s+/g, ' ').trim();
+        const excerptText = plainText.slice(0, 60);
+        setExcerpt(excerptText + (plainText.length > 60 ? "..." : ""));
+      }
+
+      setMsg("文件已上传");
     } catch (err) { setMsg(err instanceof Error ? err.message : "上传失败"); }
+    setUploading(false);
   };
 
   return (
@@ -155,6 +154,17 @@ export default function WorksManager() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setModal(null)}>
           <div className="w-full max-w-md rounded-lg bg-bg-paper p-6" onClick={e => e.stopPropagation()}>
             <h3 className="diary-title text-lg mb-4">{modal.editing ? "编辑作品" : "新增作品"}</h3>
+            {uploading && (
+              <div className="mb-3">
+                <div className="flex items-center justify-between text-xs text-text-muted mb-1">
+                  <span>📤 上传中（直传 COS，不受服务器大小限制）</span>
+                  <span>{Math.round(uploadPercent)}%</span>
+                </div>
+                <div className="h-2 w-full overflow-hidden rounded-full bg-accent-gold/15">
+                  <div className="h-full rounded-full bg-accent-gold transition-all" style={{ width: `${uploadPercent}%` }} />
+                </div>
+              </div>
+            )}
             <div className="space-y-3">
               <input value={title} onChange={e => setTitle(e.target.value)} className="w-full rounded border border-accent-gold/20 px-3 py-2 text-sm" placeholder="作品标题 *" />
               <input value={category} onChange={e => setCategory(e.target.value)} className="w-full rounded border border-accent-gold/20 px-3 py-2 text-sm" placeholder="分类" />
