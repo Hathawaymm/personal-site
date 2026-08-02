@@ -109,7 +109,9 @@ export default function WorksManager() {
     setUploading(true); setUploadPercent(0); setMsg("上传中...");
     try {
       const url = await uploadToCos(file, file.name, info => setUploadPercent(info.percent || 0));
-      setFileUrl(url);
+      // 视频 → videoUrl；文本/PDF → fileUrl
+      if (type === "video") setVideoUrl(url);
+      else setFileUrl(url);
 
       // 如果是文本文件，自动生成摘要
       if (type === "text" && (file.name.endsWith('.txt') || file.name.endsWith('.md') || file.name.endsWith('.markdown'))) {
@@ -119,7 +121,7 @@ export default function WorksManager() {
         setExcerpt(excerptText + (plainText.length > 60 ? "..." : ""));
       }
 
-      setMsg("文件已上传");
+      setMsg(type === "video" ? "✅ 视频已上传，URL 已填入" : "✅ 文件已上传");
     } catch (err) { setMsg(err instanceof Error ? err.message : "上传失败"); }
     setUploading(false);
   };
@@ -190,13 +192,13 @@ export default function WorksManager() {
               {type === "video" && (
                 <div className="flex gap-2 items-center">
                   <input value={videoUrl} onChange={e => setVideoUrl(e.target.value)} className="flex-1 rounded border border-accent-gold/20 px-3 py-2 text-sm" placeholder="视频 URL（可上传 mp4/mov/webm）" />
-                  <label className="cursor-pointer rounded border border-accent-gold/30 px-3 py-2 text-xs text-accent-gold">上传<input type="file" accept="video/mp4,video/quicktime,video/webm,.mp4,.mov,.webm" onChange={uploadFile} className="hidden" /></label>
+                  <label className={`cursor-pointer rounded border px-3 py-2 text-xs ${uploading ? "cursor-not-allowed border-text-muted/30 text-text-muted" : "border-accent-gold/30 text-accent-gold"}`}>{uploading ? "上传中..." : "上传"}<input type="file" accept="video/mp4,video/quicktime,video/webm,.mp4,.mov,.webm" onChange={uploadFile} disabled={uploading} className="hidden" /></label>
                 </div>
               )}
               {(type === "pdf" || type === "text") && (
                 <div className="flex gap-2 items-center">
                   <input value={fileUrl} onChange={e => setFileUrl(e.target.value)} className="flex-1 rounded border border-accent-gold/20 px-3 py-2 text-sm" placeholder={type === "pdf" ? "PDF 文件 URL" : "文本文件 URL（txt/md）"} />
-                  <label className="cursor-pointer rounded border border-accent-gold/30 px-3 py-2 text-xs text-accent-gold">上传<input type="file" accept={type === "pdf" ? "application/pdf" : ".txt,.md,.markdown"} onChange={uploadFile} className="hidden" /></label>
+                  <label className={`cursor-pointer rounded border px-3 py-2 text-xs ${uploading ? "cursor-not-allowed border-text-muted/30 text-text-muted" : "border-accent-gold/30 text-accent-gold"}`}>{uploading ? "上传中..." : "上传"}<input type="file" accept={type === "pdf" ? "application/pdf" : ".txt,.md,.markdown"} onChange={uploadFile} disabled={uploading} className="hidden" /></label>
                 </div>
               )}
               {type === "text" && (
