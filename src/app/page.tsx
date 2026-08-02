@@ -146,12 +146,20 @@ export default function Home() {
                 <h2 className="diary-title text-2xl sm:text-3xl">{item.name}</h2>
               </div>
               <div className="columns-2 gap-4 sm:columns-3 lg:columns-4">
-                {photos.map((photo, i) => (
+                {photos.slice(0, 10).map((photo, i) => (
                   <div key={i} className="mb-4 break-inside-avoid overflow-hidden rounded-lg">
                     <img src={proxyImageUrl(photo.src)} alt={photo.alt || ""} className="w-full object-cover" loading="lazy" />
                   </div>
                 ))}
               </div>
+              {photos.length > 10 && (
+                <div className="mt-8 text-center">
+                  <Link href="/photos" className="inline-flex items-center gap-2 rounded-full border border-accent-gold/50 px-6 py-3 text-sm font-medium text-accent-gold hover:bg-accent-gold/10">
+                    查看全部照片（{photos.length} 张）
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+                  </Link>
+                </div>
+              )}
             </div>
           </section>
         ) : null;

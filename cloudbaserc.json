@@ -26,6 +26,10 @@
     {
       "name": "visitors",
       "timeout": 5
+    },
+    {
+      "name": "quark",
+      "timeout": 60
     }
   ]
 }

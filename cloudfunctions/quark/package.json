@@ -1,0 +1,9 @@
+{
+  "name": "quark",
+  "version": "1.0.0",
+  "main": "index.js",
+  "dependencies": {
+    "axios": "^1.4.0",
+    "cos-nodejs-sdk-v5": "^2.14.0"
+  }
+}
