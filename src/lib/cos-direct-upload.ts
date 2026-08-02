@@ -21,7 +21,7 @@ export interface UploadProgress {
   total?: number;
 }
 
-interface SliceUploadParams {
+interface PutObjectParams {
   Bucket: string;
   Region: string;
   Key: string;
@@ -30,7 +30,7 @@ interface SliceUploadParams {
 }
 
 interface CosClient {
-  sliceUploadFile(params: SliceUploadParams): Promise<unknown>;
+  putObject(params: PutObjectParams): Promise<unknown>;
 }
 
 interface CosOptions {
@@ -79,7 +79,7 @@ export async function uploadToCos(
 
   const cos = await getCos();
   const key = `uploads/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-  await cos.sliceUploadFile({
+  await cos.putObject({
     Bucket: STATIC_BUCKET,
     Region: STATIC_REGION,
     Key: key,

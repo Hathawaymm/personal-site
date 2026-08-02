@@ -19,15 +19,7 @@ export async function GET() {
       statement: [
         {
           effect: "allow",
-          action: [
-            "name/cos:PutObject",
-            // 分片上传（大视频 sliceUploadFile 需要）
-            "name/cos:InitiateMultipartUpload",
-            "name/cos:UploadPart",
-            "name/cos:CompleteMultipartUpload",
-            "name/cos:AbortMultipartUpload",
-            "name/cos:ListParts",
-          ],
+          action: ["name/cos:PutObject"],
           resource: [`qcs::cos:${STATIC_REGION}:uid/${APP_ID}:${STATIC_BUCKET}/uploads/*`],
         },
       ],
