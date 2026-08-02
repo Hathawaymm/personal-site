@@ -5,7 +5,14 @@ const STATIC_DOMAIN = "https://psn-site-m5-d2g6kt88h3b1d7da8-1303247881.tcloudba
 const STATIC_BUCKET = "d793-static-psn-site-m5-d2g6kt88h3b1d7da8-1303247881";
 const STATIC_REGION = "ap-shanghai";
 
-const ALLOWED_EXT = ["jpg", "jpeg", "png", "gif", "webp", "mp4", "mov", "webm", "pdf", "md", "markdown", "txt"];
+// 常见格式白名单（图片/视频/音频/文档/压缩等），未知格式也允许上传（由 extToType 归入 file 兜底）
+const ALLOWED_EXT = [
+  "jpg", "jpeg", "png", "gif", "webp", "svg",
+  "mp4", "mov", "webm", "m4v", "mkv", "avi",
+  "mp3", "wav", "ogg", "flac", "m4a", "aac",
+  "pdf", "md", "markdown", "txt", "doc", "docx", "ppt", "pptx", "xls", "xlsx",
+  "psd", "ai", "sketch", "fig", "zip", "rar", "7z", "tar", "gz",
+];
 
 interface CosCredentials {
   TmpSecretId: string;

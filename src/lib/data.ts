@@ -35,7 +35,19 @@ export interface PhotoItem {
   alt: string;
 }
 
-export type WorkType = "image" | "video" | "pdf" | "text";
+export type WorkType = "image" | "video" | "audio" | "pdf" | "text" | "file";
+
+// 扩展名 → 渲染类型 自动映射；未知格式归入 "file"（下载兜底）
+export function extToType(ext: string): WorkType {
+  const map: Record<string, WorkType> = {
+    jpg: "image", jpeg: "image", png: "image", gif: "image", webp: "image",
+    mp4: "video", mov: "video", webm: "video",
+    mp3: "audio", wav: "audio", ogg: "audio", flac: "audio", m4a: "audio", aac: "audio",
+    pdf: "pdf",
+    txt: "text", md: "text", markdown: "text",
+  };
+  return map[ext.toLowerCase()] || "file";
+}
 
 export interface WorkItem {
   title: string;

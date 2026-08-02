@@ -17,8 +17,10 @@ interface WorksSectionProps {
 const TYPE_LABEL: Record<WorkType, string> = {
   image: "图片",
   video: "视频",
+  audio: "音频",
   pdf: "PDF",
   text: "写作",
+  file: "文件",
 };
 
 function renderMarkdown(text: string): string {
@@ -118,6 +120,22 @@ export default function WorksSection({ works, title = "作品集", subtitle = ""
                     您的浏览器不支持视频播放。
                   </video>
                 </div>
+              ) : work.type === "audio" && work.fileUrl ? (
+                <div className="relative flex aspect-video w-full flex-col items-center justify-center gap-3 bg-bg-warm p-6">
+                  {work.cover ? (
+                    <img src={proxyImageUrl(work.cover)} alt="" className="absolute inset-0 h-full w-full object-cover opacity-40" />
+                  ) : null}
+                  <span className="font-display text-5xl text-accent-gold relative">🎵</span>
+                  <audio src={work.fileUrl} controls className="w-full max-w-xs relative" preload="metadata" onClick={e => e.stopPropagation()} />
+                </div>
+              ) : work.type === "file" && work.fileUrl ? (
+                <div className="relative flex aspect-video w-full flex-col items-center justify-center gap-3 bg-bg-warm p-6">
+                  {work.cover ? (
+                    <img src={proxyImageUrl(work.cover)} alt="" className="absolute inset-0 h-full w-full object-cover opacity-40" />
+                  ) : null}
+                  <span className="font-display text-5xl text-accent-gold relative">📄</span>
+                  <span className="relative rounded-full bg-black/50 px-3 py-1 text-xs text-white">点击查看 / 下载</span>
+                </div>
               ) : work.type === "text" && work.excerpt ? (
                 <div className="relative flex aspect-video w-full items-center justify-center bg-bg-warm p-6">
                   <div className="text-center">
@@ -169,6 +187,24 @@ export default function WorksSection({ works, title = "作品集", subtitle = ""
 
             {selected.type === "video" && selected.videoUrl && (
               <video src={selected.videoUrl} controls className="w-full rounded-lg" autoPlay />
+            )}
+
+            {selected.type === "audio" && selected.fileUrl && (
+              <div className="py-6 text-center">
+                {selected.cover && <img src={proxyImageUrl(selected.cover)} alt="" className="mx-auto mb-4 h-40 w-40 rounded-lg object-cover" />}
+                <audio src={selected.fileUrl} controls className="w-full max-w-md mx-auto" autoPlay />
+              </div>
+            )}
+
+            {selected.type === "file" && selected.fileUrl && (
+              <div className="py-8 text-center">
+                {selected.cover && <img src={proxyImageUrl(selected.cover)} alt="" className="mx-auto mb-4 h-40 w-40 rounded-lg object-cover" />}
+                <div className="mb-4 text-5xl text-accent-gold">📄</div>
+                <p className="mb-4 text-sm text-text-muted">该格式无法在线预览，请下载后查看。</p>
+                <a href={selected.fileUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full bg-accent-gold px-6 py-3 text-sm font-medium text-white hover:opacity-90">
+                  ⬇ 下载文件
+                </a>
+              </div>
             )}
 
             {selected.type === "pdf" && selected.fileUrl && (

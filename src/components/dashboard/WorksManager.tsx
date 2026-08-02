@@ -2,9 +2,8 @@
 
 import { useState, useEffect, useCallback } from "react";
 import type { SiteData, WorkItem, WorkType } from "@/lib/data";
-import { normalizeWorkCategories } from "@/lib/data";
+import { normalizeWorkCategories, extToType } from "@/lib/data";
 import { proxyImageUrl } from "@/lib/image";
-import { compressImage } from "@/lib/compress";
 import { uploadToCos } from "@/lib/cos-direct-upload";
 import { logAdminAction } from "@/lib/adminLog";
 
@@ -14,6 +13,38 @@ interface WorkWithId extends WorkItem { _id: string; }
 
 function withIds(items: WorkItem[]): WorkWithId[] {
   return items.map(w => ({ ...w, _id: ((w as unknown) as Record<string, unknown>)._id as string || newId() }));
+}
+
+// 视频自动截取首帧生成封面（需要 COS GET CORS 允许跨域读取，已配置）
+async function captureVideoPoster(src: string): Promise<string> {
+  const video = document.createElement("video");
+  video.crossOrigin = "anonymous";
+  video.muted = true;
+  video.preload = "auto";
+  video.src = src;
+  const loadTimeout = new Promise<never>((_, rej) => setTimeout(() => rej(new Error("加载视频超时")), 15000));
+  await Promise.race([
+    new Promise<void>((res, rej) => {
+      video.onloadeddata = () => res();
+      video.onerror = () => rej(new Error("加载视频失败"));
+    }),
+    loadTimeout,
+  ]);
+  video.currentTime = Math.min(0.1, video.duration || 0.1);
+  await Promise.race([
+    new Promise<void>((res, rej) => {
+      video.onseeked = () => res();
+      video.onerror = () => rej(new Error("定位视频帧失败"));
+    }),
+    loadTimeout,
+  ]);
+  const canvas = document.createElement("canvas");
+  canvas.width = video.videoWidth || 1280;
+  canvas.height = video.videoHeight || 720;
+  canvas.getContext("2d")?.drawImage(video, 0, 0, canvas.width, canvas.height);
+  const blob = await new Promise<Blob | null>(res => canvas.toBlob(res, "image/jpeg", 0.8));
+  if (!blob) throw new Error("生成封面失败");
+  return await uploadToCos(blob, `poster-${Date.now()}.jpg`);
 }
 
 export default function WorksManager() {
@@ -93,37 +124,48 @@ export default function WorksManager() {
     } catch { setMsg("删除失败"); }
   };
 
-  const uploadCover = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]; if (!file) return;
-    setUploading(true); setUploadPercent(0); setMsg("上传中...");
-    try {
-      const { blob, fileName } = await compressImage(file);
-      const url = await uploadToCos(blob, fileName, info => setUploadPercent(info.percent || 0));
-      setCover(url); setMsg("封面已上传");
-    } catch (err) { setMsg(err instanceof Error ? err.message : "上传失败"); }
-    setUploading(false);
-  };
-
+  // 统一上传：按文件扩展名自动识别类型并写入对应字段
   const uploadFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; if (!file) return;
     setUploading(true); setUploadPercent(0); setMsg("上传中...");
     try {
+      const ext = (file.name.split(".").pop() || "").toLowerCase();
+      const newType = extToType(ext);
       const url = await uploadToCos(file, file.name, info => setUploadPercent(info.percent || 0));
-      // 视频 → videoUrl；文本/PDF → fileUrl
-      if (type === "video") setVideoUrl(url);
-      else setFileUrl(url);
+      setType(newType);
 
-      // 如果是文本文件，自动生成摘要
-      if (type === "text" && (file.name.endsWith('.txt') || file.name.endsWith('.md') || file.name.endsWith('.markdown'))) {
-        const text = await file.text();
-        const plainText = text.replace(/[#*_`~\[\](){}>#+-=|\.!]/g, '').replace(/\s+/g, ' ').trim();
-        const excerptText = plainText.slice(0, 60);
-        setExcerpt(excerptText + (plainText.length > 60 ? "..." : ""));
+      if (newType === "video") {
+        setVideoUrl(url);
+        setMsg("视频已上传，正在生成封面...");
+        try {
+          const poster = await captureVideoPoster(url);
+          setCover(poster);
+          setMsg("✅ 视频已上传，封面已自动生成");
+        } catch {
+          setMsg("✅ 视频已上传（封面生成失败，播放时自动显示首帧）");
+        }
+      } else if (newType === "image") {
+        setCover(url);
+        setMsg("✅ 图片已上传");
+      } else {
+        setFileUrl(url);
+        if (newType === "text" && (file.name.endsWith('.txt') || file.name.endsWith('.md') || file.name.endsWith('.markdown'))) {
+          const text = await file.text();
+          const plainText = text.replace(/[#*_`~\[\](){}>#+-=|\.!]/g, '').replace(/\s+/g, ' ').trim();
+          const excerptText = plainText.slice(0, 60);
+          setExcerpt(excerptText + (plainText.length > 60 ? "..." : ""));
+        }
+        setMsg("✅ 文件已上传");
       }
-
-      setMsg(type === "video" ? "✅ 视频已上传，URL 已填入" : "✅ 文件已上传");
     } catch (err) { setMsg(err instanceof Error ? err.message : "上传失败"); }
     setUploading(false);
+  };
+
+  const currentUrl = type === "video" ? videoUrl : type === "image" ? cover : fileUrl;
+  const setCurrentUrl = (v: string) => {
+    if (type === "video") setVideoUrl(v);
+    else if (type === "image") setCover(v);
+    else setFileUrl(v);
   };
 
   return (
@@ -168,37 +210,30 @@ export default function WorksManager() {
               </div>
             )}
             <div className="space-y-3">
-              <input value={title} onChange={e => setTitle(e.target.value)} className="w-full rounded border border-accent-gold/20 px-3 py-2 text-sm" placeholder="作品标题 *" />
-              <input value={category} onChange={e => setCategory(e.target.value)} className="w-full rounded border border-accent-gold/20 px-3 py-2 text-sm" placeholder="分类" />
-              <textarea value={description} onChange={e => setDescription(e.target.value)} rows={3} className="w-full rounded border border-accent-gold/20 px-3 py-2 text-sm" placeholder="描述" />
-               <div>
-                 <label className="block text-sm text-text-secondary mb-1">作品类型</label>
-                 <div className="flex flex-wrap gap-2">
-                   {(["image", "video", "pdf", "text"] as WorkType[]).map(t => (
-                     <button key={t} onClick={() => setType(t)} className={`rounded-full px-3 py-1 text-xs ${type === t ? "bg-accent-gold text-white" : "border border-accent-gold/30 text-accent-gold"}`}>{t === "image" ? "图片" : t === "video" ? "视频" : t === "pdf" ? "PDF" : "文本"}</button>
-                   ))}
-                 </div>
-               </div>
-               <div>
-                 <label className="block text-sm text-text-secondary mb-1">作品分类</label>
-                 <input value={category} onChange={e => setCategory(e.target.value)} className="w-full rounded border border-accent-gold/20 px-3 py-2 text-sm" placeholder="输入分类名称（如：短片、散文、UI设计）" />
-               </div>
-              {(type === "video" || type === "image") && (
+              <div>
+                <label className="block text-sm text-text-secondary mb-1">作品名称</label>
+                <input value={title} onChange={e => setTitle(e.target.value)} className="w-full rounded border border-accent-gold/20 px-3 py-2 text-sm" placeholder="作品标题 *" />
+              </div>
+              <div>
+                <label className="block text-sm text-text-secondary mb-1">作品类型</label>
+                <input value={category} onChange={e => setCategory(e.target.value)} className="w-full rounded border border-accent-gold/20 px-3 py-2 text-sm" placeholder="如：AIGC、APP、短片、散文" />
+              </div>
+              <div>
+                <label className="block text-sm text-text-secondary mb-1">作品描述</label>
+                <textarea value={description} onChange={e => setDescription(e.target.value)} rows={3} className="w-full rounded border border-accent-gold/20 px-3 py-2 text-sm" placeholder="介绍一下这个作品…" />
+              </div>
+              <div>
+                <label className="block text-sm text-text-secondary mb-1">上传文件</label>
                 <div className="flex gap-2 items-center">
-                  <input value={cover} onChange={e => setCover(e.target.value)} className="flex-1 rounded border border-accent-gold/20 px-3 py-2 text-sm" placeholder="封面图 URL" />
-                  <label className="cursor-pointer rounded border border-accent-gold/30 px-3 py-2 text-xs text-accent-gold">上传<input type="file" accept="image/*" onChange={uploadCover} className="hidden" /></label>
+                  <input value={currentUrl} onChange={e => setCurrentUrl(e.target.value)} className="flex-1 rounded border border-accent-gold/20 px-3 py-2 text-sm" placeholder="上传后自动填入，也可手动粘贴 URL" />
+                  <label className={`shrink-0 cursor-pointer rounded border px-3 py-2 text-xs ${uploading ? "cursor-not-allowed border-text-muted/30 text-text-muted" : "border-accent-gold/30 text-accent-gold"}`}>{uploading ? "上传中..." : "上传"}<input type="file" accept="image/*,video/mp4,video/quicktime,video/webm,audio/*,application/pdf,.txt,.md,.markdown,.psd,.ai,.sketch,.fig,.zip,.rar,.7z,.doc,.docx,.ppt,.pptx,.xls,.xlsx" onChange={uploadFile} disabled={uploading} className="hidden" /></label>
                 </div>
-              )}
-              {type === "video" && (
-                <div className="flex gap-2 items-center">
-                  <input value={videoUrl} onChange={e => setVideoUrl(e.target.value)} className="flex-1 rounded border border-accent-gold/20 px-3 py-2 text-sm" placeholder="视频 URL（可上传 mp4/mov/webm）" />
-                  <label className={`cursor-pointer rounded border px-3 py-2 text-xs ${uploading ? "cursor-not-allowed border-text-muted/30 text-text-muted" : "border-accent-gold/30 text-accent-gold"}`}>{uploading ? "上传中..." : "上传"}<input type="file" accept="video/mp4,video/quicktime,video/webm,.mp4,.mov,.webm" onChange={uploadFile} disabled={uploading} className="hidden" /></label>
-                </div>
-              )}
-              {(type === "pdf" || type === "text") && (
-                <div className="flex gap-2 items-center">
-                  <input value={fileUrl} onChange={e => setFileUrl(e.target.value)} className="flex-1 rounded border border-accent-gold/20 px-3 py-2 text-sm" placeholder={type === "pdf" ? "PDF 文件 URL" : "文本文件 URL（txt/md）"} />
-                  <label className={`cursor-pointer rounded border px-3 py-2 text-xs ${uploading ? "cursor-not-allowed border-text-muted/30 text-text-muted" : "border-accent-gold/30 text-accent-gold"}`}>{uploading ? "上传中..." : "上传"}<input type="file" accept={type === "pdf" ? "application/pdf" : ".txt,.md,.markdown"} onChange={uploadFile} disabled={uploading} className="hidden" /></label>
+                <p className="mt-1 text-xs text-text-muted">支持图片/视频/音频/PDF/文本及 psd/zip 等，上传后自动识别类型</p>
+              </div>
+              {type === "video" && cover && (
+                <div>
+                  <p className="text-xs text-text-muted">已自动生成封面</p>
+                  <img src={proxyImageUrl(cover)} alt="封面" className="mt-1 h-20 w-32 rounded object-cover" />
                 </div>
               )}
               {type === "text" && (
