@@ -29,7 +29,10 @@ export async function fetchBlogPosts(): Promise<BlogPost[]> {
 export async function fetchBlogPostBySlug(slug: string): Promise<BlogPostDetail | null> {
   try {
     const posts = await fetchBlogPosts();
-    return posts.find(p => p.slug === slug) || null;
+    // 容错解码：URL 中的中文 slug 是编码形式（%E5%85%A5...），数据库存的是解码形式
+    let decoded = slug;
+    try { decoded = decodeURIComponent(slug); } catch { /* 已解码或含非法 % */ }
+    return posts.find(p => p.slug === decoded || p.slug === slug) || null;
   } catch {
     return null;
   }

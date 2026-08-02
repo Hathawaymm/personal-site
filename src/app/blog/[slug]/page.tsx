@@ -12,7 +12,9 @@ import { proxyHtmlImages } from "@/lib/image";
 export default function BlogDetailPage() {
   useAccessLog("博客");
   const params = useParams();
-  const slug = params.slug as string;
+  const rawSlug = params.slug as string;
+  let slug = rawSlug;
+  try { slug = decodeURIComponent(rawSlug); } catch { /* 已解码或含非法 % */ }
   const [post, setPost] = useState<BlogPostDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [views, setViews] = useState<number | null>(null);
