@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
-import type { WorkItem, WorkType } from "@/lib/data";
+import type { WorkItem } from "@/lib/data";
 import { normalizeWorkCategories } from "@/lib/data";
 import { proxyImageUrl } from "@/lib/image";
 
@@ -13,15 +13,6 @@ interface WorksSectionProps {
   title?: string;
   subtitle?: string;
 }
-
-const TYPE_LABEL: Record<WorkType, string> = {
-  image: "图片",
-  video: "视频",
-  audio: "音频",
-  pdf: "PDF",
-  text: "写作",
-  file: "文件",
-};
 
 function renderMarkdown(text: string): string {
   let html = text
@@ -161,7 +152,6 @@ export default function WorksSection({ works, title = "作品集", subtitle = ""
                <div className="p-5">
                  <div className="flex items-center gap-2 mb-2">
                    {work.category && <span className="rounded-full border border-accent-gold/30 px-2 py-0.5 text-xs text-accent-gold">{work.category}</span>}
-                   {work.type && <span className="rounded-full border border-accent-gold/30 px-2 py-0.5 text-xs text-accent-gold">{TYPE_LABEL[work.type] || "图片"}</span>}
                    <h3 className="diary-title text-lg">{work.title}</h3>
                  </div>
                 {work.description && <p className="text-sm leading-relaxed text-text-muted">{work.description}</p>}
