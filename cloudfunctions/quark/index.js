@@ -51,8 +51,8 @@ exports.main = async (event) => {
     if (action === "download") {
       if (!fids || !fids.length) return { code: -1, error: "缺少 fids" };
       const dlRes = await axios.post(
-        `${QUARK_HOST}/1/clouddrive/file/download`,
-        { fids },
+        `${QUARK_HOST}/1/clouddrive/file/download?pr=ucpro&fr=pc&uc_param_str=&__t=${Date.now()}`,
+        { fids, pr: "ucpro", fr: "pc" },
         { headers: headers(), timeout: 15000 }
       );
       const dlData = dlRes.data;
@@ -74,8 +74,8 @@ exports.main = async (event) => {
       const buffer = Buffer.from(resp.data);
 
       const cos = new COS({
-        SecretId: process.env.TENCENTCLOUD_SECRETID || "",
-        SecretKey: process.env.TENCENTCLOUD_SECRETKEY || "",
+        SecretId: process.env.COS_SECRET_ID || "",
+        SecretKey: process.env.COS_SECRET_KEY || "",
       });
       await new Promise((resolve, reject) => {
         cos.putObject(
