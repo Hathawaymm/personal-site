@@ -1,125 +1,99 @@
-# Sunset Walk — 落日漫步
+# 个人门户网站（H&M's Space）
 
-一个落日田园风格的个人网站。在黄昏的金色光线里，与边牧、橘猫、白猫一起漫步。
+一个完全私密的个人展示网站。只有通过管理员（你）亲自"放行"的 GitHub 好友，才能看到你写的文字、照片和作品；没被批准的人即使登录，也只能看到一个空壳。
 
-> ⚠️ **项目状态：前端页面已完成，功能逻辑尚未实现。** 详见下方"开发进度"。
+线上地址：https://hathawaymmspace.vercel.app
 
-## 开发进度
+## 功能一览
 
-### ✅ 已完成
+### 认证与权限
+- GitHub OAuth 登录 + 管理员密码登录（自建认证，HMAC 签名 token）
+- 四类身份：管理员 / 待审批访客 / 已授权访客 / 已拒绝访客
+- 6 个权限位（简历文字 / 个人照片 / 作品集 / 博客 / 家庭 / 照片墙），**照片权限独立**于文字
+- 后台访客管理：审批 / 拒绝 / 修改权限 / 移除访问 / 重新批准，权限变更实时生效
 
-| 模块 | 内容 |
-|---|---|
-| 首页场景 | 落日天空背景 + Canvas 动画草地 + 五人宠角色层（缩放/浮动动画/纵深排列/描线处理） |
-| 设计系统 | 暖色主题（金/紫/玫红/琥珀），全局 CSS 变量 + 文字辉光 + 卡片组件 |
-| 导航布局 | 响应式导航栏（滚动渐变 + 移动端抽屉菜单）+ 页脚 |
-| Blog 页 | 静态博客列表，卡片式布局，按标签分色 |
-| About 页 | 个人简介 + 技术栈展示 + 宠物 SVG 画廊 |
+### 内容模块
+| 模块 | 说明 |
+|------|------|
+| 首页 | 板块化管理（作品集/关于我/家庭/博客/照片墙 + 自定义板块），可拖拽排序、重命名、开关导航显示 |
+| 作品集 | "作品类型"自由输入（如 AIGC/APP/短片），上传文件按扩展名自动识别渲染：图片/视频（自动截帧封面）/音频/PDF/文本/其他（下载） |
+| 博客 | TipTap 富文本编辑，草稿/发布，阅读计数，中文 slug 兼容 |
+| 家庭 | 成员卡片（照片/姓名/介绍） |
+| 照片墙 | 后台拖拽排序（每页 30 张）、本地批量上传、**夸克网盘导入**（缩略图预览 + 加载更多） |
+| 简历 | 头像/简介/经历/教育/技能/个人照片 |
 
-### ❌ 待实现
+### 后台管理
+首页配置（Hero/板块/底部信息）、作品、博客、家庭、照片墙（排序+夸克）、访客、日志中心、系统设置、简历编辑、预览访客视图。
 
-| 功能 | 说明 |
-|---|---|
-| 博客详情页 | `/blog/[slug]` 动态路由，Markdown/MDX 渲染 |
-| 博客 CMS | 写作后台或 Headless CMS 接入 |
-| 评论系统 | Giscus / Disqus 等 |
-| RSS / Sitemap | SEO 相关 |
-| 暗色模式切换 | 目前仅有暖色主题 |
-| i18n 多语言 | 中英文切换 |
-| 部署 | Vercel / Cloudflare Pages 等 |
-| 动画增强 | 角色行走动画、场景视差滚动、粒子效果 |
+### 安全
+全站防复制（拦截右键/拖拽，后台编辑器除外）、图片半透明水印、照片独立权限。
 
 ## 技术栈
 
-| 技术 | 说明 |
-|---|---|
-| **Next.js 16** | React 全栈框架，当前仅使用 SSG 静态生成 |
-| **React 19** | UI 组件库 |
-| **TypeScript** | 类型安全 |
-| **Tailwind CSS v4** | 原子化 CSS，自定义暖色主题 |
-| **Canvas API** | 首页动画草地 |
+| 层 | 技术 |
+|----|------|
+| 前端 | Next.js 16 + React 19 + TypeScript + Tailwind CSS v4 |
+| 后端 | Next.js API Routes（Vercel）+ CloudBase 云函数（Node.js @cloudbase/node-sdk） |
+| 数据库 | CloudBase 文档型数据库（site / config / content / users / permissions / visitor_logs / admin_logs） |
+| 存储 | 腾讯云 COS（浏览器直传，STS 临时密钥 + cos-js-sdk-v5），绕过 Vercel 4.5MB 限制 |
+| 认证 | 自建 GitHub OAuth + 密码登录 |
+| 关键库 | @dnd-kit（拖拽）、@tiptap（富文本）、react-pdf、qcloud-cos-sts、cos-js-sdk-v5 |
+| 部署 | Vercel（前端+API）+ tcb CLI（云函数） |
 
-## 页面
+## 架构
 
-| 路由 | 内容 |
-|---|---|
-| `/` (首页) | 全屏落日动画场景——背景天空 + 动态草地 + 五人宠组合（男生、女生、边牧、橘猫、白猫） |
-| `/blog` | 博客列表页，卡片式布局，按标签分类 |
-| `/about` | 关于页：个人简介 + 技术栈 + 宠物画廊 |
-
-## 设计系统
-
-暖色落日主题，核心色彩：
-
-- **金色** `#e8b84b` — 主强调色
-- **暖紫** `#4a3050` — 页面背景基调
-- **玫红** `#553545` — 渐变过渡
-- **琥珀** `#4a3828` — 底部暖色
-
-文字采用金色渐变（`.gold-text`）和暖色辉光（`.warm-text`），卡片统一暖棕底 + 金色描边。
+```
+浏览器 ──► Vercel（Next.js 页面 + API Routes）──► CloudBase 云函数 ──► CloudBase 文档数据库
+                │                                      │
+                └──► 腾讯云 COS（浏览器直传，STS 临时密钥）◄──┘
+                     （作品/照片 uploads/、夸克缩略图 thumbnails/）
+夸克网盘 ──► 云函数 quark（list/download/thumbs/health，基于 cookie）
+```
 
 ## 目录结构
 
 ```
-personal-site-demo/
-├── README.md               # 项目介绍 ← 你在这里
-├── start.command           # macOS 一键启动脚本
-├── src/                    # 源代码
-│   ├── app/                # Next.js App Router 页面
-│   │   ├── layout.tsx      # 根布局（导航栏 + 页脚）
-│   │   ├── page.tsx        # 首页（落日场景）
-│   │   ├── globals.css     # 全局样式 & 设计系统
-│   │   ├── blog/           # 博客页
-│   │   └── about/          # 关于页
-│   ├── components/         # UI 组件
-│   │   ├── scene/          # 落日场景（背景 + 草地 + 角色图层）
-│   │   ├── layout/         # 导航栏 + 页脚
-│   │   ├── blog/           # 博客卡片组件
-│   │   ├── about/          # 关于页区块（简介/技能/宠物）
-│   │   └── pets/           # 宠物组件（预留）
-│   └── data/               # 博客文章数据
-├── public/
-│   └── images/             # 角色 & 背景 PNG 素材
-├── 素材/                   # 原始 PSD / 透明层素材
-├── package.json            # 依赖 & PostCSS 配置
-├── tsconfig.json           # TypeScript 配置
-├── next.config.ts          # Next.js 配置
+src/
+├── app/                 # 页面（/ /resume /portfolio /blog /family /photos /login /profile /dashboard /admin）
+│   └── api/             # API Routes（admin/config/site-data/upload/cos-sts/quark/...）
+├── components/
+│   ├── dashboard/       # 后台管理（Works/Photos/Blog/Family/HomepageConfig/VisitorManager/...）
+│   ├── works/           # 作品集展示
+│   ├── layout/          # 导航/页脚
+│   └── auth/            # 登录/水印/防复制
+├── contexts/            # AuthContext
+└── lib/                 # data/cloudbase/token/image/compress/cos-direct-upload/blog/...
+cloudfunctions/          # 8 个云函数（auth/content/permissions/upload/logs/visitors/site-data/quark）
+data/site-data.json      # 早期种子数据（未被代码引用）
 ```
 
-## 快速开始
-
-### 方式一：双击启动（macOS）
-
-双击项目根目录下的 `start.command`，自动启动开发服务器并打开浏览器。
-
-### 方式二：命令行
+## 开发
 
 ```bash
-npm install    # 首次运行需安装依赖
-npm run dev    # 启动开发服务器 → http://localhost:3000
+npm install
+npm run dev       # http://localhost:3000
+npm run build     # 生产构建
 ```
 
-### 构建生产版本
-
-```bash
-npm run build   # 生成静态文件到 .next/
-npm run start   # 启动生产服务器
+`.env.local` 需配置（参考 `.env.local` 模板）：
+```
+NEXT_PUBLIC_TCB_ENV_ID=...
+TENCENTCLOUD_SECRETID=...
+TENCENTCLOUD_SECRETKEY=...
+GITHUB_CLIENT_ID=...
+GITHUB_CLIENT_SECRET=...
+ADMIN_PASSWORD=...
+QUARK_COOKIE=...        # 夸克网盘 cookie（从 pan.quark.cn 登录后 F12 复制）
 ```
 
-## 重启项目备忘
+## 部署
 
-如果离开了很久再回来，看这里快速恢复：
+1. **前端**：推送到 GitHub 后由 Vercel 自动部署；Vercel 上配置上述环境变量（QUARK_COOKIE 需在 Vercel 配置以便夸克相关 API 使用）。
+2. **云函数**：`tcb login` 后执行 `tcb fn deploy --all`；云函数环境变量配置 `QUARK_COOKIE`、`COS_SECRET_ID`、`COS_SECRET_KEY`。
+3. **COS**：在腾讯云 COS 控制台给 bucket 配置 CORS（放行 Vercel 域名与 localhost）。
+4. **初始化**：首次登录后，在 CloudBase 数据库 `users` 集合把你的 GitHub ID 标记为 `is_admin: true`；然后在后台配置邮箱、水印文字并填充内容。
 
-1. **回忆项目**：读一遍这个 README，了解项目是什么、做到哪了
-2. **启动预览**：双击 `start.command` 或 `npm run dev`，先看看当前效果
-3. **待做事项**：翻到上面"开发进度 → 待实现"，选一个开始
-4. **关键文件地图**：
-   - 首页场景 → `src/components/scene/AnimatedPastoral.tsx`（角色位置/大小/动画全在这里）
-   - 全局样式 → `src/app/globals.css`（设计系统 CSS 变量）
-   - 博客数据 → `src/data/blog-posts.ts`（静态假数据，后续替换为 CMS）
-   - 导航/页脚 → `src/components/layout/`
+## 说明
 
-## 素材来源
-
-所有角色图层（男生、女生、边牧、橘猫、白猫）和背景图为自备素材，原始透明层 PNG 文件存放在 `素材/` 目录中。处理后的图片位于 `public/images/`。
-
+- 需求与设计详见飞书文档（PRD V2.2、技术路线图 V2）。
+- 夸克网盘基于私有接口，可能随夸克改版失效；后台有连接状态提示与 cookie 过期引导。
