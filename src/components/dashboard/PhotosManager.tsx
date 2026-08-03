@@ -11,6 +11,14 @@ import { logAdminAction } from "@/lib/adminLog";
 
 const PAGE_SIZE = 30;
 
+interface QuarkFile {
+  fid: string;
+  name: string;
+  dir: boolean;
+  size: number;
+  category: number;
+}
+
 function SortablePhoto({ photo, index, page, onRemove }: {
   photo: PhotoItem;
   index: number;
@@ -39,9 +47,13 @@ export default function PhotosManager() {
   const [uploading, setUploading] = useState(false);
   const [page, setPage] = useState(0);
   const [quarkOpen, setQuarkOpen] = useState(false);
-  const [quarkFiles, setQuarkFiles] = useState<{ fid: string; name: string; dir: boolean; size: number }[]>([]);
+  const [quarkFiles, setQuarkFiles] = useState<QuarkFile[]>([]);
   const [quarkLoading, setQuarkLoading] = useState(false);
+  const [quarkLoadingMore, setQuarkLoadingMore] = useState(false);
   const [quarkDir, setQuarkDir] = useState("0");
+  const [quarkPage, setQuarkPage] = useState(1);
+  const [quarkHasMore, setQuarkHasMore] = useState(false);
+  const [quarkThumbs, setQuarkThumbs] = useState<Record<string, string>>({});
   const [quarkHealth, setQuarkHealth] = useState<{ valid: boolean; updatedAt: string } | null>(null);
   const [quarkErr, setQuarkErr] = useState("");
   const [transferring, setTransferring] = useState<string | null>(null);
@@ -103,18 +115,61 @@ export default function PhotosManager() {
 
   useEffect(() => { checkQuarkHealth(); }, [checkQuarkHealth]);
 
+  const QUARK_PAGE_SIZE = 20;
+
+  // 批量获取缩略图（fids → COS URL）
+  const fetchQuarkThumbs = async (fids: string[]) => {
+    if (!fids.length) return;
+    try {
+      const res = await fetch("/api/admin/quark", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "thumbs", fids }) });
+      const json = await res.json();
+      if (json.data && json.data.urls) {
+        setQuarkThumbs(prev => ({ ...prev, ...json.data.urls }));
+      } else if (json.cookieInvalid) {
+        setQuarkHealth({ valid: false, updatedAt: "" });
+        setQuarkErr("夸克 Cookie 已过期");
+      }
+    } catch { /* 缩略图失败不阻塞 */ }
+  };
+
   const openQuark = async (dir: string = "0") => {
     setQuarkOpen(true);
     setQuarkErr("");
     setQuarkLoading(true);
     setQuarkDir(dir);
+    setQuarkFiles([]);
+    setQuarkThumbs({});
+    setQuarkPage(1);
+    setQuarkHasMore(false);
     try {
-      const res = await fetch("/api/admin/quark", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "list", pdir_fid: dir }) });
+      const res = await fetch("/api/admin/quark", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "list", pdir_fid: dir, page: 1, size: QUARK_PAGE_SIZE }) });
       const json = await res.json();
-      if (json.data) setQuarkFiles(json.data.files || []);
-      else if (json.cookieInvalid || json.error) { setQuarkErr(json.error || "夸克连接失败"); setQuarkHealth({ valid: false, updatedAt: "" }); }
+      if (json.data) {
+        const files = (json.data.files || []) as QuarkFile[];
+        setQuarkFiles(files);
+        setQuarkHasMore(!!json.data.hasMore);
+        fetchQuarkThumbs(files.filter(f => !f.dir).map(f => f.fid));
+      } else if (json.cookieInvalid || json.error) { setQuarkErr(json.error || "夸克连接失败"); setQuarkHealth({ valid: false, updatedAt: "" }); }
     } catch { setQuarkErr("加载夸克文件失败"); }
     setQuarkLoading(false);
+  };
+
+  const loadMoreQuark = async () => {
+    if (quarkLoadingMore || !quarkHasMore) return;
+    setQuarkLoadingMore(true);
+    const nextPage = quarkPage + 1;
+    try {
+      const res = await fetch("/api/admin/quark", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "list", pdir_fid: quarkDir, page: nextPage, size: QUARK_PAGE_SIZE }) });
+      const json = await res.json();
+      if (json.data) {
+        const files = (json.data.files || []) as QuarkFile[];
+        setQuarkFiles(prev => [...prev, ...files]);
+        setQuarkHasMore(!!json.data.hasMore);
+        setQuarkPage(nextPage);
+        fetchQuarkThumbs(files.filter(f => !f.dir).map(f => f.fid));
+      }
+    } catch { /* 忽略 */ }
+    setQuarkLoadingMore(false);
   };
 
   const transferFromQuark = async (fid: string, name: string) => {
@@ -258,16 +313,44 @@ export default function PhotosManager() {
                       key={f.fid}
                       onClick={() => f.dir ? openQuark(f.fid) : transferFromQuark(f.fid, f.name)}
                       disabled={transferring === f.fid}
-                      className="flex items-center gap-2 rounded-lg border border-accent-gold/20 bg-bg-cream px-3 py-2 text-left text-sm hover:border-accent-sky/40 hover:bg-accent-sky/5 disabled:opacity-50"
+                      className="group flex flex-col items-center gap-2 rounded-lg border border-accent-gold/20 bg-bg-cream p-2 text-left text-sm hover:border-accent-sky/40 hover:bg-accent-sky/5 disabled:opacity-50"
                     >
-                      <span className="text-lg">{f.dir ? "📁" : "🖼"}</span>
-                      <span className="min-w-0 flex-1 truncate">{f.name}</span>
-                      <span className="shrink-0 text-xs text-text-muted">{transferring === f.fid ? "转存中..." : f.dir ? "进入" : "选择"}</span>
+                      {f.dir ? (
+                        <>
+                          <span className="text-3xl">📁</span>
+                          <span className="min-w-0 w-full truncate text-center">{f.name}</span>
+                          <span className="shrink-0 text-xs text-text-muted">进入</span>
+                        </>
+                      ) : (
+                        <>
+                          <div className="relative flex h-20 w-full items-center justify-center overflow-hidden rounded bg-bg-warm">
+                            {quarkThumbs[f.fid] ? (
+                              <img src={quarkThumbs[f.fid]} alt={f.name} loading="lazy" className="h-full w-full object-cover" />
+                            ) : (
+                              <span className="text-2xl text-text-muted">🖼</span>
+                            )}
+                            {transferring === f.fid && <span className="absolute inset-0 flex items-center justify-center bg-black/40 text-xs text-white">转存中...</span>}
+                          </div>
+                          <span className="min-w-0 w-full truncate text-center">{f.name}</span>
+                          <span className="shrink-0 text-xs text-accent-sky">选择</span>
+                        </>
+                      )}
                     </button>
                   ))}
                 </div>
               )}
               {!quarkLoading && quarkFiles.length === 0 && <p className="py-10 text-center text-text-muted caption-text">该目录下没有文件</p>}
+              {!quarkLoading && quarkHasMore && (
+                <div className="mt-4 text-center">
+                  <button
+                    onClick={loadMoreQuark}
+                    disabled={quarkLoadingMore}
+                    className="rounded-full border border-accent-sky/40 px-5 py-2 text-sm text-accent-sky hover:bg-accent-sky/10 disabled:opacity-50"
+                  >
+                    {quarkLoadingMore ? "加载中..." : "加载更多 →"}
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
