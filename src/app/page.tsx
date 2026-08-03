@@ -80,7 +80,7 @@ export default function Home() {
                   ]}
                   onSave={saveSections}
                 />
-                <Link href="/dashboard?tab=works" className="absolute top-4 right-28 z-10 rounded-full bg-bg-paper border border-accent-gold/30 px-3 py-1.5 text-xs text-accent-gold shadow-paper hover:bg-accent-gold/5">
+                <Link href="/dashboard?tab=works" className="absolute top-4 right-28 z-10 rounded-full bg-bg-paper border border-accent-gold/30 px-3 py-1.5 text-xs text-gold-strong shadow-paper hover:bg-gold-strong/5">
                   ✏ 编辑内容
                 </Link>
               </>
@@ -92,7 +92,7 @@ export default function Home() {
         return canShowResume ? (
           <div key={item.id} className="relative">
             {isAdmin && !previewing && (
-              <Link href="/dashboard?tab=resume" className="absolute top-4 right-6 z-10 rounded-full bg-bg-paper border border-accent-gold/30 px-3 py-1.5 text-xs text-accent-gold shadow-paper hover:bg-accent-gold/5">
+              <Link href="/dashboard?tab=resume" className="absolute top-4 right-6 z-10 rounded-full bg-bg-paper border border-accent-gold/30 px-3 py-1.5 text-xs text-gold-strong shadow-paper hover:bg-gold-strong/5">
                 ✏ 编辑
               </Link>
             )}
@@ -111,7 +111,7 @@ export default function Home() {
                   ]}
                   onSave={saveSections}
                 />
-                <Link href="/dashboard?tab=family" className="absolute top-4 right-28 z-10 rounded-full bg-bg-paper border border-accent-gold/30 px-3 py-1.5 text-xs text-accent-gold shadow-paper hover:bg-accent-gold/5">
+                <Link href="/dashboard?tab=family" className="absolute top-4 right-28 z-10 rounded-full bg-bg-paper border border-accent-gold/30 px-3 py-1.5 text-xs text-gold-strong shadow-paper hover:bg-gold-strong/5">
                   ✏ 编辑内容
                 </Link>
               </>
@@ -130,7 +130,7 @@ export default function Home() {
                 {recentPosts.map((post) => (<BlogCard key={post.slug} {...post} />))}
               </div>
               <div className="text-center">
-                <Link href="/blog" className="inline-flex items-center gap-2 rounded-full border border-accent-gold/50 px-6 py-3 text-sm font-medium text-accent-gold hover:bg-accent-gold/10">
+                <Link href="/blog" className="inline-flex items-center gap-2 rounded-full border border-accent-gold/50 px-6 py-3 text-sm font-medium text-gold-strong hover:bg-gold-strong/10">
                   查看更多文章
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
                 </Link>
@@ -154,7 +154,7 @@ export default function Home() {
               </div>
               {photos.length > 10 && (
                 <div className="mt-8 text-center">
-                  <Link href="/photos" className="inline-flex items-center gap-2 rounded-full border border-accent-gold/50 px-6 py-3 text-sm font-medium text-accent-gold hover:bg-accent-gold/10">
+                  <Link href="/photos" className="inline-flex items-center gap-2 rounded-full border border-accent-gold/50 px-6 py-3 text-sm font-medium text-gold-strong hover:bg-gold-strong/10">
                     查看全部照片（{photos.length} 张）
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
                   </Link>
@@ -208,12 +208,12 @@ export default function Home() {
           <h1 className="diary-title text-3xl sm:text-5xl">{homepage.heroTitle}</h1>
           {homepage.heroSubtitle && <p className="caption-text mt-4 text-base sm:text-lg">{homepage.heroSubtitle}</p>}
           {showHeroButton && (
-            <Link href={homepage.buttonLink} className="mt-8 inline-block rounded-full bg-accent-gold px-8 py-3 text-sm font-medium text-white shadow-lg transition-all hover:scale-105">
+            <Link href={homepage.buttonLink} className="mt-8 inline-block rounded-full bg-gold-strong px-8 py-3 text-sm font-medium text-white shadow-lg transition-all hover:scale-105">
               {homepage.buttonText}
             </Link>
           )}
           {!isLoggedIn && !showHeroButton && (
-            <Link href="/login" className="mt-6 inline-block rounded-full bg-accent-gold px-6 py-3 text-sm font-medium text-white hover:opacity-90">
+            <Link href="/login" className="mt-6 inline-block rounded-full bg-gold-strong px-6 py-3 text-sm font-medium text-white hover:opacity-90">
               GitHub 登录
             </Link>
           )}
@@ -239,7 +239,7 @@ export default function Home() {
               alert(`如有问题请联系管理员：${email}`);
             } catch { alert("暂无法获取管理员联系方式"); }
           }}
-          className="fixed bottom-6 left-6 z-50 flex items-center justify-center w-10 h-10 rounded-full bg-bg-paper border border-accent-gold/30 text-accent-gold text-lg shadow-paper hover:shadow-paper-hover transition-all"
+          className="fixed bottom-6 left-6 z-50 flex items-center justify-center w-10 h-10 rounded-full bg-bg-paper border border-accent-gold/30 text-gold-strong text-lg shadow-paper hover:shadow-paper-hover transition-all"
           title="帮助"
         >
           ❓
@@ -249,7 +249,7 @@ export default function Home() {
       {isAdmin && !previewing && (
         <Link
           href="/dashboard"
-          className="fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-full bg-accent-gold px-5 py-3 text-sm font-medium text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl"
+          className="fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-full bg-gold-strong px-5 py-3 text-sm font-medium text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
           编辑网站

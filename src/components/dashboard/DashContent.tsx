@@ -31,7 +31,7 @@ export default function DashContent() {
   return (
     <div className="space-y-6">
       <h2 className="diary-title text-xl">操作日志</h2>
-      {msg && <div className="rounded bg-accent-gold/10 px-4 py-2 text-sm text-accent-gold">{msg} <button onClick={() => setMsg("")} className="ml-2">×</button></div>}
+      {msg && <div className="rounded bg-gold-strong/10 px-4 py-2 text-sm text-gold-strong">{msg} <button onClick={() => setMsg("")} className="ml-2">×</button></div>}
       <p className="text-sm text-text-muted">记录管理员在后台的所有关键操作，按时间倒序排列。</p>
 
       <div className="rounded-lg border border-accent-gold/20 bg-bg-paper p-6 shadow-paper">

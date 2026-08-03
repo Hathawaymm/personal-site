@@ -36,7 +36,7 @@ export function PreviewToggle() {
         className={`fixed top-20 right-24 z-50 rounded-full border px-4 py-2 text-sm shadow-paper transition-all ${
           previewing
             ? "border-accent-sky/60 bg-accent-sky/90 text-white"
-            : "border-accent-gold/30 bg-bg-paper text-accent-gold hover:bg-accent-gold/5"
+            : "border-accent-gold/30 bg-bg-paper text-gold-strong hover:bg-gold-strong/5"
         }`}
       >
         {previewing ? "退出预览" : "👁 预览访客视图"}

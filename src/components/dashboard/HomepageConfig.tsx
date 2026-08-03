@@ -45,12 +45,12 @@ function SortableSection({ item, onName, onIcon, onVisible, onRemove, disabled }
       <button
         onClick={() => onVisible(!item.visible)}
         disabled={disabled}
-        className={`shrink-0 rounded-full px-2 py-1 text-xs ${item.visible ? "bg-accent-gold text-white" : "border border-accent-gold/30 text-text-muted"}`}
+        className={`shrink-0 rounded-full px-2 py-1 text-xs ${item.visible ? "bg-gold-strong text-white" : "border border-accent-gold/30 text-text-muted"}`}
         title={item.visible ? "导航栏显示中，点击隐藏" : "导航栏已隐藏，点击显示"}
       >
         {item.visible ? "导航显示" : "导航隐藏"}
       </button>
-      <button onClick={onRemove} disabled={disabled} className="shrink-0 text-xs text-accent-rose hover:underline">删除</button>
+      <button onClick={onRemove} disabled={disabled} className="shrink-0 text-xs text-rose-strong hover:underline">删除</button>
     </div>
   );
 }
@@ -218,17 +218,17 @@ export default function HomepageConfig() {
         <div key={idx} className="flex items-center gap-2">
           <input type="text" value={link.label} onChange={e => updateFooterLinks(type, idx, "label", e.target.value)} className="w-32 rounded border border-accent-gold/20 bg-bg-paper px-2 py-1.5 text-sm text-text-primary focus:outline-none" placeholder="名称" />
           <input type="text" value={link.href} onChange={e => updateFooterLinks(type, idx, "href", e.target.value)} className="flex-1 rounded border border-accent-gold/20 bg-bg-paper px-2 py-1.5 text-sm text-text-primary focus:outline-none" placeholder="https://..." />
-          <button onClick={() => removeFooterLink(type, idx)} className="text-xs text-accent-rose hover:underline">删除</button>
+          <button onClick={() => removeFooterLink(type, idx)} className="text-xs text-rose-strong hover:underline">删除</button>
         </div>
       ))}
-      <button onClick={() => addFooterLink(type)} className="rounded-full border border-accent-gold/30 px-3 py-1 text-xs text-accent-gold hover:bg-accent-gold/5">+ 添加链接</button>
+      <button onClick={() => addFooterLink(type)} className="rounded-full border border-accent-gold/30 px-3 py-1 text-xs text-gold-strong hover:bg-gold-strong/5">+ 添加链接</button>
     </div>
   );
 
   return (
     <div className="space-y-6">
       <h2 className="diary-title text-xl">首页配置</h2>
-      {msg && <div className="rounded-lg border border-accent-gold/30 bg-accent-gold/5 px-4 py-2 text-sm text-accent-gold">{msg}</div>}
+      {msg && <div className="rounded-lg border border-accent-gold/30 bg-gold-strong/5 px-4 py-2 text-sm text-gold-strong">{msg}</div>}
 
       <div className="space-y-4 max-w-md">
         <div>
@@ -243,7 +243,7 @@ export default function HomepageConfig() {
           <label className="block text-sm text-text-secondary mb-1">Hero 背景图</label>
           <div className="flex gap-2 items-center">
             <input type="text" value={config.heroImage} onChange={e => setConfig({ ...config, heroImage: e.target.value })} className="flex-1 rounded-lg border border-accent-gold/30 bg-bg-paper px-4 py-2 text-sm text-text-primary focus:border-accent-gold/60 focus:outline-none" placeholder="图片 URL（可留空）" />
-            <label className="cursor-pointer rounded-lg border border-accent-gold/30 px-3 py-2 text-xs text-accent-gold">上传<input type="file" accept="image/*" onChange={uploadHero} className="hidden" /></label>
+            <label className="cursor-pointer rounded-lg border border-accent-gold/30 px-3 py-2 text-xs text-gold-strong">上传<input type="file" accept="image/*" onChange={uploadHero} className="hidden" /></label>
           </div>
           {config.heroImage && <img src={config.heroImage} alt="hero" className="mt-2 h-24 w-full rounded-lg object-cover" />}
         </div>
@@ -281,7 +281,7 @@ export default function HomepageConfig() {
           </SortableContext>
         </DndContext>
         <div className="mt-3">
-          <button onClick={() => setAdding(true)} className="rounded-full border border-accent-gold/30 px-4 py-2 text-sm text-accent-gold hover:bg-accent-gold/5">+ 新增板块</button>
+          <button onClick={() => setAdding(true)} className="rounded-full border border-accent-gold/30 px-4 py-2 text-sm text-gold-strong hover:bg-gold-strong/5">+ 新增板块</button>
         </div>
         {sections.length === 0 && <p className="text-text-muted text-sm mt-2">暂无板块，请新增。</p>}
       </div>
@@ -308,7 +308,7 @@ export default function HomepageConfig() {
             </div>
             <div className="mt-6 flex justify-end gap-3">
               <button onClick={() => setAdding(false)} className="rounded-full border border-accent-gold/30 px-4 py-2 text-sm text-text-muted">取消</button>
-              <button onClick={submitAdd} className="rounded-full bg-accent-gold px-4 py-2 text-sm text-white hover:opacity-90">添加</button>
+              <button onClick={submitAdd} className="rounded-full bg-gold-strong px-4 py-2 text-sm text-white hover:opacity-90">添加</button>
             </div>
           </div>
         </div>
@@ -340,7 +340,7 @@ export default function HomepageConfig() {
         </div>
       </div>
 
-      <button onClick={saveHomepage} disabled={saving} className={`rounded-full px-6 py-2.5 text-sm font-medium text-white ${saving ? "bg-text-muted" : "bg-accent-gold hover:opacity-90"}`}>
+      <button onClick={saveHomepage} disabled={saving} className={`rounded-full px-6 py-2.5 text-sm font-medium text-white ${saving ? "bg-text-muted" : "bg-gold-strong hover:opacity-90"}`}>
         {saving ? "⏳ 保存中..." : "保存配置"}
       </button>
     </div>

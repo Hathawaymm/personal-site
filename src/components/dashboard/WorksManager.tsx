@@ -172,9 +172,9 @@ export default function WorksManager() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="diary-title text-xl">作品管理</h2>
-        <button onClick={openNew} className="rounded-full bg-accent-gold px-5 py-2 text-sm text-white hover:opacity-90">+ 新增作品</button>
+        <button onClick={openNew} className="rounded-full bg-gold-strong px-5 py-2 text-sm text-white hover:opacity-90">+ 新增作品</button>
       </div>
-      {msg && <div className="rounded-lg border border-accent-gold/30 bg-accent-gold/5 px-4 py-2 text-sm text-accent-gold">{msg}</div>}
+      {msg && <div className="rounded-lg border border-accent-gold/30 bg-gold-strong/5 px-4 py-2 text-sm text-gold-strong">{msg}</div>}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {works.map(w => (
           <div key={w._id} className="rounded-lg border border-accent-gold/20 bg-bg-paper p-4">
@@ -182,13 +182,13 @@ export default function WorksManager() {
                {w.cover && <img src={proxyImageUrl(w.cover)} alt="" className="h-20 w-32 rounded object-cover" />}
               <div className="flex-1 min-w-0">
                 <h3 className="font-semibold text-text-primary">{w.title}</h3>
-                {w.category && <span className="text-xs text-accent-gold">{w.category}</span>}
+                {w.category && <span className="text-xs text-gold-strong">{w.category}</span>}
                 <p className="mt-1 text-sm text-text-muted line-clamp-2">{w.description}</p>
               </div>
             </div>
             <div className="mt-3 flex gap-2">
-              <button onClick={() => openEdit(w)} className="rounded-full border border-accent-gold/30 px-3 py-1 text-xs text-accent-gold">✏ 编辑</button>
-              <button onClick={() => remove(w)} className="rounded-full border border-accent-rose/30 px-3 py-1 text-xs text-accent-rose">🗑 删除</button>
+              <button onClick={() => openEdit(w)} className="rounded-full border border-accent-gold/30 px-3 py-1 text-xs text-gold-strong">✏ 编辑</button>
+              <button onClick={() => remove(w)} className="rounded-full border border-accent-rose/30 px-3 py-1 text-xs text-rose-strong">🗑 删除</button>
             </div>
           </div>
         ))}
@@ -204,8 +204,8 @@ export default function WorksManager() {
                   <span>📤 上传中（直传 COS，不受服务器大小限制）</span>
                   <span>{Math.round(uploadPercent)}%</span>
                 </div>
-                <div className="h-2 w-full overflow-hidden rounded-full bg-accent-gold/15">
-                  <div className="h-full rounded-full bg-accent-gold transition-all" style={{ width: `${uploadPercent}%` }} />
+                <div className="h-2 w-full overflow-hidden rounded-full bg-gold-strong/15">
+                  <div className="h-full rounded-full bg-gold-strong transition-all" style={{ width: `${uploadPercent}%` }} />
                 </div>
               </div>
             )}
@@ -226,7 +226,7 @@ export default function WorksManager() {
                 <label className="block text-sm text-text-secondary mb-1">上传文件</label>
                 <div className="flex gap-2 items-center">
                   <input value={currentUrl} onChange={e => setCurrentUrl(e.target.value)} className="flex-1 rounded border border-accent-gold/20 px-3 py-2 text-sm" placeholder="上传后自动填入，也可手动粘贴 URL" />
-                  <label className={`shrink-0 cursor-pointer rounded border px-3 py-2 text-xs ${uploading ? "cursor-not-allowed border-text-muted/30 text-text-muted" : "border-accent-gold/30 text-accent-gold"}`}>{uploading ? "上传中..." : "上传"}<input type="file" accept="image/*,video/mp4,video/quicktime,video/webm,audio/*,application/pdf,.txt,.md,.markdown,.psd,.ai,.sketch,.fig,.zip,.rar,.7z,.doc,.docx,.ppt,.pptx,.xls,.xlsx" onChange={uploadFile} disabled={uploading} className="hidden" /></label>
+                  <label className={`shrink-0 cursor-pointer rounded border px-3 py-2 text-xs ${uploading ? "cursor-not-allowed border-text-muted/30 text-text-muted" : "border-accent-gold/30 text-gold-strong"}`}>{uploading ? "上传中..." : "上传"}<input type="file" accept="image/*,video/mp4,video/quicktime,video/webm,audio/*,application/pdf,.txt,.md,.markdown,.psd,.ai,.sketch,.fig,.zip,.rar,.7z,.doc,.docx,.ppt,.pptx,.xls,.xlsx" onChange={uploadFile} disabled={uploading} className="hidden" /></label>
                 </div>
                 <p className="mt-1 text-xs text-text-muted">支持图片/视频/音频/PDF/文本及 psd/zip 等，上传后自动识别类型</p>
               </div>
@@ -245,7 +245,7 @@ export default function WorksManager() {
             </div>
             <div className="mt-6 flex justify-end gap-3">
               <button onClick={() => setModal(null)} className="rounded-full border border-accent-gold/30 px-4 py-2 text-sm text-text-muted">取消</button>
-              <button onClick={save} disabled={saving || !title} className={`rounded-full px-4 py-2 text-sm text-white ${saving || !title ? "bg-text-muted" : "bg-accent-gold hover:opacity-90"}`}>{saving ? "⏳ 保存中..." : "发布作品"}</button>
+              <button onClick={save} disabled={saving || !title} className={`rounded-full px-4 py-2 text-sm text-white ${saving || !title ? "bg-text-muted" : "bg-gold-strong hover:opacity-90"}`}>{saving ? "⏳ 保存中..." : "发布作品"}</button>
             </div>
           </div>
         </div>

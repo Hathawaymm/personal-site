@@ -38,7 +38,7 @@ export default function InlineEditor({ title, fields, onSave, position = "top-ri
 
   return (
     <>
-      <button onClick={openModal} style={position === "top-right" ? { top: 16 + topOffset } : undefined} className={position === "inline" ? "inline-flex items-center gap-1 rounded-full border border-accent-gold/30 px-3 py-1.5 text-xs text-accent-gold hover:bg-accent-gold/5" : "absolute right-6 z-10 rounded-full bg-bg-paper border border-accent-gold/30 px-3 py-1.5 text-xs text-accent-gold shadow-paper hover:bg-accent-gold/5"}>
+      <button onClick={openModal} style={position === "top-right" ? { top: 16 + topOffset } : undefined} className={position === "inline" ? "inline-flex items-center gap-1 rounded-full border border-accent-gold/30 px-3 py-1.5 text-xs text-gold-strong hover:bg-gold-strong/5" : "absolute right-6 z-10 rounded-full bg-bg-paper border border-accent-gold/30 px-3 py-1.5 text-xs text-gold-strong shadow-paper hover:bg-gold-strong/5"}>
         ✏ 编辑
       </button>
 
@@ -68,10 +68,10 @@ export default function InlineEditor({ title, fields, onSave, position = "top-ri
                 </div>
               ))}
             </div>
-            {msg && <p className="mt-4 text-sm text-center text-accent-gold">{msg}</p>}
+            {msg && <p className="mt-4 text-sm text-center text-gold-strong">{msg}</p>}
             <div className="mt-6 flex justify-end gap-3">
               <button onClick={() => setOpen(false)} className="rounded-full border border-accent-gold/30 px-4 py-2 text-sm text-text-muted">取消</button>
-              <button onClick={save} disabled={saving} className={`rounded-full px-4 py-2 text-sm text-white ${saving ? "bg-text-muted" : "bg-accent-gold hover:opacity-90"}`}>
+              <button onClick={save} disabled={saving} className={`rounded-full px-4 py-2 text-sm text-white ${saving ? "bg-text-muted" : "bg-gold-strong hover:opacity-90"}`}>
                 {saving ? "⏳ 保存中..." : "保存"}
               </button>
             </div>

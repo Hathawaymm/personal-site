@@ -173,15 +173,15 @@ export default function VisitorManager() {
   return (
     <div className="space-y-8">
       {msg && (
-        <div className="rounded-lg border border-accent-gold/30 bg-accent-gold/5 px-4 py-2 text-sm text-accent-gold">
+        <div className="rounded-lg border border-accent-gold/30 bg-gold-strong/5 px-4 py-2 text-sm text-gold-strong">
           {msg}
           <button className="ml-3 text-xs underline" onClick={() => setMsg("")}>关闭</button>
         </div>
       )}
 
       <div className="flex gap-1 rounded-lg border border-accent-gold/20 bg-bg-paper p-1 max-w-md">
-        <button onClick={() => setVisitTab("users")} className={`flex-1 rounded-md px-4 py-2 text-sm font-medium ${visitTab === "users" ? "bg-accent-gold text-white" : "text-text-muted hover:text-text-primary"}`}>访客管理</button>
-        <button onClick={() => setVisitTab("logs")} className={`flex-1 rounded-md px-4 py-2 text-sm font-medium ${visitTab === "logs" ? "bg-accent-gold text-white" : "text-text-muted hover:text-text-primary"}`}>访客浏览日志</button>
+        <button onClick={() => setVisitTab("users")} className={`flex-1 rounded-md px-4 py-2 text-sm font-medium ${visitTab === "users" ? "bg-gold-strong text-white" : "text-text-muted hover:text-text-primary"}`}>访客管理</button>
+        <button onClick={() => setVisitTab("logs")} className={`flex-1 rounded-md px-4 py-2 text-sm font-medium ${visitTab === "logs" ? "bg-gold-strong text-white" : "text-text-muted hover:text-text-primary"}`}>访客浏览日志</button>
       </div>
 
       {visitTab === "logs" ? (
@@ -232,10 +232,10 @@ export default function VisitorManager() {
                   <span className="ml-2 text-xs text-text-muted">{user.status}</span>
                 </div>
                 <div className="flex gap-2">
-                  <button onClick={() => openPermModal(user)} className="rounded-full bg-accent-gold px-4 py-1.5 text-sm text-white hover:opacity-90">
+                  <button onClick={() => openPermModal(user)} className="rounded-full bg-gold-strong px-4 py-1.5 text-sm text-white hover:opacity-90">
                     ✅ 批准并配置权限
                   </button>
-                  <button onClick={() => handleReject(user.github_id)} className="rounded-full border border-accent-rose/30 px-4 py-1.5 text-sm text-accent-rose hover:bg-accent-rose/5">
+                  <button onClick={() => handleReject(user.github_id)} className="rounded-full border border-accent-rose/30 px-4 py-1.5 text-sm text-rose-strong hover:bg-accent-rose/5">
                     ❌ 拒绝申请
                   </button>
                 </div>
@@ -257,10 +257,10 @@ export default function VisitorManager() {
                   <span className="font-medium text-text-primary">{user.github_username || user.nickname}</span>
                 </div>
                 <div className="flex gap-2">
-                  <button onClick={() => openPermModal(user)} className="rounded-full border border-accent-gold/30 px-3 py-1.5 text-sm text-accent-gold hover:bg-accent-gold/5">
+                  <button onClick={() => openPermModal(user)} className="rounded-full border border-accent-gold/30 px-3 py-1.5 text-sm text-gold-strong hover:bg-gold-strong/5">
                     ✏ 修改权限
                   </button>
-                  <button onClick={() => handleReject(user.github_id)} className="rounded-full border border-accent-rose/30 px-3 py-1.5 text-sm text-accent-rose hover:bg-accent-rose/5">
+                  <button onClick={() => handleReject(user.github_id)} className="rounded-full border border-accent-rose/30 px-3 py-1.5 text-sm text-rose-strong hover:bg-accent-rose/5">
                     🗑 移除访问
                   </button>
                 </div>
@@ -308,9 +308,9 @@ export default function VisitorManager() {
             </div>
 
             <div className="mt-4 flex gap-2">
-              <button onClick={() => setAllPerms("all")} className="rounded-full border border-accent-gold/30 px-3 py-1 text-xs text-accent-gold">全选</button>
+              <button onClick={() => setAllPerms("all")} className="rounded-full border border-accent-gold/30 px-3 py-1 text-xs text-gold-strong">全选</button>
               <button onClick={() => setAllPerms("text")} className="rounded-full border border-accent-sky/30 px-3 py-1 text-xs text-accent-sky">仅选文字</button>
-              <button onClick={() => setAllPerms("none")} className="rounded-full border border-accent-rose/30 px-3 py-1 text-xs text-accent-rose">清空全部</button>
+              <button onClick={() => setAllPerms("none")} className="rounded-full border border-accent-rose/30 px-3 py-1 text-xs text-rose-strong">清空全部</button>
             </div>
 
             <div className="mt-6 flex justify-end gap-3">
@@ -320,7 +320,7 @@ export default function VisitorManager() {
               <button
                 onClick={savePermissions}
                 disabled={permModal.saving}
-                className={`rounded-full px-4 py-2 text-sm text-white ${permModal.saving ? "bg-text-muted" : "bg-accent-gold hover:opacity-90"}`}
+                className={`rounded-full px-4 py-2 text-sm text-white ${permModal.saving ? "bg-text-muted" : "bg-gold-strong hover:opacity-90"}`}
               >
                 {permModal.saving ? "⏳ 正在保存..." : "✅ 保存此访客权限"}
               </button>

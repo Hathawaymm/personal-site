@@ -20,8 +20,8 @@ let nextId = 0;
 
 const typeStyles: Record<ToastType, string> = {
   success: "border-accent-sage/40 bg-accent-sage/5 text-accent-sage",
-  warning: "border-accent-gold/40 bg-accent-gold/5 text-accent-gold",
-  error: "border-accent-rose/40 bg-accent-rose/5 text-accent-rose",
+  warning: "border-accent-gold/40 bg-gold-strong/5 text-gold-strong",
+  error: "border-accent-rose/40 bg-accent-rose/5 text-rose-strong",
   info: "border-accent-sky/40 bg-accent-sky/5 text-accent-sky",
 };
 

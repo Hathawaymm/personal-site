@@ -91,9 +91,9 @@ export default function BlogManager() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="diary-title text-xl">博客管理</h2>
-        <button onClick={openNew} className="rounded-full bg-accent-gold px-5 py-2 text-sm text-white hover:opacity-90">✍ 写新文章</button>
+        <button onClick={openNew} className="rounded-full bg-gold-strong px-5 py-2 text-sm text-white hover:opacity-90">✍ 写新文章</button>
       </div>
-      {msg && <div className="rounded-lg border border-accent-gold/30 bg-accent-gold/5 px-4 py-2 text-sm text-accent-gold">{msg}</div>}
+      {msg && <div className="rounded-lg border border-accent-gold/30 bg-gold-strong/5 px-4 py-2 text-sm text-gold-strong">{msg}</div>}
       <div className="space-y-3">
         {articles.map(a => (
           <div key={a._id || a.slug} className="flex items-center justify-between rounded-lg border border-accent-gold/20 bg-bg-paper p-4">
@@ -105,8 +105,8 @@ export default function BlogManager() {
               </div>
             </div>
             <div className="flex gap-2">
-              <button onClick={() => openEdit(a)} className="text-xs text-accent-gold">✏ 编辑</button>
-              <button onClick={() => remove(a)} className="text-xs text-accent-rose">🗑 删除</button>
+              <button onClick={() => openEdit(a)} className="text-xs text-gold-strong">✏ 编辑</button>
+              <button onClick={() => remove(a)} className="text-xs text-rose-strong">🗑 删除</button>
             </div>
           </div>
         ))}
@@ -130,7 +130,7 @@ export default function BlogManager() {
             <div className="mt-6 flex justify-end gap-3">
               <button onClick={() => setModal(null)} className="rounded-full border border-accent-gold/30 px-4 py-2 text-sm text-text-muted">取消</button>
               <button onClick={() => save("draft")} disabled={saving || !title} className="rounded-full border border-text-muted/30 px-4 py-2 text-sm text-text-muted">存为草稿</button>
-              <button onClick={() => save("published")} disabled={saving || !title || !excerpt} className={`rounded-full px-4 py-2 text-sm text-white ${saving || !title || !excerpt ? "bg-text-muted" : "bg-accent-gold hover:opacity-90"}`}>{saving ? "⏳ 保存中..." : "发布文章"}</button>
+              <button onClick={() => save("published")} disabled={saving || !title || !excerpt} className={`rounded-full px-4 py-2 text-sm text-white ${saving || !title || !excerpt ? "bg-text-muted" : "bg-gold-strong hover:opacity-90"}`}>{saving ? "⏳ 保存中..." : "发布文章"}</button>
             </div>
           </div>
         </div>

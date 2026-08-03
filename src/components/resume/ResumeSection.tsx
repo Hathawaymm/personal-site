@@ -43,9 +43,9 @@ export default function ResumeSection({ data }: ResumeSectionProps) {
               {data.experience.map((item, i) => (
                 <div key={i} className="relative">
                   <div className="absolute -left-[26px] size-3 rounded-full border-2 border-accent-gold bg-bg-cream" />
-                  <span className="text-xs text-accent-gold">{item.period}</span>
+                  <span className="text-xs text-gold-strong">{item.period}</span>
                   <h4 className="font-semibold text-text-primary">{item.role}</h4>
-                  <p className="text-sm text-accent-rose">{item.company}</p>
+                  <p className="text-sm text-rose-strong">{item.company}</p>
                   <p className="mt-1 text-sm leading-relaxed text-text-muted">{item.description}</p>
                 </div>
               ))}
@@ -60,7 +60,7 @@ export default function ResumeSection({ data }: ResumeSectionProps) {
               {data.education.map((item, i) => (
                 <div key={i} className="relative">
                   <div className="absolute -left-[26px] size-3 rounded-full border-2 border-accent-gold bg-bg-cream" />
-                  <span className="text-xs text-accent-gold">{item.period}</span>
+                  <span className="text-xs text-gold-strong">{item.period}</span>
                   <h4 className="font-semibold text-text-primary">{item.school}</h4>
                   <p className="text-sm text-text-muted">{item.degree}</p>
                 </div>
@@ -76,7 +76,7 @@ export default function ResumeSection({ data }: ResumeSectionProps) {
               {data.skills.map((tag) => (
                 <span
                   key={tag}
-                  className="rounded-full border border-accent-gold/40 bg-bg-paper px-4 py-2 text-sm text-text-secondary shadow-paper transition-all duration-300 hover:border-accent-gold hover:text-accent-gold"
+                  className="rounded-full border border-accent-gold/40 bg-bg-paper px-4 py-2 text-sm text-text-secondary shadow-paper transition-all duration-300 hover:border-accent-gold hover:text-gold-strong"
                 >
                   {tag}
                 </span>

@@ -66,9 +66,9 @@ export default function BgPhotoWall() {
 
   const sizedItems = useMemo<SizedItem[]>(() => {
     const valid = photos.filter(p => p.src);
-    const offset = Math.floor(Math.random() * SPAN_PATTERN.length);
+    // 固定拼接图案（不再随机偏移），保证每次加载布局稳定
     return valid.map((photo, i) => {
-      const [colSpan, rowSpan] = SPAN_PATTERN[(i + offset) % SPAN_PATTERN.length];
+      const [colSpan, rowSpan] = SPAN_PATTERN[i % SPAN_PATTERN.length];
       return { photo, colSpan, rowSpan };
     });
   }, [photos]);
@@ -80,12 +80,12 @@ export default function BgPhotoWall() {
       <div
         ref={wallRef}
         className="grid grid-cols-6 gap-1 p-1"
-        style={{ gridAutoRows: "minmax(80px, auto)", gridAutoFlow: "dense", minHeight: "100%" }}
+        style={{ gridAutoRows: "minmax(100px, auto)", gridAutoFlow: "dense", minHeight: "100%" }}
       >
         {sizedItems.map(({ photo, colSpan, rowSpan }, i) => (
           <div
             key={i}
-            className="overflow-hidden rounded-sm opacity-40"
+            className="overflow-hidden rounded-sm opacity-30"
             style={{ gridColumnEnd: `span ${colSpan}`, gridRowEnd: `span ${rowSpan}` }}
           >
             <Image

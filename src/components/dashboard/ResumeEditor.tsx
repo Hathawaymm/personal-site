@@ -134,7 +134,7 @@ export default function ResumeEditor() {
   return (
     <div className="space-y-8">
       <h2 className="diary-title text-xl">简历编辑</h2>
-      {msg && <div className="rounded-lg border border-accent-gold/30 bg-accent-gold/5 px-4 py-2 text-sm text-accent-gold">{msg}</div>}
+      {msg && <div className="rounded-lg border border-accent-gold/30 bg-gold-strong/5 px-4 py-2 text-sm text-gold-strong">{msg}</div>}
 
       <div className="space-y-4 max-w-lg">
         <div>
@@ -149,7 +149,7 @@ export default function ResumeEditor() {
           <label className="block text-sm text-text-secondary mb-1">头像</label>
           <div className="flex items-center gap-4">
             {data.avatar && <img src={proxyImageUrl(data.avatar)} alt="" className="size-16 rounded-full object-cover" />}
-            <label className="cursor-pointer rounded-full border border-accent-gold/30 px-4 py-2 text-sm text-accent-gold hover:bg-accent-gold/5">
+            <label className="cursor-pointer rounded-full border border-accent-gold/30 px-4 py-2 text-sm text-gold-strong hover:bg-gold-strong/5">
               {uploading ? "上传中..." : "更换照片"}
               <input type="file" accept="image/*" onChange={uploadAvatar} className="hidden" disabled={uploading} />
             </label>
@@ -173,11 +173,11 @@ export default function ResumeEditor() {
               </div>
               <input value={exp.period} onChange={e => updateExperience(id, "period", e.target.value)} className="w-full rounded border border-accent-gold/20 px-3 py-1.5 text-sm" placeholder="时间段" />
               <textarea value={exp.description} onChange={e => updateExperience(id, "description", e.target.value)} rows={2} className="w-full rounded border border-accent-gold/20 px-3 py-1.5 text-sm" placeholder="描述" />
-              <button onClick={() => removeExperience(id)} className="text-xs text-accent-rose">✕ 删除</button>
+              <button onClick={() => removeExperience(id)} className="text-xs text-rose-strong">✕ 删除</button>
             </div>
           );
         })}
-        <button onClick={addExperience} className="rounded-full border border-accent-gold/30 px-4 py-2 text-sm text-accent-gold">+ 新增工作经历</button>
+        <button onClick={addExperience} className="rounded-full border border-accent-gold/30 px-4 py-2 text-sm text-gold-strong">+ 新增工作经历</button>
       </div>
 
       <div>
@@ -191,14 +191,14 @@ export default function ResumeEditor() {
                 <input value={edu.degree} onChange={e => updateEducation(id, "degree", e.target.value)} className="rounded border border-accent-gold/20 px-3 py-1.5 text-sm" placeholder="学位" />
               </div>
               <input value={edu.period} onChange={e => updateEducation(id, "period", e.target.value)} className="w-full rounded border border-accent-gold/20 px-3 py-1.5 text-sm" placeholder="时间段" />
-              <button onClick={() => removeEducation(id)} className="text-xs text-accent-rose">✕ 删除</button>
+              <button onClick={() => removeEducation(id)} className="text-xs text-rose-strong">✕ 删除</button>
             </div>
           );
         })}
-        <button onClick={addEducation} className="rounded-full border border-accent-gold/30 px-4 py-2 text-sm text-accent-gold">+ 新增教育背景</button>
+        <button onClick={addEducation} className="rounded-full border border-accent-gold/30 px-4 py-2 text-sm text-gold-strong">+ 新增教育背景</button>
       </div>
 
-      <button onClick={save} disabled={saving} className={`rounded-full px-6 py-2.5 text-sm font-medium text-white ${saving ? "bg-text-muted" : "bg-accent-gold hover:opacity-90"}`}>
+      <button onClick={save} disabled={saving} className={`rounded-full px-6 py-2.5 text-sm font-medium text-white ${saving ? "bg-text-muted" : "bg-gold-strong hover:opacity-90"}`}>
         {saving ? "⏳ 保存中..." : "保存简历"}
       </button>
     </div>

@@ -82,7 +82,7 @@ export default function SystemSettings() {
   return (
     <div className="space-y-6">
       <h2 className="diary-title text-xl">系统设置</h2>
-      {msg && <div className="rounded-lg border border-accent-gold/30 bg-accent-gold/5 px-4 py-2 text-sm text-accent-gold">{msg}</div>}
+      {msg && <div className="rounded-lg border border-accent-gold/30 bg-gold-strong/5 px-4 py-2 text-sm text-gold-strong">{msg}</div>}
 
       <div className="border-b border-accent-gold/15 pb-6">
         <h3 className="diary-title text-lg mb-4">管理员信息</h3>
@@ -91,7 +91,7 @@ export default function SystemSettings() {
             <div className="size-24 rounded-full bg-bg-warm overflow-hidden border-2 border-accent-gold/30">
               {profile.avatar && <img src={profile.avatar} alt="" className="w-full h-full object-cover" />}
             </div>
-            <label className="cursor-pointer text-sm text-accent-gold hover:underline">
+            <label className="cursor-pointer text-sm text-gold-strong hover:underline">
               更换头像
               <input type="file" accept="image/*" onChange={uploadAvatar} className="hidden" />
             </label>
@@ -120,7 +120,7 @@ export default function SystemSettings() {
         </div>
       </div>
 
-      <button onClick={save} disabled={saving} className={`rounded-full px-6 py-2.5 text-sm font-medium text-white ${saving ? "bg-text-muted" : "bg-accent-gold hover:opacity-90"}`}>{saving ? "⏳ 保存中..." : "保存设置"}</button>
+      <button onClick={save} disabled={saving} className={`rounded-full px-6 py-2.5 text-sm font-medium text-white ${saving ? "bg-text-muted" : "bg-gold-strong hover:opacity-90"}`}>{saving ? "⏳ 保存中..." : "保存设置"}</button>
     </div>
   );
 }

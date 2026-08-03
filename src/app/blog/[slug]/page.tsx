@@ -90,12 +90,12 @@ export default function BlogDetailPage() {
 
               <div className="mt-8 flex flex-wrap gap-2 justify-center">
                 {post.tags.map(tag => (
-                  <span key={tag} className="inline-flex rounded-full border border-accent-gold/30 px-3 py-1 text-sm text-accent-gold">{tag}</span>
+                  <span key={tag} className="inline-flex rounded-full border border-accent-gold/30 px-3 py-1 text-sm text-gold-strong">{tag}</span>
                 ))}
               </div>
 
               <div className="mt-16 text-center">
-                <Link href="/blog" className="inline-flex items-center gap-2 rounded-full border border-accent-gold/50 px-6 py-3 text-sm font-medium text-accent-gold hover:bg-accent-gold/10">
+                <Link href="/blog" className="inline-flex items-center gap-2 rounded-full border border-accent-gold/50 px-6 py-3 text-sm font-medium text-gold-strong hover:bg-gold-strong/10">
                   ← 返回博客列表
                 </Link>
               </div>
@@ -103,7 +103,7 @@ export default function BlogDetailPage() {
           ) : (
             <div className="text-center">
               <h1 className="diary-title text-2xl">文章未找到</h1>
-              <Link href="/blog" className="mt-4 inline-block text-accent-gold hover:underline">返回博客列表</Link>
+              <Link href="/blog" className="mt-4 inline-block text-gold-strong hover:underline">返回博客列表</Link>
             </div>
           )}
         </div>

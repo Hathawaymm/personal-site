@@ -17,8 +17,8 @@ const accentColors = [
 ] as const;
 
 const tagBorders = [
-  "border-accent-rose/50 text-accent-rose",
-  "border-accent-gold/50 text-accent-gold",
+  "border-accent-rose/50 text-rose-strong",
+  "border-accent-gold/50 text-gold-strong",
   "border-accent-sage/50 text-accent-sage",
   "border-accent-sky/50 text-accent-sky",
 ] as const;
@@ -54,7 +54,7 @@ export default function BlogCard({
 
         <div className="flex flex-col flex-1 gap-3 p-5">
           {/* Title */}
-          <h2 className="text-lg font-semibold leading-snug text-text-primary transition-colors duration-300 group-hover:text-accent-gold">
+          <h2 className="text-lg font-semibold leading-snug text-text-primary transition-colors duration-300 group-hover:text-gold-strong">
             {title}
           </h2>
 

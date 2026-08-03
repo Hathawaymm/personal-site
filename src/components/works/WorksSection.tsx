@@ -60,7 +60,7 @@ export default function WorksSection({ works, title = "作品集", subtitle = ""
           <div className="flex flex-wrap justify-center gap-2">
             <button
               onClick={() => setActiveCat("all")}
-              className={`rounded-full px-4 py-1.5 text-sm transition-colors ${activeCat === "all" ? "bg-accent-gold text-white" : "border border-accent-gold/30 text-accent-gold hover:bg-accent-gold/5"}`}
+              className={`rounded-full px-4 py-1.5 text-sm transition-colors ${activeCat === "all" ? "bg-gold-strong text-white" : "border border-accent-gold/30 text-gold-strong hover:bg-gold-strong/5"}`}
             >
               全部
             </button>
@@ -68,7 +68,7 @@ export default function WorksSection({ works, title = "作品集", subtitle = ""
               <button
                 key={cat}
                 onClick={() => setActiveCat(cat)}
-                className={`rounded-full px-4 py-1.5 text-sm transition-colors ${activeCat === cat ? "bg-accent-gold text-white" : "border border-accent-gold/30 text-accent-gold hover:bg-accent-gold/5"}`}
+                className={`rounded-full px-4 py-1.5 text-sm transition-colors ${activeCat === cat ? "bg-gold-strong text-white" : "border border-accent-gold/30 text-gold-strong hover:bg-gold-strong/5"}`}
               >
                 {cat}
               </button>
@@ -101,7 +101,7 @@ export default function WorksSection({ works, title = "作品集", subtitle = ""
                   {work.cover ? (
                     <img src={proxyImageUrl(work.cover)} alt="" className="absolute inset-0 h-full w-full object-cover opacity-40" />
                   ) : null}
-                  <span className="font-display text-5xl text-accent-gold relative">🎵</span>
+                  <span className="font-display text-5xl text-gold-strong relative">🎵</span>
                   <audio src={work.fileUrl} controls className="w-full max-w-xs relative" preload="metadata" onClick={e => e.stopPropagation()} />
                 </div>
               ) : work.type === "file" && work.fileUrl ? (
@@ -109,15 +109,15 @@ export default function WorksSection({ works, title = "作品集", subtitle = ""
                   {work.cover ? (
                     <img src={proxyImageUrl(work.cover)} alt="" className="absolute inset-0 h-full w-full object-cover opacity-40" />
                   ) : null}
-                  <span className="font-display text-5xl text-accent-gold relative">📄</span>
+                  <span className="font-display text-5xl text-gold-strong relative">📄</span>
                   <span className="relative rounded-full bg-black/50 px-3 py-1 text-xs text-white">点击查看 / 下载</span>
                 </div>
               ) : work.type === "text" && work.excerpt ? (
                 <div className="relative flex aspect-video w-full items-center justify-center bg-bg-warm p-6">
                   <div className="text-center">
-                    <span className="font-display text-4xl text-accent-gold mb-3 block">✎</span>
+                    <span className="font-display text-4xl text-gold-strong mb-3 block">✎</span>
                     <p className="text-sm text-text-secondary line-clamp-3">{work.excerpt}</p>
-                    <span className="mt-3 inline-block text-xs text-accent-gold hover:underline">阅读全文 →</span>
+                    <span className="mt-3 inline-block text-xs text-gold-strong hover:underline">阅读全文 →</span>
                   </div>
                 </div>
               ) : work.type === "pdf" || work.type === "text" ? (
@@ -125,7 +125,7 @@ export default function WorksSection({ works, title = "作品集", subtitle = ""
                   {work.cover ? (
                     <img src={proxyImageUrl(work.cover)} alt="" className="h-full w-full object-cover" />
                   ) : (
-                    <span className="font-display text-5xl text-accent-gold">{work.type === "pdf" ? "PDF" : "✎"}</span>
+                    <span className="font-display text-5xl text-gold-strong">{work.type === "pdf" ? "PDF" : "✎"}</span>
                   )}
                   <span className="absolute bottom-3 right-3 rounded-full bg-black/50 px-3 py-1 text-xs text-white">点击在线阅读</span>
                 </div>
@@ -135,11 +135,11 @@ export default function WorksSection({ works, title = "作品集", subtitle = ""
                 </div>
               )}
                <div className="p-5">
-                 <div className="flex items-center gap-2 mb-2">
-                   {work.category && <span className="rounded-full border border-accent-gold/30 px-2 py-0.5 text-xs text-accent-gold">{work.category}</span>}
-                   <h3 className="diary-title text-lg">{work.title}</h3>
+                 <div className="flex items-start gap-2 mb-2">
+                   {work.category && <span className="shrink-0 rounded-full border border-accent-gold/40 px-2.5 py-0.5 text-xs text-gold-strong">{work.category}</span>}
+                   <h3 className="diary-title text-lg leading-snug">{work.title}</h3>
                  </div>
-                {work.description && <p className="text-sm leading-relaxed text-text-muted">{work.description}</p>}
+                {work.description && <p className="mt-1 text-sm leading-relaxed text-text-secondary line-clamp-2">{work.description}</p>}
               </div>
             </div>
           ))}
@@ -154,7 +154,7 @@ export default function WorksSection({ works, title = "作品集", subtitle = ""
                <div>
                  <h3 className="diary-title text-2xl">{selected.title}</h3>
                  {selected.category && (
-                   <p className="mt-1 text-sm text-accent-gold">{selected.category}</p>
+                   <p className="mt-1 text-sm text-gold-strong">{selected.category}</p>
                  )}
                </div>
               <button onClick={() => setSelected(null)} className="text-2xl text-text-muted hover:text-text-primary">✕</button>
@@ -174,9 +174,9 @@ export default function WorksSection({ works, title = "作品集", subtitle = ""
             {selected.type === "file" && selected.fileUrl && (
               <div className="py-8 text-center">
                 {selected.cover && <img src={proxyImageUrl(selected.cover)} alt="" className="mx-auto mb-4 h-40 w-40 rounded-lg object-cover" />}
-                <div className="mb-4 text-5xl text-accent-gold">📄</div>
+                <div className="mb-4 text-5xl text-gold-strong">📄</div>
                 <p className="mb-4 text-sm text-text-muted">该格式无法在线预览，请下载后查看。</p>
-                <a href={selected.fileUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full bg-accent-gold px-6 py-3 text-sm font-medium text-white hover:opacity-90">
+                <a href={selected.fileUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full bg-gold-strong px-6 py-3 text-sm font-medium text-white hover:opacity-90">
                   ⬇ 下载文件
                 </a>
               </div>

@@ -62,12 +62,12 @@ export default function ImageManager() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="diary-title text-lg">图片管理</h2>
-        <button onClick={handleUpload} disabled={uploading} className="rounded-md bg-accent-gold px-4 py-2 text-sm text-white hover:opacity-90 disabled:opacity-50">
+        <button onClick={handleUpload} disabled={uploading} className="rounded-md bg-gold-strong px-4 py-2 text-sm text-white hover:opacity-90 disabled:opacity-50">
           {uploading ? "上传中..." : "上传新图片"}
         </button>
       </div>
 
-      {msg && <div className="rounded bg-accent-gold/10 px-4 py-2 text-xs text-accent-gold">{msg} <button onClick={() => setMsg("")} className="ml-2">×</button></div>}
+      {msg && <div className="rounded bg-gold-strong/10 px-4 py-2 text-xs text-gold-strong">{msg} <button onClick={() => setMsg("")} className="ml-2">×</button></div>}
 
       {loading ? <p className="text-text-muted">加载中...</p> : images.length === 0 ? <p className="text-text-muted text-sm">暂无图片</p> : (
         <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">

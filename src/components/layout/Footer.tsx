@@ -23,7 +23,7 @@ export default function Footer() {
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="grid gap-8 sm:grid-cols-3">
           <div>
-            <span className="font-display text-lg font-bold tracking-wide text-accent-gold">
+            <span className="font-display text-lg font-bold tracking-wide text-gold-strong">
               {footer.title}
             </span>
             <p className="mt-3 text-sm leading-relaxed text-text-muted">
@@ -40,7 +40,7 @@ export default function Footer() {
                 <li key={href}>
                   <Link
                     href={href}
-                    className="text-sm text-text-muted transition-colors duration-200 hover:text-accent-gold"
+                    className="text-sm text-text-muted transition-colors duration-200 hover:text-gold-strong"
                   >
                     {label}
                   </Link>
@@ -60,7 +60,7 @@ export default function Footer() {
                   href={href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm text-text-muted transition-colors duration-200 hover:text-accent-gold"
+                  className="text-sm text-text-muted transition-colors duration-200 hover:text-gold-strong"
                 >
                   {label}
                 </a>

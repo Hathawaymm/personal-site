@@ -70,7 +70,7 @@ export default function RichTextEditor({ content, onChange, className = "" }: Ri
         <button
           onClick={handleImageUpload}
           disabled={uploading}
-          className="rounded px-2 py-1 text-xs text-text-muted hover:bg-accent-gold/10 hover:text-accent-gold disabled:opacity-50"
+          className="rounded px-2 py-1 text-xs text-text-muted hover:bg-gold-strong/10 hover:text-gold-strong disabled:opacity-50"
           title="插入图片"
         >
           {uploading ? "⏳" : "🖼"}
@@ -87,7 +87,7 @@ function ToolBtn({ onClick, active, label, title }: { onClick: () => void; activ
     <button
       onClick={onClick}
       className={`rounded px-2 py-1 text-xs font-medium transition-colors ${
-        active ? "bg-accent-gold/20 text-accent-gold" : "text-text-muted hover:bg-accent-gold/10 hover:text-accent-gold"
+        active ? "bg-gold-strong/20 text-gold-strong" : "text-text-muted hover:bg-gold-strong/10 hover:text-gold-strong"
       }`}
       title={title}
       type="button"

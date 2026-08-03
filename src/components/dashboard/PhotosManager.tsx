@@ -253,18 +253,18 @@ export default function PhotosManager() {
         <h2 className="diary-title text-xl">照片墙管理</h2>
         <div className="flex gap-2">
           {dirty && (
-            <button onClick={saveOrder} className="rounded-full bg-accent-gold px-4 py-2 text-sm text-white hover:opacity-90">💾 保存顺序</button>
+            <button onClick={saveOrder} className="rounded-full bg-gold-strong px-4 py-2 text-sm text-white hover:opacity-90">💾 保存顺序</button>
           )}
           <button onClick={() => openQuark("0")} className="rounded-full border border-accent-sky/40 px-4 py-2 text-sm text-accent-sky hover:bg-accent-sky/10" title="从夸克网盘选择照片转存">
             {quarkHealth === null ? "☁️ 网盘" : quarkHealth.valid ? "☁️ 网盘选择" : "⚠️ 网盘Cookie失效"}
           </button>
-          <label className="cursor-pointer rounded-full bg-accent-gold px-5 py-2 text-sm text-white hover:opacity-90">
+          <label className="cursor-pointer rounded-full bg-gold-strong px-5 py-2 text-sm text-white hover:opacity-90">
             {uploading ? "上传中..." : "📤 上传照片"}
             <input type="file" accept="image/*" multiple onChange={upload} className="hidden" disabled={uploading} />
           </label>
         </div>
       </div>
-      {msg && <div className="rounded-lg border border-accent-gold/30 bg-accent-gold/5 px-4 py-2 text-sm text-accent-gold">{msg}</div>}
+      {msg && <div className="rounded-lg border border-accent-gold/30 bg-gold-strong/5 px-4 py-2 text-sm text-gold-strong">{msg}</div>}
       {photos.length > 0 && (
         <p className="text-xs text-text-muted">拖动照片左上角 ☰ 可调整顺序（每页 {PAGE_SIZE} 张，不可跨页），调整后点击「保存顺序」生效。首页照片墙展示前 10 张，/photos 页展示全部。</p>
       )}
@@ -281,9 +281,9 @@ export default function PhotosManager() {
 
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-2 pt-2">
-          <button onClick={() => setPage(p => Math.max(0, p - 1))} disabled={safePage === 0} className="rounded-full border border-accent-gold/30 px-3 py-1 text-xs text-accent-gold disabled:opacity-30">← 上一页</button>
+          <button onClick={() => setPage(p => Math.max(0, p - 1))} disabled={safePage === 0} className="rounded-full border border-accent-gold/30 px-3 py-1 text-xs text-gold-strong disabled:opacity-30">← 上一页</button>
           <span className="text-xs text-text-muted">第 {safePage + 1} / {totalPages} 页（共 {photos.length} 张）</span>
-          <button onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} disabled={safePage === totalPages - 1} className="rounded-full border border-accent-gold/30 px-3 py-1 text-xs text-accent-gold disabled:opacity-30">下一页 →</button>
+          <button onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} disabled={safePage === totalPages - 1} className="rounded-full border border-accent-gold/30 px-3 py-1 text-xs text-gold-strong disabled:opacity-30">下一页 →</button>
         </div>
       )}
 
@@ -295,11 +295,11 @@ export default function PhotosManager() {
               <button onClick={() => setQuarkOpen(false)} className="text-2xl text-text-muted hover:text-text-primary">✕</button>
             </div>
             {quarkHealth && !quarkHealth.valid && (
-              <div className="mb-3 rounded-lg border border-accent-rose/30 bg-accent-rose/5 px-4 py-2 text-sm text-accent-rose">
+              <div className="mb-3 rounded-lg border border-accent-rose/30 bg-accent-rose/5 px-4 py-2 text-sm text-rose-strong">
                 ⚠️ 夸克 Cookie 已过期，无法连接网盘。请更新：CloudBase 控制台 → 云函数 quark → 环境变量 QUARK_COOKIE → 重新部署。
               </div>
             )}
-            {quarkErr && <div className="mb-3 rounded-lg border border-accent-rose/30 bg-accent-rose/5 px-4 py-2 text-sm text-accent-rose">{quarkErr}</div>}
+            {quarkErr && <div className="mb-3 rounded-lg border border-accent-rose/30 bg-accent-rose/5 px-4 py-2 text-sm text-rose-strong">{quarkErr}</div>}
             {quarkDir !== "0" && (
               <button onClick={() => openQuark("0")} className="mb-2 self-start text-xs text-accent-sky hover:underline">← 返回根目录</button>
             )}

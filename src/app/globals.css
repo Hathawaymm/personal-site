@@ -20,6 +20,10 @@
   --color-accent-sage: #8a9a7a;
   --color-accent-sky: #7a9aac;
 
+  /* Accent strong — 用于可读文字/按钮（对比度 ≥4.5:1 on cream） */
+  --color-gold-strong: #8a6626;
+  --color-rose-strong: #9c5346;
+
   /* Fonts — film diary: serif for titles, kaiti for captions */
   --font-display: "Georgia", "Noto Serif SC", "STSong", serif;
   --font-body: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;

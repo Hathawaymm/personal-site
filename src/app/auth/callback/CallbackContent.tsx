@@ -51,7 +51,7 @@ export default function CallbackContent() {
         <div className="text-center space-y-4 rounded-lg border border-accent-gold/20 bg-bg-paper p-8 shadow-paper max-w-sm">
           <h2 className="diary-title text-xl">哎呀，出了一点小状况</h2>
           <p className="text-sm text-text-muted caption-text">GitHub 那边好像有点拥堵，网络开小差了。要不你先刷新一下页面，再点一次登录试试？</p>
-          <a href="/login" className="mt-4 inline-block rounded-full bg-accent-gold px-6 py-2 text-sm text-white hover:opacity-90">好的，我刷新一下</a>
+          <a href="/login" className="mt-4 inline-block rounded-full bg-gold-strong px-6 py-2 text-sm text-white hover:opacity-90">好的，我刷新一下</a>
         </div>
       </div>
     );

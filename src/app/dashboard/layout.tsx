@@ -31,7 +31,7 @@ function MenuItem({ item, currentTab, collapsed }: { item: typeof MENU_ITEMS[num
     <div ref={setNodeRef} style={{ transform: CSS.Transform.toString(transform), transition }} className={isDragging ? "opacity-50" : ""}>
       <Link
         href={item.href}
-        className={`flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${currentTab === item.key ? "bg-accent-gold/10 text-accent-gold border-l-2 border-accent-gold" : "text-text-secondary hover:bg-bg-warm hover:text-text-primary"}`}
+        className={`flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${currentTab === item.key ? "bg-gold-strong/10 text-gold-strong border-l-2 border-accent-gold" : "text-text-secondary hover:bg-bg-warm hover:text-text-primary"}`}
       >
         <span {...attributes} {...listeners} className="cursor-grab select-none text-text-muted">☰</span>
         {!collapsed && <span>{item.label}</span>}
@@ -97,7 +97,7 @@ function Sidebar() {
         </nav>
         <div className="border-t border-accent-gold/10 p-4">
           <Link href="/" className="text-xs text-text-muted hover:text-text-primary block mb-2">← 返回首页</Link>
-          <button onClick={logout} className="text-xs text-accent-rose hover:opacity-80">退出登录</button>
+          <button onClick={logout} className="text-xs text-rose-strong hover:opacity-80">退出登录</button>
         </div>
       </div>
     </aside>

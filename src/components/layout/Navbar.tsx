@@ -122,7 +122,7 @@ export default function Navbar() {
                   onClick={(e) => locked ? handleLockedClick(link, e) : undefined}
                   className={`relative px-4 py-2 text-sm font-medium transition-colors duration-200 ${
                     isActive(link.href) && accessible
-                      ? "text-accent-gold"
+                      ? "text-gold-strong"
                       : locked
                         ? "text-text-muted/40 cursor-not-allowed"
                         : "text-text-secondary hover:text-text-primary"
@@ -131,13 +131,13 @@ export default function Navbar() {
                   {link.label}
                   {locked && <span className="ml-1 text-xs">🔒</span>}
                   {isActive(link.href) && accessible && (
-                    <span className="absolute bottom-0 left-1/2 h-[2px] w-3/5 -translate-x-1/2 rounded-full bg-accent-gold/70" />
+                    <span className="absolute bottom-0 left-1/2 h-[2px] w-3/5 -translate-x-1/2 rounded-full bg-gold-strong/70" />
                   )}
                 </Link>
               );
             })}
             {isAdmin && (
-              <Link href="/dashboard" className="relative px-4 py-2 text-sm font-medium text-accent-rose transition-colors hover:opacity-80">
+              <Link href="/dashboard" className="relative px-4 py-2 text-sm font-medium text-rose-strong transition-colors hover:opacity-80">
                 {navLabels.dashboard}
               </Link>
             )}
@@ -150,7 +150,7 @@ export default function Navbar() {
               </button>
             )}
             {!isLoggedIn && pathname !== "/login" && (
-              <Link href="/login" className="px-4 py-2 text-sm text-accent-gold hover:opacity-80">
+              <Link href="/login" className="px-4 py-2 text-sm text-gold-strong hover:opacity-80">
                 登录
               </Link>
             )}
@@ -188,7 +188,7 @@ export default function Navbar() {
                   menuOpen ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
                 } ${
                   isActive(link.href) && accessible
-                    ? "text-accent-gold"
+                    ? "text-gold-strong"
                     : locked
                       ? "text-text-muted/40"
                       : "text-text-secondary hover:text-text-primary"
@@ -200,7 +200,7 @@ export default function Navbar() {
             );
           })}
           {isAdmin && (
-            <Link href="/dashboard" className="font-display text-2xl text-accent-rose" style={{ transitionDelay: `${navigationItems.length * 80}ms` }}>
+            <Link href="/dashboard" className="font-display text-2xl text-rose-strong" style={{ transitionDelay: `${navigationItems.length * 80}ms` }}>
               {navLabels.dashboard}
             </Link>
           )}
@@ -209,7 +209,7 @@ export default function Navbar() {
               退出登录
             </button>
           ) : (
-            <Link href="/login" className="text-base text-accent-gold" style={{ transitionDelay: `${(navigationItems.length + 1) * 80}ms` }}>
+            <Link href="/login" className="text-base text-gold-strong" style={{ transitionDelay: `${(navigationItems.length + 1) * 80}ms` }}>
               登录
             </Link>
           )}
