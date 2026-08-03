@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { Document, Page, pdfjs } from "react-pdf";
 import type { WorkItem } from "@/lib/data";
 import { normalizeWorkCategories } from "@/lib/data";
@@ -12,23 +14,6 @@ interface WorksSectionProps {
   works: WorkItem[];
   title?: string;
   subtitle?: string;
-}
-
-function renderMarkdown(text: string): string {
-  let html = text
-    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-    .replace(/^### (.*)$/gm, "<h3>$1</h3>")
-    .replace(/^## (.*)$/gm, "<h2>$1</h2>")
-    .replace(/^# (.*)$/gm, "<h1>$1</h1>")
-    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-    .replace(/\*(.*?)\*/g, "<em>$1</em>")
-    .replace(/`(.*?)`/g, "<code>$1</code>")
-    .replace(/^- (.*)$/gm, "<li>$1</li>");
-  html = html
-    .split("\n").map(l => l.trim() === "" ? "" : l).join("\n");
-  html = html.replace(/(<li>[\s\S]*?<\/li>)/g, m => `<ul>${m}</ul>`);
-  html = html.replace(/\n{2,}/g, "</p><p>").replace(/\n/g, "<br/>");
-  return `<p>${html}</p>`;
 }
 
 export default function WorksSection({ works, title = "作品集", subtitle = "" }: WorksSectionProps) {
@@ -59,7 +44,7 @@ export default function WorksSection({ works, title = "作品集", subtitle = ""
     setTextContent(null);
     setNumPages(0);
     if (work.type === "text" && work.fileUrl) {
-      fetch(proxyFile(work.fileUrl)).then(r => r.text()).then(t => setTextContent(renderMarkdown(t))).catch(() => setTextContent("（内容加载失败）"));
+      fetch(proxyFile(work.fileUrl)).then(r => r.text()).then(t => setTextContent(t)).catch(() => setTextContent("（内容加载失败）"));
     }
   };
 
@@ -209,10 +194,10 @@ export default function WorksSection({ works, title = "作品集", subtitle = ""
               <div className="prose prose-stone max-w-none">
                 {textContent === null ? (
                   <p className="text-text-muted">加载中...</p>
-                ) : textContent.startsWith("<p>") ? (
-                  <div className="text-text-secondary leading-relaxed whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: textContent }} />
                 ) : (
-                  <pre className="whitespace-pre-wrap text-sm text-text-secondary">{textContent}</pre>
+                  <div className="text-text-secondary leading-relaxed">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{textContent}</ReactMarkdown>
+                  </div>
                 )}
               </div>
             )}
