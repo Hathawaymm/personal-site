@@ -6,6 +6,7 @@ import Link from "next/link";
 import ResumeSection from "@/components/resume/ResumeSection";
 import WorksSection from "@/components/works/WorksSection";
 import FamilySection from "@/components/family/FamilySection";
+import MessageBoard from "@/components/message/MessageBoard";
 import BlogCard from "@/components/blog/BlogCard";
 import { blogPosts as fallbackPosts } from "@/data/blog-posts";
 import { fetchBlogPosts, type BlogPost } from "@/lib/blog";
@@ -163,6 +164,17 @@ export default function Home() {
             </div>
           </section>
         ) : null;
+      case "message":
+        return (
+          <div key={item.id} className="relative">
+            {isAdmin && !previewing && (
+              <Link href="/dashboard?tab=homepage" className="absolute top-4 right-6 z-10 rounded-full bg-bg-paper border border-accent-gold/30 px-3 py-1.5 text-xs text-gold-strong shadow-paper hover:bg-gold-strong/5">
+                ✏ 编辑
+              </Link>
+            )}
+            <MessageBoard title={item.name || "留言板"} />
+          </div>
+        );
       case "custom":
         return (
           <section key={item.id} className="px-4 py-24 sm:px-6">

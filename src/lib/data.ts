@@ -210,7 +210,7 @@ export const HOME_MODULE_LABELS: Record<HomeModuleKey, string> = {
 };
 
 // 统一板块模型：首页内容区块 + 顶部导航共用一份数据
-export type SectionType = "works" | "resume" | "family" | "blog" | "photos" | "custom";
+export type SectionType = "works" | "resume" | "family" | "blog" | "photos" | "message" | "custom";
 
 export interface SiteSection {
   id: string;
@@ -229,6 +229,7 @@ export const SECTION_PRESETS: SiteSection[] = [
   { id: "family", type: "family", name: "家庭", visible: true, order: 2, href: "/family", permission: "family" },
   { id: "blog", type: "blog", name: "博客", visible: true, order: 3, href: "/blog", permission: "blog" },
   { id: "photos", type: "photos", name: "照片墙", visible: true, order: 4, href: "/photos", permission: "photos" },
+  { id: "message", type: "message", name: "留言板", visible: true, order: 5, href: "#", icon: "💬" },
 ];
 
 export const DEFAULT_SECTIONS_LIST: SiteSection[] = SECTION_PRESETS.map(s => ({ ...s }));
@@ -239,6 +240,7 @@ const SECTION_HREF: Record<SectionType, string> = {
   family: "/family",
   blog: "/blog",
   photos: "/photos",
+  message: "#",
   custom: "",
 };
 
@@ -248,12 +250,13 @@ const SECTION_PERMISSION: Record<SectionType, keyof Permissions | undefined> = {
   family: "family",
   blog: "blog",
   photos: "photos",
+  message: undefined,
   custom: undefined,
 };
 
 export function normalizeSections(raw: SiteSection[] | undefined): SiteSection[] {
   if (!Array.isArray(raw) || raw.length === 0) return DEFAULT_SECTIONS_LIST.map(s => ({ ...s }));
-  const validTypes: string[] = ["works", "resume", "family", "blog", "photos"];
+  const validTypes: string[] = ["works", "resume", "family", "blog", "photos", "message"];
   return raw
     .map<SiteSection>((s, i) => ({
       ...s,
