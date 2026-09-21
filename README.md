@@ -12,6 +12,16 @@
 
 I wanted a personal space I fully controlled for publishing writing, photos and work — rather than depending on a third-party platform or handing my content to someone else's permission model.
 
+Built in roughly **one week**.
+
+## A note on traffic
+
+This site was **never built for traffic**.
+
+It is a space for my own information, work, photographs and learning notes, and a place to keep in touch with **people I trust**. Visitors arrive because I shared the link with them — that is the design intent, not a shortcoming.
+
+**Traffic was never the goal metric here.** Privacy boundaries and long-term record-keeping were.
+
 ## Features
 
 ### Authentication & permissions
