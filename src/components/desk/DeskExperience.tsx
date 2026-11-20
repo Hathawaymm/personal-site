@@ -20,19 +20,9 @@ export default function DeskExperience() {
 function DeskFrame() {
   const { lang } = useLang();
   const [phase, setPhase] = useState<"room" | "os">("room");
-  const [zooming, setZooming] = useState(false);
+  const [intent, setIntent] = useState<"auto" | "desk" | "monitor">("auto");
   const [compact, setCompact] = useState(false);
   const [webgl, setWebgl] = useState(true);
-  const [booting, setBooting] = useState(true);
-
-  useEffect(() => {
-    const onMessage = (event: MessageEvent) => {
-      if (event.origin !== window.location.origin) return;
-      if (event.data && event.data.type === "leave-monitor") setZooming(false);
-    };
-    window.addEventListener("message", onMessage);
-    return () => window.removeEventListener("message", onMessage);
-  }, []);
 
   useEffect(() => {
     const media = window.matchMedia("(max-width: 760px)");
@@ -54,25 +44,17 @@ function DeskFrame() {
     <div className="space-ui min-h-screen bg-[#120e0c] text-[#f4ead8]">
       <PublicNav tone="dark" />
       {phase === "os" ? (
-        <RetroOS onBack={() => { setPhase("room"); setZooming(false); }} />
+        <RetroOS onBack={() => { setPhase("room"); setIntent("desk"); }} />
       ) : (
         <div className="relative h-[calc(100vh-52px)]">
           {showScene ? (
-            <BakedStudy zooming={zooming} onZoom={() => setZooming(true)} onReady={() => setBooting(false)} />
+            <BakedStudy intent={intent} onReady={() => {}} />
           ) : (
             <FallbackRoom onEnter={() => setPhase("os")} />
           )}
-          {booting && showScene && (
-            <div className="absolute inset-0 z-20 flex items-center justify-center bg-black font-mono text-[#9fdf9f]">
-              <div>
-                <p>ZoeOS BIOS</p>
-                <p className="mt-2 text-sm">Loading study models...</p>
-              </div>
-            </div>
-          )}
           <div className="pointer-events-none absolute bottom-6 left-6 z-30">
             <div className="pointer-events-auto flex flex-col items-stretch gap-2 rounded-2xl border border-white/10 bg-[#120e0c]/85 p-3 shadow-lg backdrop-blur-md">
-              <button type="button" onClick={() => setZooming(true)} className="rounded-full bg-[#f4ead8] px-4 py-2 text-sm font-medium text-[#1a1208]">
+              <button type="button" onClick={() => setIntent("monitor")} className="rounded-full bg-[#f4ead8] px-4 py-2 text-sm font-medium text-[#1a1208]">
                 {tx(shellCopy.deskEnter, lang)}
               </button>
               <button type="button" onClick={() => setPhase("os")} className="rounded-full border border-[#f4ead8]/30 px-4 py-2 text-sm text-[#f4ead8]">

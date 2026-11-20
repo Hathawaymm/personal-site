@@ -14,7 +14,7 @@ Visual and 3D assets in the public portfolio are adapted from MIT-licensed open 
 
 - Source: https://github.com/henryjeff/portfolio-website
 - License: MIT (`LICENSE.md` in that repository; Copyright 2024 Henry Heffernan)
-- Used for: `public/models/study/*` (computer, decor, and environment models with baked lightmaps) and `public/textures/monitor/`.
+- Used for: `public/models/study/*` (computer, decor, and environment models with baked lightmaps). Camera distances follow that project's loading, idle, desk, and monitor framing. The office recording, CRT video layers, and inner OS were not copied. The room tone on `/desk` is original synthesized noise, and the scanlines are original CSS.
 
 ## portfolio-inner-site
 

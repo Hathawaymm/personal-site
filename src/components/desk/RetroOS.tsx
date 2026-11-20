@@ -232,7 +232,7 @@ function AboutPane() {
   const { lang } = useLang();
   return (
     <div className="space-y-2">
-      <img src="/images/zoe/portrait.jpg" alt="" className="mb-2 h-40 w-32 object-cover object-[center_18%]" />
+      <img src="/images/zoe/seaside.webp" alt="" className="mb-2 max-h-52 w-full object-contain object-[62%_center]" />
       <h3 className="font-display text-xl">{tx(profile.name, lang)}</h3>
       <p>{tx(profile.title, lang)}</p>
       <p>{tx(profile.summary, lang)}</p>
@@ -250,20 +250,8 @@ function AboutPane() {
 }
 
 function PhotosPane() {
-  const shots = [
-    ["/images/zoe/portrait.jpg", "Portrait"],
-    ["/images/zoe/salt-lake.jpg", "Salt lake"],
-    ["/images/zoe/seaside.jpg", "Seaside"],
-  ];
   return (
-    <div className="grid grid-cols-1 gap-2">
-      <img src={shots[0][0]} alt={shots[0][1]} className="h-52 w-full object-cover object-[center_18%]" />
-      <div className="grid grid-cols-2 gap-2">
-        {shots.slice(1).map(([src, alt]) => (
-          <img key={src} src={src} alt={alt} className="h-24 w-full object-cover" />
-        ))}
-      </div>
-    </div>
+    <img src="/images/zoe/seaside.webp" alt="Seaside" className="max-h-[320px] w-full object-contain object-[62%_center]" />
   );
 }
 

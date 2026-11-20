@@ -134,6 +134,11 @@ body {
 /* Public résumé / portfolio */
 .career-print-only { display: none; }
 .career-root { user-select: text; -webkit-user-select: text; }
+/* Let pointer events fall through to the fixed keyboard canvas, except real controls. */
+.career-hit-through { pointer-events: none; }
+.career-hit-through :is(a, button, input, textarea, select, summary, label, [role="dialog"], [role="presentation"]) {
+  pointer-events: auto;
+}
 
 @media (prefers-reduced-motion: reduce) {
   .reveal-block { opacity: 1 !important; transform: none !important; transition: none !important; }

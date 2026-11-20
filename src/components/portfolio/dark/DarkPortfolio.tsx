@@ -1,8 +1,8 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import Image from "next/image";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { ReactLenis, useLenis } from "lenis/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { credentials, education, experience, governance, heroMetrics, keyboardSkills, profile, shellCopy, tx, ui } from "@/data/portfolio-data";
@@ -18,12 +18,11 @@ gsap.registerPlugin(ScrollTrigger);
 export default function DarkPortfolio() {
   return (
     <LanguageProvider>
-    <LenisRoot>
     <div className="space-ui career-root min-h-screen bg-[#07080c] text-[#f4ead8]">
       <Starfield />
       <ZoeKeyboard />
       <PublicNav tone="dark" />
-      <main className="career-screen-only relative z-10">
+      <main className="career-screen-only career-hit-through relative z-10">
         <Hero />
         <section id="skills" className="relative z-10 mx-auto min-h-[80dvh] max-w-6xl px-4 py-24 sm:px-6">
           <h2 className="font-display text-4xl sm:text-6xl">{txWait(shellCopy.keyboardTitle)}</h2>
@@ -44,7 +43,6 @@ export default function DarkPortfolio() {
       </main>
       <PrintableResume />
     </div>
-    </LenisRoot>
     </LanguageProvider>
   );
 }
@@ -80,7 +78,15 @@ function Hero() {
         </ul>
       </div>
       <div className="lg:col-span-5">
-        <img src="/images/zoe/portrait.jpg" alt={tx(profile.name, lang)} className="mb-4 aspect-[4/5] w-full max-w-sm rounded-3xl object-cover object-[center_20%] shadow-[0_20px_80px_rgba(0,0,0,0.45)]" />
+        <Image
+          src="/images/zoe/seaside.webp"
+          alt={tx(profile.name, lang)}
+          width={1280}
+          height={1706}
+          priority
+          sizes="(max-width: 1024px) 90vw, 420px"
+          className="mb-4 h-auto w-full max-w-sm rounded-3xl object-contain object-[62%_center] shadow-[0_20px_80px_rgba(0,0,0,0.45)]"
+        />
       <dl className="grid grid-cols-2 gap-3">
         {heroMetrics.map((metric) => (
           <div key={metric.label.zh} className="rounded-2xl border border-white/10 bg-white/5 p-4">
@@ -248,18 +254,6 @@ function Reveal({ children }: { children: ReactNode }) {
   );
 }
 
-function LenisRoot({ children }: { children: ReactNode }) {
-  const lenis = useLenis(() => ScrollTrigger.update());
-  useEffect(() => {
-    if (!lenis) return;
-    const raf = (time: number) => lenis.raf(time * 1000);
-    gsap.ticker.add(raf);
-    gsap.ticker.lagSmoothing(0);
-    return () => { gsap.ticker.remove(raf); };
-  }, [lenis]);
-  return <ReactLenis root options={{ duration: 1.1 }} autoRaf={false}>{children}</ReactLenis>;
-}
-
 function ContactBlock() {
   const { lang } = useLang();
   return (
@@ -278,32 +272,28 @@ function Starfield() {
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    const stars = Array.from({ length: 140 }, () => ({
+    const stars = Array.from({ length: 90 }, () => ({
       x: Math.random(),
       y: Math.random(),
-      r: Math.random() * 1.3 + 0.2,
-      s: Math.random() * 0.25 + 0.05,
+      r: Math.random() * 1.2 + 0.3,
     }));
-    let frame = 0;
-    let raf = 0;
     const draw = () => {
       const width = canvas.clientWidth;
       const height = canvas.clientHeight;
-      if (canvas.width !== width || canvas.height !== height) {
-        canvas.width = width;
-        canvas.height = height;
-      }
+      if (!width || !height) return;
+      const ratio = Math.min(window.devicePixelRatio || 1, 1.5);
+      canvas.width = Math.floor(width * ratio);
+      canvas.height = Math.floor(height * ratio);
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
       ctx.clearRect(0, 0, width, height);
-      frame += 1;
       for (const star of stars) {
-        const y = ((star.y + frame * star.s * 0.0008) % 1) * height;
-        ctx.fillStyle = `rgba(244, 234, 216, ${0.25 + star.r / 3})`;
-        ctx.fillRect(star.x * width, y, star.r, star.r);
+        ctx.fillStyle = `rgba(244, 234, 216, ${0.28 + star.r / 4})`;
+        ctx.fillRect(star.x * width, star.y * height, star.r, star.r);
       }
-      raf = requestAnimationFrame(draw);
     };
-    raf = requestAnimationFrame(draw);
-    return () => cancelAnimationFrame(raf);
+    draw();
+    window.addEventListener("resize", draw);
+    return () => window.removeEventListener("resize", draw);
   }, []);
   return <canvas ref={ref} className="pointer-events-none fixed inset-0 z-0 h-full w-full" aria-hidden />;
 }

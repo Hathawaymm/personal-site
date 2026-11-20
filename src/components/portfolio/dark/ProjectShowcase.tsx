@@ -128,7 +128,7 @@ function CaseModal({ project, onClose }: { project: Project; onClose: () => void
   }, [onClose]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 p-0 sm:items-center sm:p-6" onClick={onClose} role="presentation">
+    <div className="pointer-events-auto fixed inset-0 z-50 flex items-end justify-center bg-black/70 p-0 sm:items-center sm:p-6" onClick={onClose} role="presentation">
       <div
         role="dialog"
         aria-modal="true"

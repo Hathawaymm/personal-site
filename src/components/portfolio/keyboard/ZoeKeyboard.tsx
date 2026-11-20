@@ -16,7 +16,6 @@ const SCENE_STYLE: CSSProperties = {
   inset: 0,
   width: "100vw",
   height: "100dvh",
-  pointerEvents: "none",
   zIndex: 1,
 };
 
@@ -60,7 +59,7 @@ export default function ZoeKeyboard() {
     vignette: false,
     preset: graphics.lighting ? scene.document.environment.preset : null,
   }), [scene, graphics]);
-  const dpr = useMemo<[number, number]>(() => [0.6, Math.min(graphics.dpr, 1.5)], [graphics.dpr]);
+  const dpr = useMemo<[number, number]>(() => [1, Math.min(graphics.dpr, 1.15)], [graphics.dpr]);
   const input = useMemo(() => createKeyInput(scene.keys, scene.columns), [scene]);
   const visibleLabel = useRef<string | null>(null);
   const held = useRef<typeof scene.keys>([]);
@@ -78,8 +77,9 @@ export default function ZoeKeyboard() {
     const labelId = shown?.labelId ?? scene.defaultLabelId;
     if (labelId !== (visibleLabel.current ?? scene.defaultLabelId)) {
       api.current?.setNodeVisible(visibleLabel.current ?? scene.defaultLabelId, false);
-      api.current?.setNodeVisible(labelId, true);
+      if (shown) api.current?.setNodeVisible(labelId, true);
     }
+    api.current?.setNodeVisible(scene.labelsId, Boolean(shown));
     visibleLabel.current = shown?.labelId ?? null;
     setSelectedId(shown?.skill.name ?? null);
     if (!muted) playSound(pressed);
@@ -144,6 +144,7 @@ export default function ZoeKeyboard() {
         style={SCENE_STYLE}
         dpr={dpr}
         transparent
+        interactive
         orbit={false}
         orthographic
         pointerTargets={scene.pointerTargets}

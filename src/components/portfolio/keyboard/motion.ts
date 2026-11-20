@@ -109,7 +109,6 @@ export function createKeyboardMotion(
     for (const [value, destination] of [[position, target.position], [rotation, target.rotation], [scale, target.scale]] as const) {
       sectionTweens.push(gsap.to(value, { ...destination, duration: immediate ? 0 : 1, ease: "power1.out", overwrite: true, onUpdate: applyPose }));
     }
-    api.setNodeVisible(scene.labelsId, false);
     showCounter(next === "skills" && inSkills());
     if (next === "hero") {
       // The legacy restart() skips the configured 2.5s delay. Keep the live

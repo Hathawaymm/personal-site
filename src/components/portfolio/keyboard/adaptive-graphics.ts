@@ -27,7 +27,8 @@ export type FrameReading = { mean: number; p95: number };
 /** Only active-motion windows reach this controller. Failed upgrades stay capped for this visit. */
 export function createAdaptiveQuality() {
   let level = INITIAL_GRAPHICS_LEVEL;
-  let ceiling = GRAPHICS_LEVELS.length - 1;
+  // Shadows, AO, and bloom on a full-viewport keyboard miss 60fps on a laptop GPU.
+  let ceiling = 2;
   let healthy = 0;
   let slow = 0;
   return {
