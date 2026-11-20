@@ -35,9 +35,10 @@ describe("public career routes", () => {
   });
 
   it("reads the shared language flag", () => {
-    expect(readStoredLang(null)).toBe("zh");
+    expect(readStoredLang(null)).toBe("en");
+    expect(readStoredLang(undefined)).toBe("en");
     expect(readStoredLang("zh")).toBe("zh");
     expect(readStoredLang("en")).toBe("en");
-    expect(readStoredLang("nope")).toBe("zh");
+    expect(readStoredLang("nope")).toBe("en");
   });
 });

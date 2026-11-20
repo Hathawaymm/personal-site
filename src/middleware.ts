@@ -12,6 +12,14 @@ export async function middleware(req: NextRequest) {
     isValid = user !== null;
   }
 
+  if (
+    process.env.NODE_ENV !== "production"
+    && process.env.CAREER_EDITOR_DEV === "1"
+    && (pathname === "/admin/career" || pathname.startsWith("/api/admin/career"))
+  ) {
+    return NextResponse.next();
+  }
+
   if (requiresAdminSession(pathname) && pathname.startsWith("/api/admin")) {
     if (!isValid) return NextResponse.json({ error: "未登录" }, { status: 401 });
     return NextResponse.next();

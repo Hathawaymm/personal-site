@@ -1,16 +1,14 @@
-"use client";
+import { CareerProvider } from "@/components/portfolio/career-context";
+import { getCareerDocument } from "@/lib/career-content";
+import { readRequestLang } from "@/lib/request-lang";
+import DeskOsClient from "./view";
 
-import { LanguageProvider } from "@/components/portfolio/lang";
-import RetroOS from "@/components/desk/RetroOS";
-
-export default function DeskOsPage() {
+export default async function DeskOsPage({ searchParams }: { searchParams: Promise<{ draft?: string }> }) {
+  const params = await searchParams;
+  const [document, initialLang] = await Promise.all([getCareerDocument(params.draft === "1"), readRequestLang()]);
   return (
-    <LanguageProvider>
-      <RetroOS fill onBack={() => {
-        if (window.parent && window.parent !== window) {
-          window.parent.postMessage({ type: "leave-monitor" }, window.location.origin);
-        }
-      }} />
-    </LanguageProvider>
+    <CareerProvider document={document}>
+      <DeskOsClient initialLang={initialLang} />
+    </CareerProvider>
   );
 }

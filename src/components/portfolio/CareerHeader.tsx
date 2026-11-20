@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { profile, tx, ui, type Lang } from "@/data/portfolio-data";
+import { profile as seedProfile, tx, ui, type Lang } from "@/data/portfolio-data";
+import type { CareerDocument } from "@/data/career-document";
+import { useCareer } from "./career-context";
 import { useLang } from "./lang";
 import { IconPrint } from "./icons";
 
@@ -14,6 +16,7 @@ const PORTFOLIO_LINKS = [
 
 export default function CareerHeader({ mode }: { mode: "portfolio" | "resume" }) {
   const { lang, setLang } = useLang();
+  const { profile } = useCareer();
 
   return (
     <header className="career-no-print sticky top-0 z-40 border-b border-accent-gold/20 bg-bg-cream/90 backdrop-blur-md">
@@ -83,7 +86,7 @@ function LangButton({ active, onClick, label }: { active: boolean; onClick: () =
   );
 }
 
-export function contactItems(lang: Lang) {
+export function contactItems(lang: Lang, profile: CareerDocument["profile"] = seedProfile) {
   const items: { key: string; href: string; label: string; value: string; external?: boolean }[] = [
     { key: "email", href: `mailto:${profile.email}`, label: tx(ui.contactEmail, lang), value: profile.email },
     { key: "github", href: profile.github, label: tx(ui.contactGitHub, lang), value: profile.githubLabel, external: true },

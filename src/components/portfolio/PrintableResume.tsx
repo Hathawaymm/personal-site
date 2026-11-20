@@ -1,18 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import {
-  credentials,
-  education,
-  experience,
-  profile,
-  projects,
-  shellCopy,
-  skillGroups,
-  tx,
-  ui,
-  type EmployerId,
-} from "@/data/portfolio-data";
+import { tx, ui, type EmployerId } from "@/data/portfolio-data";
+import { useCareer } from "./career-context";
 import { useLang } from "./lang";
 import { contactItems } from "./CareerHeader";
 
@@ -20,7 +10,8 @@ const GROUPS: EmployerId[] = ["root", "bank", "personal"];
 
 export default function PrintableResume({ screen }: { screen?: boolean }) {
   const { lang } = useLang();
-  const contacts = contactItems(lang);
+  const { profile, experience, projects, education, credentials, skillGroups, shellCopy } = useCareer();
+  const contacts = contactItems(lang, profile);
 
   return (
     <div className={screen ? undefined : "career-print-only"}>
