@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><rect width="1200" height="800" fill="#14121c"/>
+  <text x="60" y="80" fill="#c9b6f2" font-family="Georgia" font-size="28">LTC BOARD · 82</text>
+  <rect x="70" y="140" width="320" height="580" rx="16" fill="#221c30"/>
+    <text x="96" y="190" fill="#f4ead8" font-family="Arial" font-size="24">P0</text>
+    <rect x="96" y="230" width="270" height="110" rx="10" fill="#3a3150"/><rect x="96" y="370" width="270" height="110" rx="10" fill="#3a3150"/><rect x="96" y="510" width="270" height="110" rx="10" fill="#3a3150"/><rect x="430" y="140" width="320" height="580" rx="16" fill="#221c30"/>
+    <text x="456" y="190" fill="#f4ead8" font-family="Arial" font-size="24">P1</text>
+    <rect x="456" y="230" width="270" height="110" rx="10" fill="#3a3150"/><rect x="456" y="370" width="270" height="110" rx="10" fill="#3a3150"/><rect x="456" y="510" width="270" height="110" rx="10" fill="#3a3150"/><rect x="790" y="140" width="320" height="580" rx="16" fill="#221c30"/>
+    <text x="816" y="190" fill="#f4ead8" font-family="Arial" font-size="24">P2</text>
+    <rect x="816" y="230" width="270" height="110" rx="10" fill="#3a3150"/><rect x="816" y="370" width="270" height="110" rx="10" fill="#3a3150"/><rect x="816" y="510" width="270" height="110" rx="10" fill="#3a3150"/></svg>

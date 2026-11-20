@@ -49,7 +49,10 @@ next-env.d.ts
 # media assets — too large / personal, deploy separately
 public/videos/
 public/photos/
-public/images/
+public/images/*
+!public/images/zoe/
+!public/images/projects/
+!public/images/keys/
 public/uploads/
 
 # raw source materials (duplicate of public/)

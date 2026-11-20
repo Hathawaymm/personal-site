@@ -229,6 +229,11 @@ export default function Home() {
               GitHub 登录
             </Link>
           )}
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-3 text-sm font-medium">
+            <Link href="/portfolio" className="text-gold-strong hover:underline">3D 作品集</Link>
+            <Link href="/desk" className="text-gold-strong hover:underline">3D 书房</Link>
+            <Link href="/resume" className="text-gold-strong hover:underline">正式简历</Link>
+          </div>
           {isLoggedIn && !isAdmin && status === "pending" && (
             <p className="mt-6 caption-text text-text-muted">
               🏠 管理员还没开门，稍等片刻哦~

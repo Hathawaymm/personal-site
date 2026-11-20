@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><rect width="1200" height="800" fill="#12101a"/>
+  <circle cx="600" cy="420" r="250" fill="none" stroke="#e4b15a" stroke-width="3"/>
+  <circle cx="600" cy="420" r="160" fill="none" stroke="#e4b15a" stroke-width="2" opacity="0.6"/>
+  <circle cx="600" cy="420" r="70" fill="#e4b15a"/>
+  <circle cx="850" cy="420" r="28" fill="#2a2418" stroke="#e4b15a"/><circle cx="725" cy="636.5063509461097" r="28" fill="#2a2418" stroke="#e4b15a"/><circle cx="475.00000000000006" cy="636.5063509461097" r="28" fill="#2a2418" stroke="#e4b15a"/><circle cx="350" cy="420.00000000000006" r="28" fill="#2a2418" stroke="#e4b15a"/><circle cx="474.9999999999999" cy="203.49364905389038" r="28" fill="#2a2418" stroke="#e4b15a"/><circle cx="725" cy="203.49364905389035" r="28" fill="#2a2418" stroke="#e4b15a"/>
+  <text x="70" y="80" fill="#e4b15a" font-family="Georgia" font-size="32">15 AGENTS · +30–50%</text></svg>

@@ -109,7 +109,11 @@ export default function Navbar() {
         }`}
       >
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
-          <span />
+          <span className="flex items-center gap-2 text-xs sm:text-sm">
+            <Link href="/portfolio" className="font-display tracking-wide text-gold-strong hover:opacity-80">作品集</Link>
+            <Link href="/desk" className="font-display tracking-wide text-gold-strong hover:opacity-80">书房</Link>
+            <Link href="/resume" className="font-display tracking-wide text-gold-strong hover:opacity-80">简历</Link>
+          </span>
 
           <div className="hidden items-center gap-1 sm:flex">
             {showMenu && navigationItems.map(link => {
@@ -204,6 +208,13 @@ export default function Navbar() {
               {navLabels.dashboard}
             </Link>
           )}
+          <Link
+            href="/portfolio"
+            className="font-display text-2xl tracking-wide text-gold-strong"
+            style={{ transitionDelay: menuOpen ? `${navigationItems.length * 80}ms` : "0ms" }}
+          >
+            公开简历
+          </Link>
           {isLoggedIn ? (
             <button onClick={logout} className="text-base text-text-muted" style={{ transitionDelay: `${(navigationItems.length + 1) * 80}ms` }}>
               退出登录

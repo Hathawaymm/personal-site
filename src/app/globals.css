@@ -130,3 +130,29 @@ body {
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--color-bg-cream); }
 ::-webkit-scrollbar-thumb { background: var(--color-accent-gold); border-radius: 3px; }
+
+/* Public résumé / portfolio */
+.career-print-only { display: none; }
+.career-root { user-select: text; -webkit-user-select: text; }
+/* Let pointer events fall through to the fixed keyboard canvas, except real controls. */
+.career-hit-through { pointer-events: none; }
+.career-hit-through :is(a, button, input, textarea, select, summary, label, [role="dialog"], [role="presentation"]) {
+  pointer-events: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-block { opacity: 1 !important; transform: none !important; transition: none !important; }
+}
+
+@media print {
+  .career-no-print,
+  .career-screen-only,
+  .space-ui canvas { display: none !important; }
+  .space-ui { background: #fff !important; }
+  .career-print-only { display: block !important; }
+  .film-grain::after { display: none !important; }
+  body, .career-root { background: #fff !important; }
+  .print-block { break-inside: avoid; }
+  a { color: inherit; text-decoration: none; }
+  @page { size: A4; margin: 12mm 12mm 14mm; }
+}

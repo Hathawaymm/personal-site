@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><rect width="1200" height="800" fill="#101820"/>
+  <rect x="430" y="70" width="340" height="660" rx="42" fill="#0b0f14" stroke="#7ec8c3" stroke-width="8"/>
+  <rect x="470" y="130" width="260" height="160" rx="16" fill="#163038"/>
+  <rect x="470" y="320" width="260" height="48" rx="10" fill="#1e3a44"/>
+  <rect x="470" y="390" width="120" height="120" rx="16" fill="#7ec8c3"/>
+  <rect x="610" y="390" width="120" height="120" rx="16" fill="#1e3a44"/>
+  <text x="500" y="580" fill="#f4ead8" font-family="Arial" font-size="22">6 stores + App Store</text></svg>

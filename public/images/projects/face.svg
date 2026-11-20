@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><rect width="1200" height="800" fill="#160e12"/>
+  <circle cx="420" cy="400" r="180" fill="none" stroke="#e07a5f" stroke-width="4"/>
+  <circle cx="360" cy="360" r="16" fill="#e07a5f"/>
+  <circle cx="480" cy="360" r="16" fill="#e07a5f"/>
+  <path d="M350 450 Q420 510 490 450" fill="none" stroke="#e07a5f" stroke-width="6"/>
+  <text x="680" y="300" fill="#f4ead8" font-family="Georgia" font-size="48">0.08→0.028</text>
+  <text x="680" y="370" fill="#e07a5f" font-family="Arial" font-size="28">FAR · CN118135636A</text></svg>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><rect width="1200" height="800" fill="#121810"/>
+  <text x="70" y="90" fill="#b7d39a" font-family="Georgia" font-size="32">BOT QUEUE · 500+ h</text>
+  <rect x="80" y="140" width="760" height="90" rx="12" fill="#1c2918"/>
+    <rect x="100" y="165" width="180" height="40" rx="8" fill="#8fb38a"/>
+    <text x="880" y="195" fill="#f4ead8" font-family="Arial" font-size="22">ops</text><rect x="80" y="260" width="760" height="90" rx="12" fill="#1c2918"/>
+    <rect x="100" y="285" width="250" height="40" rx="8" fill="#8fb38a"/>
+    <text x="880" y="315" fill="#f4ead8" font-family="Arial" font-size="22">finance</text><rect x="80" y="380" width="760" height="90" rx="12" fill="#1c2918"/>
+    <rect x="100" y="405" width="320" height="40" rx="8" fill="#8fb38a"/>
+    <text x="880" y="435" fill="#f4ead8" font-family="Arial" font-size="22">board</text><rect x="80" y="500" width="760" height="90" rx="12" fill="#1c2918"/>
+    <rect x="100" y="525" width="390" height="40" rx="8" fill="#8fb38a"/>
+    <text x="880" y="555" fill="#f4ead8" font-family="Arial" font-size="22">hr</text><rect x="80" y="620" width="760" height="90" rx="12" fill="#1c2918"/>
+    <rect x="100" y="645" width="460" height="40" rx="8" fill="#8fb38a"/>
+    <text x="880" y="675" fill="#f4ead8" font-family="Arial" font-size="22">shop</text></svg>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><rect width="1200" height="800" fill="#0e141b"/>
+  <text x="60" y="80" fill="#e4b15a" font-family="Georgia" font-size="28">EDI CONTROL TOWER</text>
+  <rect x="70" y="160" width="220" height="420" rx="16" fill="#1c2633"/>
+  <text x="90" y="210" fill="#f4ead8" font-family="Arial" font-size="22">850</text>
+  <text x="90" y="300" fill="#f4ead8" font-family="Arial" font-size="22">855</text>
+  <text x="90" y="390" fill="#f4ead8" font-family="Arial" font-size="22">856</text>
+  <text x="90" y="480" fill="#f4ead8" font-family="Arial" font-size="22">810</text>
+  <path d="M290 220 H520 M290 310 H520 M290 400 H520 M290 490 H520" stroke="#e4b15a" stroke-width="4"/>
+  <rect x="520" y="180" width="280" height="360" rx="16" fill="#243044"/>
+  <text x="560" y="280" fill="#f4ead8" font-family="Georgia" font-size="42">3–5 min</text>
+  <text x="560" y="340" fill="#9aabbd" font-family="Arial" font-size="22">was ~20 min</text>
+  <rect x="840" y="200" width="280" height="120" rx="12" fill="#1c2633"/><text x="870" y="270" fill="#f4ead8" font-size="24" font-family="Arial">Walmart</text>
+  <rect x="840" y="350" width="280" height="120" rx="12" fill="#1c2633"/><text x="870" y="420" fill="#f4ead8" font-size="24" font-family="Arial">Target</text>
+  <rect x="840" y="500" width="280" height="120" rx="12" fill="#1c2633"/><text x="870" y="570" fill="#f4ead8" font-size="24" font-family="Arial">McKesson</text></svg>

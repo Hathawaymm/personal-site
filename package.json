@@ -17,19 +17,25 @@
     }
   },
   "dependencies": {
+    "@chibi3d/runtime": "^0.5.0",
     "@cloudbase/js-sdk": "^1.7.1",
     "@cloudbase/manager-node": "^5.6.5",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
+    "@react-three/drei": "^10.7.6",
+    "@react-three/fiber": "^9.4.0",
     "@tailwindcss/typography": "^0.5.20",
     "@tiptap/extension-image": "^3.29.1",
     "@tiptap/pm": "^3.29.1",
     "@tiptap/react": "^3.29.1",
     "@tiptap/starter-kit": "^3.29.1",
+    "@types/three": "^0.185.0",
     "cos-js-sdk-v5": "^1.10.1",
     "cos-nodejs-sdk-v5": "^2.14.0",
+    "gsap": "^3.12.5",
     "jsonwebtoken": "^9.0.3",
+    "lenis": "^1.1.18",
     "next": "16.2.10",
     "pdfjs-dist": "^4.10.38",
     "playwright": "^1.62.0",
@@ -39,7 +45,8 @@
     "react-dom": "19.2.4",
     "react-markdown": "^10.1.0",
     "react-pdf": "^9.2.1",
-    "remark-gfm": "^4.0.1"
+    "remark-gfm": "^4.0.1",
+    "three": "^0.185.1"
   },
   "devDependencies": {
     "@playwright/test": "^1.62.0",

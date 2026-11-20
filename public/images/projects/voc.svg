@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><rect width="1200" height="800" fill="#10161c"/>
+  <rect x="70" y="70" width="1000" height="100" rx="14" fill="#172430" stroke="#7ec8c3"/>
+    <text x="100" y="130" fill="#f4ead8" font-family="Arial" font-size="28">source</text><rect x="70" y="210" width="920" height="100" rx="14" fill="#172430" stroke="#7ec8c3"/>
+    <text x="100" y="270" fill="#f4ead8" font-family="Arial" font-size="28">asset</text><rect x="70" y="350" width="840" height="100" rx="14" fill="#172430" stroke="#7ec8c3"/>
+    <text x="100" y="410" fill="#f4ead8" font-family="Arial" font-size="28">model</text><rect x="70" y="490" width="760" height="100" rx="14" fill="#172430" stroke="#7ec8c3"/>
+    <text x="100" y="550" fill="#f4ead8" font-family="Arial" font-size="28">use</text><rect x="70" y="630" width="680" height="100" rx="14" fill="#172430" stroke="#7ec8c3"/>
+    <text x="100" y="690" fill="#f4ead8" font-family="Arial" font-size="28">manage</text></svg>

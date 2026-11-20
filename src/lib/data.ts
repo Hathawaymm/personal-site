@@ -224,8 +224,8 @@ export interface SiteSection {
 }
 
 export const SECTION_PRESETS: SiteSection[] = [
-  { id: "works", type: "works", name: "作品集", visible: true, order: 0, href: "/portfolio", permission: "portfolio" },
-  { id: "resume", type: "resume", name: "关于我", visible: true, order: 1, href: "/resume", permission: "resume_text" },
+  { id: "works", type: "works", name: "作品集", visible: true, order: 0, href: "/space/works", permission: "portfolio" },
+  { id: "resume", type: "resume", name: "关于我", visible: true, order: 1, href: "/space/about", permission: "resume_text" },
   { id: "family", type: "family", name: "家庭", visible: true, order: 2, href: "/family", permission: "family" },
   { id: "blog", type: "blog", name: "博客", visible: true, order: 3, href: "/blog", permission: "blog" },
   { id: "photos", type: "photos", name: "照片墙", visible: true, order: 4, href: "/photos", permission: "photos" },
@@ -235,8 +235,8 @@ export const SECTION_PRESETS: SiteSection[] = [
 export const DEFAULT_SECTIONS_LIST: SiteSection[] = SECTION_PRESETS.map(s => ({ ...s }));
 
 const SECTION_HREF: Record<SectionType, string> = {
-  works: "/portfolio",
-  resume: "/resume",
+  works: "/space/works",
+  resume: "/space/about",
   family: "/family",
   blog: "/blog",
   photos: "/photos",
@@ -254,16 +254,27 @@ const SECTION_PERMISSION: Record<SectionType, keyof Permissions | undefined> = {
   custom: undefined,
 };
 
+/** Keep the private diary pages off the new public career URLs. */
+export function remapDiaryHref(type: SectionType, href?: string): string | undefined {
+  if (type === "works" && (!href || href === "/portfolio")) return "/space/works";
+  if (type === "resume" && (!href || href === "/resume")) return "/space/about";
+  return href;
+}
+
 export function normalizeSections(raw: SiteSection[] | undefined): SiteSection[] {
   if (!Array.isArray(raw) || raw.length === 0) return DEFAULT_SECTIONS_LIST.map(s => ({ ...s }));
   const validTypes: string[] = ["works", "resume", "family", "blog", "photos", "message"];
   return raw
-    .map<SiteSection>((s, i) => ({
-      ...s,
-      type: s.type !== "custom" && validTypes.includes(s.type) ? s.type : "custom",
-      order: typeof s.order === "number" ? s.order : i,
-      visible: s.visible !== false,
-    }))
+    .map<SiteSection>((s, i) => {
+      const type: SectionType = s.type !== "custom" && validTypes.includes(s.type) ? s.type : "custom";
+      return {
+        ...s,
+        type,
+        href: remapDiaryHref(type, s.href),
+        order: typeof s.order === "number" ? s.order : i,
+        visible: s.visible !== false,
+      };
+    })
     .sort((a, b) => a.order - b.order);
 }
 

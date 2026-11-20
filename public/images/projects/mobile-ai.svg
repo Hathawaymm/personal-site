@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><rect width="1200" height="800" fill="#101614"/>
+  <rect x="180" y="80" width="280" height="620" rx="36" fill="#0c1210" stroke="#8fd0b0" stroke-width="6"/>
+  <text x="220" y="200" fill="#d7ffe0" font-family="monospace" font-size="22">&gt; whoami</text>
+  <text x="220" y="250" fill="#d7ffe0" font-family="monospace" font-size="22">&gt; read-only</text>
+  <rect x="560" y="180" width="480" height="360" rx="16" fill="#14201a" stroke="#8fd0b0"/>
+  <text x="600" y="280" fill="#f4ead8" font-family="Georgia" font-size="32">Feishu → local AI</text>
+  <text x="600" y="350" fill="#8fd0b0" font-family="Arial" font-size="22">history stays on the machine</text></svg>

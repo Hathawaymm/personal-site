@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><rect width="1200" height="800" fill="#18140e"/>
+  <rect x="160" y="260" width="420" height="360" fill="#2a2218" stroke="#d4a574" stroke-width="6"/>
+  <polygon points="140,260 370,120 600,260" fill="#3a2e20" stroke="#d4a574" stroke-width="6"/>
+  <rect x="680" y="160" width="420" height="80" rx="8" fill="#2a2218"/><text x="710" y="210" fill="#f4ead8" font-family="Arial" font-size="24">change log · 10+/mo</text>
+  <rect x="680" y="270" width="420" height="80" rx="8" fill="#2a2218"/><text x="710" y="320" fill="#f4ead8" font-family="Arial" font-size="24">response +60%</text>
+  <rect x="680" y="380" width="420" height="80" rx="8" fill="#2a2218"/><text x="710" y="430" fill="#f4ead8" font-family="Arial" font-size="24">3 dev + 2 test</text></svg>

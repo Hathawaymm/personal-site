@@ -255,7 +255,7 @@ export default function HomepageConfig() {
           </div>
           <div>
             <label className="block text-sm text-text-secondary mb-1">按钮链接</label>
-            <input type="text" value={config.buttonLink} onChange={e => setConfig({ ...config, buttonLink: e.target.value })} className="w-full rounded-lg border border-accent-gold/30 bg-bg-paper px-4 py-2 text-sm text-text-primary focus:border-accent-gold/60 focus:outline-none" placeholder="/portfolio" />
+            <input type="text" value={config.buttonLink} onChange={e => setConfig({ ...config, buttonLink: e.target.value })} className="w-full rounded-lg border border-accent-gold/30 bg-bg-paper px-4 py-2 text-sm text-text-primary focus:border-accent-gold/60 focus:outline-none" placeholder="/space/works" />
           </div>
         </div>
       </div>

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyToken } from "@/lib/token";
+import { requiresAdminSession } from "@/lib/route-policy";
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -11,12 +12,12 @@ export async function middleware(req: NextRequest) {
     isValid = user !== null;
   }
 
-  if (pathname.startsWith("/api/admin")) {
+  if (requiresAdminSession(pathname) && pathname.startsWith("/api/admin")) {
     if (!isValid) return NextResponse.json({ error: "未登录" }, { status: 401 });
     return NextResponse.next();
   }
 
-  if (pathname.startsWith("/admin") || pathname.startsWith("/dashboard")) {
+  if (requiresAdminSession(pathname)) {
     if (!isValid) return NextResponse.redirect(new URL("/login", req.url));
     return NextResponse.next();
   }
