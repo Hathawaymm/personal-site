@@ -53,14 +53,14 @@ const APPS: { id: WinId; title: { zh: string; en: string }; x: number; y: number
   { id: "terminal", title: { zh: "终端", en: "Terminal.exe" }, x: 240, y: 240 },
 ];
 
-export default function RetroOS({ onBack }: { onBack: () => void }) {
+export default function RetroOS({ onBack, fill = false }: { onBack: () => void; fill?: boolean }) {
   const { lang, setLang } = useLang();
   const [wins, setWins] = useState<WinState[]>(() => APPS.map((app, index) => ({
     id: app.id,
     x: app.x,
     y: app.y,
     z: index + 1,
-    open: app.id === "photos",
+    open: false,
     minimized: false,
     maximized: false,
   })));
@@ -126,11 +126,16 @@ export default function RetroOS({ onBack }: { onBack: () => void }) {
   const ordered = useMemo(() => [...wins].sort((a, b) => a.z - b.z), [wins]);
 
   return (
-    <div className="relative min-h-[calc(100vh-52px)] overflow-hidden bg-[#6e8f72]">
-      <div className="absolute inset-0 opacity-40" style={{ backgroundImage: "radial-gradient(circle at 20% 20%, rgba(255,255,255,0.25), transparent 40%), repeating-linear-gradient(90deg, rgba(0,0,0,0.04) 0 2px, transparent 2px 14px)" }} />
+    <div className={`relative overflow-hidden bg-[#1a2744] ${fill ? "h-dvh" : "min-h-[calc(100dvh-52px)]"}`}>
+      <img
+        src="/images/zoe/wallpaper-seaside-dusk.webp"
+        alt=""
+        className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+        style={{ imageRendering: "pixelated" }}
+      />
       <div className="relative z-10 grid grid-cols-3 gap-4 p-4 sm:grid-cols-6">
         {APPS.map((app) => (
-          <button key={app.id} type="button" onClick={() => focus(app.id)} className="flex w-28 flex-col items-center gap-1 text-center text-xs leading-tight text-white drop-shadow">
+          <button key={app.id} type="button" onClick={() => focus(app.id)} className="flex w-28 flex-col items-center gap-1 text-center text-xs font-medium leading-tight text-white" style={{ textShadow: "0 1px 0 #1c140c, 1px 0 0 #1c140c, -1px 0 0 #1c140c, 0 -1px 0 #1c140c, 1px 1px 2px rgba(0,0,0,0.85)" }}>
             <span className="flex size-10 items-center justify-center border-2 border-white/70 bg-[#efe6d4] shadow-[2px_2px_0_#1c140c]">{APP_ICON[app.id]()}</span>
             {tx(app.title, lang)}
           </button>

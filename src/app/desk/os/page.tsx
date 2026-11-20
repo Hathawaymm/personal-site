@@ -6,7 +6,7 @@ import RetroOS from "@/components/desk/RetroOS";
 export default function DeskOsPage() {
   return (
     <LanguageProvider>
-      <RetroOS onBack={() => {
+      <RetroOS fill onBack={() => {
         if (window.parent && window.parent !== window) {
           window.parent.postMessage({ type: "leave-monitor" }, window.location.origin);
         }
