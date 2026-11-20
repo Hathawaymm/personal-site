@@ -17,6 +17,7 @@ import {
   type Project,
 } from "@/data/portfolio-data";
 import { useLang } from "../portfolio/lang";
+import { playDeskKey, playDeskMouse, releaseDeskKey, unlockDeskAudio } from "./desk-audio";
 import { AboutIcon, ExperienceIcon, GovernanceIcon, PhotosIcon, ProjectsIcon, ResumeIcon, TerminalIcon } from "./pixel-icons";
 import { runCommand } from "./terminal";
 
@@ -67,6 +68,35 @@ export default function RetroOS({ onBack }: { onBack: () => void }) {
   const [startOpen, setStartOpen] = useState(false);
   const [clock, setClock] = useState("");
   const [narrow, setNarrow] = useState(false);
+
+  useEffect(() => {
+    const embedded = window.parent !== window;
+    const emit = (kind: string, extra: Record<string, unknown> = {}) => {
+      if (embedded) {
+        window.parent.postMessage({ type: "desk-sound", kind, ...extra }, window.location.origin);
+        return;
+      }
+      unlockDeskAudio();
+      if (kind === "mouse-down") playDeskMouse(true);
+      if (kind === "mouse-up") playDeskMouse(false);
+      if (kind === "keydown") playDeskKey(String(extra.key ?? ""), Boolean(extra.repeat));
+      if (kind === "keyup") releaseDeskKey();
+    };
+    const down = (event: PointerEvent) => { if (event.button === 0) emit("mouse-down"); };
+    const up = (event: PointerEvent) => { if (event.button === 0) emit("mouse-up"); };
+    const keyDown = (event: KeyboardEvent) => emit("keydown", { key: event.key, repeat: event.repeat });
+    const keyUp = () => emit("keyup");
+    window.addEventListener("pointerdown", down);
+    window.addEventListener("pointerup", up);
+    window.addEventListener("keydown", keyDown);
+    window.addEventListener("keyup", keyUp);
+    return () => {
+      window.removeEventListener("pointerdown", down);
+      window.removeEventListener("pointerup", up);
+      window.removeEventListener("keydown", keyDown);
+      window.removeEventListener("keyup", keyUp);
+    };
+  }, []);
 
   useEffect(() => {
     const tick = () => setClock(new Date().toLocaleTimeString(lang === "zh" ? "zh-CN" : "en-GB", { hour: "2-digit", minute: "2-digit" }));

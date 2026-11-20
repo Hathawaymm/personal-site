@@ -3,6 +3,7 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { ChibiScene, type ChibiSceneApi, type RuntimeEvent, type ScenePointerEvent } from "@chibi3d/runtime";
 import { keyboardSkills, tx } from "@/data/portfolio-data";
+import { readSoundMuted } from "@/lib/sound-pref";
 import { useLang } from "../lang";
 import { createKeyInput, isTypingTarget } from "./input";
 import { createKeyboardMotion } from "./motion";
@@ -43,7 +44,6 @@ export default function ZoeKeyboard() {
   const [failed, setFailed] = useState(false);
   const motion = useRef<ReturnType<typeof createKeyboardMotion> | null>(null);
   const [ready, setReady] = useState(false);
-  const [muted, setMuted] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [section, setSection] = useState("hero");
   const playSound = useKeyboardSounds();
@@ -82,8 +82,8 @@ export default function ZoeKeyboard() {
     api.current?.setNodeVisible(scene.labelsId, Boolean(shown));
     visibleLabel.current = shown?.labelId ?? null;
     setSelectedId(shown?.skill.name ?? null);
-    if (!muted) playSound(pressed);
-  }), [input, scene, playSound, markActive, muted]);
+    if (!readSoundMuted()) playSound(pressed, Math.max(0, scene.keys.indexOf(key)));
+  }), [input, scene, playSound, markActive]);
 
   const onPointerEvent = useCallback((event: ScenePointerEvent) => {
     const pointer = `pointer:${event.pointerId}`;
@@ -157,9 +157,6 @@ export default function ZoeKeyboard() {
         <div className="pointer-events-none fixed right-4 bottom-4 z-30 hidden w-72 rounded-2xl border border-[#e4b15a]/30 bg-[#101218]/90 p-4 text-[#f4ead8] backdrop-blur md:block">
           <p className="text-[11px] tracking-[0.16em] text-[#e4b15a] uppercase">{skill ? tx(skill.title, lang) : ""}</p>
           <p className="mt-2 text-sm leading-relaxed text-[#f4ead8]/80">{skill ? tx(skill.proof, lang) : ""}</p>
-          <button type="button" onClick={() => setMuted((value) => !value)} className="pointer-events-auto mt-3 text-xs text-[#f4ead8]/60 underline">
-            {muted ? (lang === "zh" ? "打开键帽声" : "Unmute keys") : (lang === "zh" ? "关闭键帽声" : "Mute keys")}
-          </button>
         </div>
       )}
     </>

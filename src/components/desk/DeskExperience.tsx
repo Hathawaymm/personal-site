@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { shellCopy, tx } from "@/data/portfolio-data";
 import { LanguageProvider, useLang } from "../portfolio/lang";
 import PublicNav from "../portfolio/PublicNav";
+import { prefetchDeskAudio, stopDeskAudio } from "./desk-audio";
 import RetroOS from "./RetroOS";
 
 const BakedStudy = dynamic(() => import("./BakedStudy"), { ssr: false, loading: () => <div className="h-[70vh] bg-[#120e0c]" /> });
@@ -23,6 +24,11 @@ function DeskFrame() {
   const [intent, setIntent] = useState<"auto" | "desk" | "monitor">("auto");
   const [compact, setCompact] = useState(false);
   const [webgl, setWebgl] = useState(true);
+
+  useEffect(() => {
+    prefetchDeskAudio();
+    return () => stopDeskAudio();
+  }, []);
 
   useEffect(() => {
     const media = window.matchMedia("(max-width: 760px)");

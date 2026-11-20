@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { shellCopy, tx, ui } from "@/data/portfolio-data";
+import { readSoundMuted, subscribeSoundMuted, writeSoundMuted } from "@/lib/sound-pref";
 import { useLang } from "./lang";
 
 const LINKS = [
@@ -15,6 +17,13 @@ export default function PublicNav({ tone = "dark" }: { tone?: "dark" | "paper" }
   const pathname = usePathname();
   const { lang, setLang } = useLang();
   const dark = tone === "dark";
+  const [muted, setMuted] = useState(false);
+  const hears = pathname === "/portfolio" || pathname === "/desk";
+
+  useEffect(() => {
+    setMuted(readSoundMuted());
+    return subscribeSoundMuted(setMuted);
+  }, []);
 
   return (
     <header className={`career-no-print sticky top-0 z-40 border-b backdrop-blur-md ${dark ? "relative z-40 border-white/10 bg-[#07080c]/75 text-[#f4ead8]" : "border-accent-gold/20 bg-bg-cream/90 text-text-primary"}`}>
@@ -45,6 +54,16 @@ export default function PublicNav({ tone = "dark" }: { tone?: "dark" | "paper" }
           <LangButton active={lang === "zh"} dark={dark} onClick={() => setLang("zh")} label={ui.langZh} />
           <LangButton active={lang === "en"} dark={dark} onClick={() => setLang("en")} label={ui.langEn} />
         </div>
+        {hears && (
+          <button
+            type="button"
+            aria-pressed={muted}
+            onClick={() => writeSoundMuted(!muted)}
+            className={`rounded-full border px-2.5 py-1 text-xs font-medium ${dark ? "border-white/15 text-[#f4ead8]" : "border-accent-gold/30 text-text-primary"}`}
+          >
+            {muted ? (lang === "zh" ? "开声音" : "Unmute") : (lang === "zh" ? "静音" : "Mute")}
+          </button>
+        )}
         {pathname === "/resume" && (
           <button
             type="button"

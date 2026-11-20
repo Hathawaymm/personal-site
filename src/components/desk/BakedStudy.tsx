@@ -6,6 +6,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { CSS3DObject, CSS3DRenderer } from "three/examples/jsm/renderers/CSS3DRenderer.js";
 import gsap from "gsap";
 import { useLang } from "../portfolio/lang";
+import { noteDeskShot, playDeskKey, playDeskMouse, playDeskType, releaseDeskKey, unlockDeskAudio } from "./desk-audio";
 
 const MODELS = [
   ["/models/study/environment.glb", "/models/study/baked_environment.jpg"],
@@ -54,6 +55,10 @@ export default function BakedStudy({
     const timers = [1, 2, 3, 4, 5].map((count, index) => window.setTimeout(() => setLineCount(count), index * 320));
     return () => timers.forEach((id) => window.clearTimeout(id));
   }, [lang]);
+
+  useEffect(() => {
+    if (lineCount > 1) playDeskType();
+  }, [lineCount]);
 
   useEffect(() => {
     if (intent === "auto") return;
@@ -179,6 +184,7 @@ export default function BakedStudy({
       active = next;
       shot.current = next;
       setCurrent(next);
+      noteDeskShot(next);
       tweening = true;
       const target = SHOTS[next];
       gsap.to(camPos, {
@@ -215,40 +221,21 @@ export default function BakedStudy({
     };
     window.addEventListener("pointermove", onMove);
 
-    let audio: AudioContext | null = null;
-    const startAmbience = () => {
-      if (audio) return;
-      const Context = window.AudioContext;
-      if (!Context) return;
-      audio = new Context();
-      const buffer = audio.createBuffer(1, audio.sampleRate * 2, audio.sampleRate);
-      const data = buffer.getChannelData(0);
-      for (let i = 0; i < data.length; i += 1) data[i] = Math.random() * 2 - 1;
-      const source = audio.createBufferSource();
-      source.buffer = buffer;
-      source.loop = true;
-      const filter = audio.createBiquadFilter();
-      filter.type = "lowpass";
-      filter.frequency.value = 380;
-      const gain = audio.createGain();
-      gain.gain.value = 0.012;
-      source.connect(filter).connect(gain).connect(audio.destination);
-      source.start();
-      const tone = audio.createOscillator();
-      const toneGain = audio.createGain();
-      tone.frequency.value = 220;
-      toneGain.gain.setValueAtTime(0.02, audio.currentTime);
-      toneGain.gain.exponentialRampToValueAtTime(0.0001, audio.currentTime + 0.6);
-      tone.connect(toneGain).connect(audio.destination);
-      tone.start();
-      tone.stop(audio.currentTime + 0.6);
+    const unlock = () => {
+      unlockDeskAudio();
+      noteDeskShot(active);
     };
-    const unlock = () => { void audio?.resume(); startAmbience(); };
     window.addEventListener("pointerdown", unlock, true);
 
     const onMessage = (event: MessageEvent) => {
       if (event.origin !== window.location.origin) return;
-      if (event.data && event.data.type === "leave-monitor") travel("desk", 1.2);
+      const data = event.data as { type?: string; kind?: string; key?: string; repeat?: boolean } | null;
+      if (!data) return;
+      if (data.type === "leave-monitor") travel("desk", 1.2);
+      if (data.type === "desk-sound" && data.kind === "mouse-down") playDeskMouse(true);
+      if (data.type === "desk-sound" && data.kind === "mouse-up") playDeskMouse(false);
+      if (data.type === "desk-sound" && data.kind === "keydown") playDeskKey(data.key ?? "", Boolean(data.repeat));
+      if (data.type === "desk-sound" && data.kind === "keyup") releaseDeskKey();
     };
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape" && active === "monitor") travel("desk", 1.2);
@@ -322,7 +309,6 @@ export default function BakedStudy({
       window.removeEventListener("message", onMessage);
       window.removeEventListener("keydown", onKey);
       renderer.dispose();
-      void audio?.close();
       host.replaceChildren();
     };
   }, []);
