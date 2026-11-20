@@ -21,15 +21,20 @@ const SCENE_STYLE: CSSProperties = {
 };
 
 const COLORS = ["#e4b15a", "#7ec8c3", "#e07a5f", "#9bb7d4", "#c9a27a", "#8fb38a"];
+const LEGENDS: Record<string, string> = {
+  pmp: "PMP", agile: "Agile", gates: "Gate", audit: "Audit", oms: "OMS", edi: "EDI",
+  rpa: "RPA", feishu: "Feishu", crm: "CRM", risk: "Risk", data: "Data", agent: "Agent",
+  vibe: "Vibe", next: "Next", cursor: "Cursor", delivery: "Ship", wms: "WMS", erp: "ERP",
+};
 
 function sceneSkills(): KeyboardSkill[] {
   return keyboardSkills.map((skill, index) => ({
     name: skill.id,
-    label: skill.label.en,
+    label: LEGENDS[skill.id] ?? skill.label.en,
     shortDescription: skill.proof.en,
     color: COLORS[index % COLORS.length],
     keyboardColor: COLORS[index % COLORS.length],
-    icon: `/images/keys/${skill.id}.svg`,
+    icon: `/images/keys/${skill.id}.png`,
   }));
 }
 
@@ -41,6 +46,7 @@ export default function ZoeKeyboard() {
   const [ready, setReady] = useState(false);
   const [muted, setMuted] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [section, setSection] = useState("hero");
   const playSound = useKeyboardSounds();
   const scene = useMemo(() => createKeyboardScene(sceneSkills(), 6), []);
   const { settings: graphics, markActive } = useAdaptiveGraphics(ready);
@@ -89,7 +95,10 @@ export default function ZoeKeyboard() {
 
   useEffect(() => {
     if (!ready || !api.current) return;
-    const controller = createKeyboardMotion(api.current, scene, () => input.releaseAll(), markActive);
+    const controller = createKeyboardMotion(api.current, scene, (next) => {
+      input.releaseAll();
+      setSection(next);
+    }, markActive);
     motion.current = controller;
     controller.reveal();
     return () => {
@@ -143,13 +152,15 @@ export default function ZoeKeyboard() {
         onError={onError}
         onEvent={(event: RuntimeEvent) => { if (event.type === "contextLost") onError(new Error("WebGL context lost")); }}
       />
-      <div className="pointer-events-none fixed right-4 bottom-4 z-30 hidden w-72 rounded-2xl border border-[#e4b15a]/30 bg-[#101218]/90 p-4 text-[#f4ead8] backdrop-blur md:block">
-        <p className="text-[11px] tracking-[0.16em] text-[#e4b15a] uppercase">{skill ? tx(skill.title, lang) : ""}</p>
-        <p className="mt-2 text-sm leading-relaxed text-[#f4ead8]/80">{skill ? tx(skill.proof, lang) : ""}</p>
-        <button type="button" onClick={() => setMuted((value) => !value)} className="pointer-events-auto mt-3 text-xs text-[#f4ead8]/60 underline">
-          {muted ? (lang === "zh" ? "打开键帽声" : "Unmute keys") : (lang === "zh" ? "关闭键帽声" : "Mute keys")}
-        </button>
-      </div>
+      {section === "skills" && (
+        <div className="pointer-events-none fixed right-4 bottom-4 z-30 hidden w-72 rounded-2xl border border-[#e4b15a]/30 bg-[#101218]/90 p-4 text-[#f4ead8] backdrop-blur md:block">
+          <p className="text-[11px] tracking-[0.16em] text-[#e4b15a] uppercase">{skill ? tx(skill.title, lang) : ""}</p>
+          <p className="mt-2 text-sm leading-relaxed text-[#f4ead8]/80">{skill ? tx(skill.proof, lang) : ""}</p>
+          <button type="button" onClick={() => setMuted((value) => !value)} className="pointer-events-auto mt-3 text-xs text-[#f4ead8]/60 underline">
+            {muted ? (lang === "zh" ? "打开键帽声" : "Unmute keys") : (lang === "zh" ? "关闭键帽声" : "Mute keys")}
+          </button>
+        </div>
+      )}
     </>
   );
 }

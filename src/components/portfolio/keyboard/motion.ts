@@ -79,9 +79,9 @@ export function createKeyboardMotion(
     const mobile = window.innerWidth < 768;
     const fit = Math.min(1, window.innerWidth / window.innerHeight * 1.05);
     const [centerX, centerY, centerZ] = scene.document.camera.target;
-      const size = fit * (section === "hero" ? 0.8 : section === "contact" ? 0.75 : section === "skills" ? (mobile ? 0.88 : 1.05) : section === "experience" || section === "governance" ? 0.72 : 0.95);
-    const right = !mobile && section === "hero" ? 2.5 : !mobile && (section === "contact" || section === "experience") ? 3.2 : !mobile && section === "governance" ? -2.4 : 0;
-    const up = mobile && section === "hero" ? -1.8 : section === "contact" ? -0.8 : 0;
+      const size = fit * (section === "hero" ? 0.62 : section === "contact" ? 0.75 : section === "skills" ? (mobile ? 0.88 : 1.05) : section === "experience" || section === "governance" ? 0.72 : 0.95);
+    const right = !mobile && section === "hero" ? -2.4 : !mobile && (section === "contact" || section === "experience") ? 3.2 : !mobile && section === "governance" ? -2.4 : 0;
+    const up = section === "hero" ? (mobile ? -2.4 : -1.6) : section === "contact" ? -0.8 : 0;
     return {
       // The placement origin is the keyboard's geometry center, independent of its labels.
       position: {
@@ -109,7 +109,7 @@ export function createKeyboardMotion(
     for (const [value, destination] of [[position, target.position], [rotation, target.rotation], [scale, target.scale]] as const) {
       sectionTweens.push(gsap.to(value, { ...destination, duration: immediate ? 0 : 1, ease: "power1.out", overwrite: true, onUpdate: applyPose }));
     }
-    api.setNodeVisible(scene.labelsId, next === "skills");
+    api.setNodeVisible(scene.labelsId, false);
     showCounter(next === "skills" && inSkills());
     if (next === "hero") {
       // The legacy restart() skips the configured 2.5s delay. Keep the live

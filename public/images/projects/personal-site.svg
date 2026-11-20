@@ -1,1 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><rect width="1200" height="800" fill="#141820"/><text x="70" y="160" fill="#e4b15a" font-family="Georgia" font-size="36">SITE</text><text x="70" y="280" fill="#f4ead8" font-family="Georgia" font-size="96">6 flags</text><text x="72" y="340" fill="#f4ead8" font-size="32">Next.js 16</text></svg>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><rect width="1200" height="800" fill="#faf4e8"/>
+  <rect x="160" y="80" width="880" height="640" rx="18" fill="#fffef9" stroke="#d4a853"/>
+  <text x="220" y="180" fill="#4a3520" font-family="Georgia" font-size="48">我们的时光</text>
+  <text x="220" y="240" fill="#6b5744" font-family="Arial" font-size="22">GitHub OAuth · 6 permissions</text>
+  <rect x="220" y="300" width="220" height="280" fill="#f5ead0"/>
+  <rect x="470" y="300" width="220" height="160" fill="#f5ead0"/>
+  <rect x="720" y="300" width="220" height="200" fill="#f5ead0"/></svg>

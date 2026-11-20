@@ -145,8 +145,9 @@ export function createKeyboardScene(skills: readonly KeyboardSkill[], columns = 
       visible: true, castShadow: false, receiveShadow: false, children: [] }, id);
     return id;
   };
-  const defaultLabelId = label("Press a key", "Each cap maps to a real project outcome");
-  doc.nodes[defaultLabelId].visible = true;
+  const defaultLabelId = label(" ", " ");
+  doc.nodes[defaultLabelId].visible = false;
+  doc.nodes[labelsId].visible = false;
   const keys = skills.map((skill, index): KeyboardKey => {
     // separate groups let placement, motion, and presses compose
     const slot = group(`Slot ${skill.name}`, layout, [
@@ -167,7 +168,7 @@ export function createKeyboardScene(skills: readonly KeyboardSkill[], columns = 
         maps: { map: iconId, normalMap: null, roughnessMap: null },
       });
       add({ id: newId("nd"), name: `Logo ${skill.name}`, type: "mesh", materialId: logoMaterial,
-        geometry: { kind: "plane", params: { width: 0.52, height: 0.52 } },
+        geometry: { kind: "plane", params: { width: 0.78, height: 0.32 } },
         transform: { ...transform([0, KIT.logoY, 0]), rotation: [-Math.PI / 2, 0, 0] },
         visible: true, castShadow: false, receiveShadow: true, children: [] }, nodeId);
     }

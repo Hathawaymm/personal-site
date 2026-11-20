@@ -17,6 +17,7 @@ import {
   type Project,
 } from "@/data/portfolio-data";
 import { useLang } from "../portfolio/lang";
+import { AboutIcon, ExperienceIcon, GovernanceIcon, PhotosIcon, ProjectsIcon, ResumeIcon, TerminalIcon } from "./pixel-icons";
 import { runCommand } from "./terminal";
 
 type WinId = "about" | "photos" | "experience" | "projects" | "governance" | "resume" | "terminal";
@@ -31,9 +32,19 @@ interface WinState {
   maximized: boolean;
 }
 
+const APP_ICON: Record<WinId, () => ReactNode> = {
+  about: AboutIcon,
+  photos: PhotosIcon,
+  experience: ExperienceIcon,
+  projects: ProjectsIcon,
+  governance: GovernanceIcon,
+  resume: ResumeIcon,
+  terminal: TerminalIcon,
+};
+
 const APPS: { id: WinId; title: { zh: string; en: string }; x: number; y: number }[] = [
   { id: "about", title: { zh: "关于我", en: "About_Me.exe" }, x: 36, y: 150 },
-  { id: "photos", title: { zh: "个人相册", en: "Photos.exe" }, x: 300, y: 180 },
+  { id: "photos", title: { zh: "个人相册", en: "Photos.exe" }, x: 250, y: 168 },
   { id: "experience", title: { zh: "工作经历", en: "Experience.doc" }, x: 520, y: 150 },
   { id: "projects", title: { zh: "项目作品集 (16)", en: "Projects/" }, x: 80, y: 210 },
   { id: "governance", title: { zh: "流程体系与外部审计", en: "Governance_Audit.sys" }, x: 430, y: 200 },
@@ -48,7 +59,7 @@ export default function RetroOS({ onBack }: { onBack: () => void }) {
     x: app.x,
     y: app.y,
     z: index + 1,
-    open: app.id === "about" || app.id === "projects" || app.id === "photos",
+    open: app.id === "photos",
     minimized: false,
     maximized: false,
   })));
@@ -90,7 +101,7 @@ export default function RetroOS({ onBack }: { onBack: () => void }) {
       <div className="relative z-10 grid grid-cols-3 gap-4 p-4 sm:grid-cols-6">
         {APPS.map((app) => (
           <button key={app.id} type="button" onClick={() => focus(app.id)} className="flex w-28 flex-col items-center gap-1 text-center text-xs leading-tight text-white drop-shadow">
-            <span className="flex size-10 items-center justify-center border-2 border-white/70 bg-[#efe6d4] text-lg text-[#1c140c] shadow-[2px_2px_0_#1c140c]">▣</span>
+            <span className="flex size-10 items-center justify-center border-2 border-white/70 bg-[#efe6d4] shadow-[2px_2px_0_#1c140c]">{APP_ICON[app.id]()}</span>
             {tx(app.title, lang)}
           </button>
         ))}
@@ -246,9 +257,12 @@ function PhotosPane() {
   ];
   return (
     <div className="grid grid-cols-1 gap-2">
-      {shots.map(([src, alt]) => (
-        <img key={src} src={src} alt={alt} className="max-h-48 w-full object-cover" />
-      ))}
+      <img src={shots[0][0]} alt={shots[0][1]} className="h-52 w-full object-cover object-[center_18%]" />
+      <div className="grid grid-cols-2 gap-2">
+        {shots.slice(1).map(([src, alt]) => (
+          <img key={src} src={src} alt={alt} className="h-24 w-full object-cover" />
+        ))}
+      </div>
     </div>
   );
 }

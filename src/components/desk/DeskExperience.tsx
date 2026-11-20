@@ -70,11 +70,15 @@ function DeskFrame() {
               </div>
             </div>
           )}
-          <div className="pointer-events-none absolute inset-x-0 bottom-8 z-30 flex flex-col items-center gap-3">
-            <p className="pointer-events-auto rounded-full bg-black/55 px-4 py-2 text-sm">{tx(shellCopy.deskEnter, lang)}</p>
-            <button type="button" onClick={() => setPhase("os")} className="pointer-events-auto rounded-full border border-[#e4b15a] px-4 py-2 text-sm text-[#f0c27a]">
-              {tx(shellCopy.deskSkip, lang)}
-            </button>
+          <div className="pointer-events-none absolute bottom-6 left-6 z-30">
+            <div className="pointer-events-auto flex flex-col items-stretch gap-2 rounded-2xl border border-white/10 bg-[#120e0c]/85 p-3 shadow-lg backdrop-blur-md">
+              <button type="button" onClick={() => setZooming(true)} className="rounded-full bg-[#f4ead8] px-4 py-2 text-sm font-medium text-[#1a1208]">
+                {tx(shellCopy.deskEnter, lang)}
+              </button>
+              <button type="button" onClick={() => setPhase("os")} className="rounded-full border border-[#f4ead8]/30 px-4 py-2 text-sm text-[#f4ead8]">
+                {tx(shellCopy.deskSkip, lang)}
+              </button>
+            </div>
           </div>
         </div>
       )}
