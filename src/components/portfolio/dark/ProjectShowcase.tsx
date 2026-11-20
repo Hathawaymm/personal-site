@@ -78,13 +78,18 @@ export default function ProjectShowcase() {
   );
 }
 
+function coverSrc(id: string): string {
+  return `/images/projects/${id}.svg`;
+}
+
 function Cover({ project }: { project: Project }) {
   const { lang } = useLang();
   const seed = [...project.id].reduce((sum, char) => sum + char.charCodeAt(0), 0);
   const accent = project.employer === "root" ? "#e4b15a" : project.employer === "bank" ? "#7ec8c3" : "#e07a5f";
   return (
     <div className="relative aspect-[3/2] overflow-hidden bg-[#16130f]">
-      <svg viewBox="0 0 300 200" className="h-full w-full origin-center transition duration-700 group-hover:scale-110" aria-hidden>
+      <img src={coverSrc(project.id)} alt="" className="h-full w-full origin-center object-cover transition duration-700 group-hover:scale-110" />
+      <svg viewBox="0 0 300 200" className="pointer-events-none absolute inset-0 hidden" aria-hidden>
         <defs>
           <linearGradient id={`g-${project.id}`} x1="0" y1="0" x2="1" y2="1">
             <stop offset="0" stopColor="#1a140f" />

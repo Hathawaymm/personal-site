@@ -7,7 +7,7 @@ import { LanguageProvider, useLang } from "../portfolio/lang";
 import PublicNav from "../portfolio/PublicNav";
 import RetroOS from "./RetroOS";
 
-const DeskScene = dynamic(() => import("./DeskScene"), { ssr: false, loading: () => <div className="h-[70vh] bg-[#120e0c]" /> });
+const BakedStudy = dynamic(() => import("./BakedStudy"), { ssr: false, loading: () => <div className="h-[70vh] bg-[#120e0c]" /> });
 
 export default function DeskExperience() {
   return (
@@ -23,6 +23,16 @@ function DeskFrame() {
   const [zooming, setZooming] = useState(false);
   const [compact, setCompact] = useState(false);
   const [webgl, setWebgl] = useState(true);
+  const [booting, setBooting] = useState(true);
+
+  useEffect(() => {
+    const onMessage = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin) return;
+      if (event.data && event.data.type === "leave-monitor") setZooming(false);
+    };
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, []);
 
   useEffect(() => {
     const media = window.matchMedia("(max-width: 760px)");
@@ -48,11 +58,19 @@ function DeskFrame() {
       ) : (
         <div className="relative h-[calc(100vh-52px)]">
           {showScene ? (
-            <DeskScene zooming={zooming} onZoom={() => setZooming(true)} onEnter={() => setPhase("os")} />
+            <BakedStudy zooming={zooming} onZoom={() => setZooming(true)} onReady={() => setBooting(false)} />
           ) : (
             <FallbackRoom onEnter={() => setPhase("os")} />
           )}
-          <div className="pointer-events-none absolute inset-x-0 bottom-8 flex flex-col items-center gap-3">
+          {booting && showScene && (
+            <div className="absolute inset-0 z-20 flex items-center justify-center bg-black font-mono text-[#9fdf9f]">
+              <div>
+                <p>ZoeOS BIOS</p>
+                <p className="mt-2 text-sm">Loading study models...</p>
+              </div>
+            </div>
+          )}
+          <div className="pointer-events-none absolute inset-x-0 bottom-8 z-30 flex flex-col items-center gap-3">
             <p className="pointer-events-auto rounded-full bg-black/55 px-4 py-2 text-sm">{tx(shellCopy.deskEnter, lang)}</p>
             <button type="button" onClick={() => setPhase("os")} className="pointer-events-auto rounded-full border border-[#e4b15a] px-4 py-2 text-sm text-[#f0c27a]">
               {tx(shellCopy.deskSkip, lang)}

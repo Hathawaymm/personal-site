@@ -2,45 +2,49 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { ReactLenis, useLenis } from "lenis/react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { credentials, education, experience, governance, heroMetrics, keyboardSkills, profile, shellCopy, tx, ui } from "@/data/portfolio-data";
 import { LanguageProvider, useLang } from "../lang";
 import PublicNav from "../PublicNav";
 import PrintableResume from "../PrintableResume";
 import ProjectShowcase from "./ProjectShowcase";
 
-const SkillsKeyboard = dynamic(() => import("./SkillsKeyboard"), {
-  ssr: false,
-  loading: () => <div className="h-[420px] rounded-2xl border border-white/10 bg-[#0c0e13]" />,
-});
+const ZoeKeyboard = dynamic(() => import("../keyboard/ZoeKeyboard"), { ssr: false });
+
+gsap.registerPlugin(ScrollTrigger);
 
 export default function DarkPortfolio() {
   return (
     <LanguageProvider>
+    <LenisRoot>
     <div className="space-ui career-root min-h-screen bg-[#07080c] text-[#f4ead8]">
       <Starfield />
+      <ZoeKeyboard />
       <PublicNav tone="dark" />
       <main className="career-screen-only relative z-10">
         <Hero />
-        <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-          <Reveal>
-            <h2 className="font-display text-3xl sm:text-4xl">{txWait(shellCopy.keyboardTitle)}</h2>
-            <KeyboardLede />
-            <div className="mt-6">
-              <SkillsKeyboard />
-            </div>
-          </Reveal>
+        <section id="skills" className="relative z-10 mx-auto min-h-[80dvh] max-w-6xl px-4 py-24 sm:px-6">
+          <h2 className="font-display text-4xl sm:text-6xl">{txWait(shellCopy.keyboardTitle)}</h2>
+          <KeyboardLede />
         </section>
         <Timeline />
         <GovernanceDeck />
-        <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+        <section id="projects" className="relative z-10 mx-auto max-w-6xl px-4 py-16 sm:px-6">
           <Reveal>
             <ProjectShowcase />
           </Reveal>
+        </section>
+        <section id="contact" className="relative z-10 mx-auto max-w-6xl px-4 py-24 sm:px-6">
+          <h2 className="font-display text-4xl">Contact</h2>
+          <ContactBlock />
         </section>
         <p className="px-4 pb-10 text-center text-xs text-[#f4ead8]/40">© {new Date().getFullYear()} {profile.nameEn}</p>
       </main>
       <PrintableResume />
     </div>
+    </LenisRoot>
     </LanguageProvider>
   );
 }
@@ -62,7 +66,7 @@ function KeyboardLede() {
 function Hero() {
   const { lang } = useLang();
   return (
-    <section className="relative mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-12 lg:py-24">
+    <section id="hero" className="relative z-10 mx-auto grid min-h-[100dvh] max-w-6xl items-center gap-10 px-4 py-16 sm:px-6 lg:grid-cols-12">
       <div className="lg:col-span-7">
         <p className="text-xs tracking-[0.22em] text-[#e4b15a] uppercase">{tx(profile.kicker, lang)}</p>
         <h1 className="font-display mt-4 text-5xl leading-none sm:text-7xl">{tx(profile.name, lang)}</h1>
@@ -75,7 +79,9 @@ function Hero() {
           <li>{tx(profile.location, lang)}</li>
         </ul>
       </div>
-      <dl className="grid grid-cols-2 gap-3 lg:col-span-5 lg:self-center">
+      <div className="lg:col-span-5">
+        <img src="/images/zoe/portrait.jpg" alt={tx(profile.name, lang)} className="mb-4 aspect-[4/5] w-full max-w-sm rounded-3xl object-cover object-[center_20%] shadow-[0_20px_80px_rgba(0,0,0,0.45)]" />
+      <dl className="grid grid-cols-2 gap-3">
         {heroMetrics.map((metric) => (
           <div key={metric.label.zh} className="rounded-2xl border border-white/10 bg-white/5 p-4">
             <dt className="text-xs text-[#f4ead8]/55">{tx(metric.label, lang)}</dt>
@@ -83,6 +89,7 @@ function Hero() {
           </div>
         ))}
       </dl>
+      </div>
     </section>
   );
 }
@@ -90,7 +97,7 @@ function Hero() {
 function Timeline() {
   const { lang } = useLang();
   return (
-    <section id="timeline" className="border-y border-white/10 bg-white/[0.03]">
+    <section id="experience" className="relative z-10 border-y border-white/10 bg-[#07080c]/80">
       <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
         <Reveal>
           <h2 className="font-display text-3xl sm:text-4xl">{tx(ui.experienceTitle, lang)}</h2>
@@ -135,7 +142,7 @@ function GovernanceDeck() {
   const { lang } = useLang();
   const [tab, setTab] = useState<(typeof TABS)[number]>("gates");
   return (
-    <section id="governance" className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+    <section id="governance" className="relative z-10 mx-auto max-w-6xl px-4 py-16 sm:px-6">
       <Reveal>
         <p className="text-xs tracking-[0.18em] text-[#7ec8c3] uppercase">{tx(governance.eyebrow, lang)}</p>
         <h2 className="font-display mt-2 text-3xl sm:text-4xl">{tx(governance.title, lang)}</h2>
@@ -238,6 +245,29 @@ function Reveal({ children }: { children: ReactNode }) {
     <div ref={ref} className={`reveal-block transition duration-700 ${shown ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"}`}>
       {children}
     </div>
+  );
+}
+
+function LenisRoot({ children }: { children: ReactNode }) {
+  const lenis = useLenis(() => ScrollTrigger.update());
+  useEffect(() => {
+    if (!lenis) return;
+    const raf = (time: number) => lenis.raf(time * 1000);
+    gsap.ticker.add(raf);
+    gsap.ticker.lagSmoothing(0);
+    return () => { gsap.ticker.remove(raf); };
+  }, [lenis]);
+  return <ReactLenis root options={{ duration: 1.1 }} autoRaf={false}>{children}</ReactLenis>;
+}
+
+function ContactBlock() {
+  const { lang } = useLang();
+  return (
+    <ul className="mt-4 space-y-2 text-lg">
+      <li><a className="text-[#7ec8c3]" href={`mailto:${profile.email}`}>{profile.email}</a></li>
+      <li><a className="text-[#7ec8c3]" href={profile.github}>{profile.githubLabel}</a></li>
+      <li>{tx(profile.location, lang)}</li>
+    </ul>
   );
 }
 

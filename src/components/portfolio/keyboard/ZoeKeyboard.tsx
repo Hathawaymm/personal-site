@@ -1,0 +1,155 @@
+"use client";
+
+import { memo, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { ChibiScene, type ChibiSceneApi, type RuntimeEvent, type ScenePointerEvent } from "@chibi3d/runtime";
+import { keyboardSkills, tx } from "@/data/portfolio-data";
+import { useLang } from "../lang";
+import { createKeyInput, isTypingTarget } from "./input";
+import { createKeyboardMotion } from "./motion";
+import { createKeyboardScene, resolveKeyboardAsset, type KeyboardSkill } from "./scene";
+import { useAdaptiveGraphics } from "./use-adaptive-graphics";
+import { useKeyboardSounds } from "./use-keyboard-sounds";
+
+const SceneCanvas = memo(ChibiScene);
+const SCENE_STYLE: CSSProperties = {
+  position: "fixed",
+  inset: 0,
+  width: "100vw",
+  height: "100dvh",
+  pointerEvents: "none",
+  zIndex: 1,
+};
+
+const COLORS = ["#e4b15a", "#7ec8c3", "#e07a5f", "#9bb7d4", "#c9a27a", "#8fb38a"];
+
+function sceneSkills(): KeyboardSkill[] {
+  return keyboardSkills.map((skill, index) => ({
+    name: skill.id,
+    label: skill.label.en,
+    shortDescription: skill.proof.en,
+    color: COLORS[index % COLORS.length],
+    keyboardColor: COLORS[index % COLORS.length],
+    icon: `/images/keys/${skill.id}.svg`,
+  }));
+}
+
+export default function ZoeKeyboard() {
+  const { lang } = useLang();
+  const api = useRef<ChibiSceneApi>(null);
+  const [failed, setFailed] = useState(false);
+  const motion = useRef<ReturnType<typeof createKeyboardMotion> | null>(null);
+  const [ready, setReady] = useState(false);
+  const [muted, setMuted] = useState(false);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const playSound = useKeyboardSounds();
+  const scene = useMemo(() => createKeyboardScene(sceneSkills(), 6), []);
+  const { settings: graphics, markActive } = useAdaptiveGraphics(ready);
+  const environment = useMemo(() => ({
+    ...scene.document.environment,
+    shadows: graphics.shadows,
+    softShadows: graphics.softShadows,
+    ao: graphics.ao,
+    bloom: graphics.bloom,
+    contactShadows: false,
+    vignette: false,
+    preset: graphics.lighting ? scene.document.environment.preset : null,
+  }), [scene, graphics]);
+  const dpr = useMemo<[number, number]>(() => [0.6, Math.min(graphics.dpr, 1.5)], [graphics.dpr]);
+  const input = useMemo(() => createKeyInput(scene.keys, scene.columns), [scene]);
+  const visibleLabel = useRef<string | null>(null);
+  const held = useRef<typeof scene.keys>([]);
+
+  useEffect(() => input.subscribe((key, pressed) => {
+    markActive();
+    api.current?.transitionNodeTo(key.nodeId, pressed ? key.pressedStateId : "base", { duration: 0.1, ease: "easeInOut" });
+    api.current?.setMaterial(key.materialId, {
+      emissive: scene.document.materials[key.materialId].color,
+      emissiveIntensity: pressed ? 0.7 : 0,
+    });
+    held.current = held.current.filter((item) => item !== key);
+    if (pressed) held.current.push(key);
+    const shown = held.current.at(-1) ?? null;
+    const labelId = shown?.labelId ?? scene.defaultLabelId;
+    if (labelId !== (visibleLabel.current ?? scene.defaultLabelId)) {
+      api.current?.setNodeVisible(visibleLabel.current ?? scene.defaultLabelId, false);
+      api.current?.setNodeVisible(labelId, true);
+    }
+    visibleLabel.current = shown?.labelId ?? null;
+    setSelectedId(shown?.skill.name ?? null);
+    if (!muted) playSound(pressed);
+  }), [input, scene, playSound, markActive, muted]);
+
+  const onPointerEvent = useCallback((event: ScenePointerEvent) => {
+    const pointer = `pointer:${event.pointerId}`;
+    if (event.type === "hoverEnter" && event.pointerType === "mouse") input.press("hover", event.nodeId);
+    if (event.type === "hoverExit") input.release("hover", event.nodeId);
+    if (event.type === "pointerDown") input.press(pointer, event.nodeId);
+    if (event.type === "pointerUp" || event.type === "pointerCancel") input.release(pointer);
+  }, [input]);
+
+  useEffect(() => {
+    if (!ready || !api.current) return;
+    const controller = createKeyboardMotion(api.current, scene, () => input.releaseAll(), markActive);
+    motion.current = controller;
+    controller.reveal();
+    return () => {
+      controller.dispose();
+      motion.current = null;
+    };
+  }, [ready, scene, input, markActive]);
+
+  useEffect(() => {
+    const down = (event: KeyboardEvent) => {
+      if (event.defaultPrevented || event.repeat || event.ctrlKey || event.metaKey || event.altKey || isTypingTarget(event.target)) return;
+      const key = input.shortcuts.get(event.code);
+      if (key) input.press(`key:${event.code}`, key.nodeId);
+    };
+    const up = (event: KeyboardEvent) => input.release(`key:${event.code}`);
+    const release = () => input.releaseAll();
+    window.addEventListener("keydown", down);
+    window.addEventListener("keyup", up);
+    window.addEventListener("blur", release);
+    return () => {
+      window.removeEventListener("keydown", down);
+      window.removeEventListener("keyup", up);
+      window.removeEventListener("blur", release);
+      release();
+    };
+  }, [input]);
+
+  const skill = keyboardSkills.find((item) => item.id === selectedId) ?? keyboardSkills[0];
+  const onError = useCallback((error: Error) => {
+    setFailed(true);
+    console.warn("Keyboard scene unavailable", error);
+  }, []);
+
+  if (failed) return null;
+
+  return (
+    <>
+      <SceneCanvas
+        document={scene.document}
+        environment={environment}
+        resolveAsset={resolveKeyboardAsset}
+        api={api}
+        style={SCENE_STYLE}
+        dpr={dpr}
+        transparent
+        orbit={false}
+        orthographic
+        pointerTargets={scene.pointerTargets}
+        onPointerEvent={onPointerEvent}
+        onLoad={() => { if (!failed) setReady(true); }}
+        onError={onError}
+        onEvent={(event: RuntimeEvent) => { if (event.type === "contextLost") onError(new Error("WebGL context lost")); }}
+      />
+      <div className="pointer-events-none fixed right-4 bottom-4 z-30 hidden w-72 rounded-2xl border border-[#e4b15a]/30 bg-[#101218]/90 p-4 text-[#f4ead8] backdrop-blur md:block">
+        <p className="text-[11px] tracking-[0.16em] text-[#e4b15a] uppercase">{skill ? tx(skill.title, lang) : ""}</p>
+        <p className="mt-2 text-sm leading-relaxed text-[#f4ead8]/80">{skill ? tx(skill.proof, lang) : ""}</p>
+        <button type="button" onClick={() => setMuted((value) => !value)} className="pointer-events-auto mt-3 text-xs text-[#f4ead8]/60 underline">
+          {muted ? (lang === "zh" ? "打开键帽声" : "Unmute keys") : (lang === "zh" ? "关闭键帽声" : "Mute keys")}
+        </button>
+      </div>
+    </>
+  );
+}

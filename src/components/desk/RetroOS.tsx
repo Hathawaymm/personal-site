@@ -19,7 +19,7 @@ import {
 import { useLang } from "../portfolio/lang";
 import { runCommand } from "./terminal";
 
-type WinId = "about" | "experience" | "projects" | "governance" | "resume" | "terminal";
+type WinId = "about" | "photos" | "experience" | "projects" | "governance" | "resume" | "terminal";
 
 interface WinState {
   id: WinId;
@@ -33,6 +33,7 @@ interface WinState {
 
 const APPS: { id: WinId; title: { zh: string; en: string }; x: number; y: number }[] = [
   { id: "about", title: { zh: "关于我", en: "About_Me.exe" }, x: 36, y: 150 },
+  { id: "photos", title: { zh: "个人相册", en: "Photos.exe" }, x: 300, y: 180 },
   { id: "experience", title: { zh: "工作经历", en: "Experience.doc" }, x: 520, y: 150 },
   { id: "projects", title: { zh: "项目作品集 (16)", en: "Projects/" }, x: 80, y: 210 },
   { id: "governance", title: { zh: "流程体系与外部审计", en: "Governance_Audit.sys" }, x: 430, y: 200 },
@@ -47,7 +48,7 @@ export default function RetroOS({ onBack }: { onBack: () => void }) {
     x: app.x,
     y: app.y,
     z: index + 1,
-    open: app.id === "about" || app.id === "projects",
+    open: app.id === "about" || app.id === "projects" || app.id === "photos",
     minimized: false,
     maximized: false,
   })));
@@ -208,6 +209,7 @@ function WinButton({ label, onClick }: { label: string; onClick: () => void }) {
 
 function WindowBody({ id, onOpenProject }: { id: WinId; onOpenProject: () => void }) {
   if (id === "about") return <AboutPane />;
+  if (id === "photos") return <PhotosPane />;
   if (id === "experience") return <ExperiencePane />;
   if (id === "projects") return <ProjectsPane />;
   if (id === "governance") return <GovernancePane />;
@@ -219,6 +221,7 @@ function AboutPane() {
   const { lang } = useLang();
   return (
     <div className="space-y-2">
+      <img src="/images/zoe/portrait.jpg" alt="" className="mb-2 h-40 w-32 object-cover object-[center_18%]" />
       <h3 className="font-display text-xl">{tx(profile.name, lang)}</h3>
       <p>{tx(profile.title, lang)}</p>
       <p>{tx(profile.summary, lang)}</p>
@@ -231,6 +234,21 @@ function AboutPane() {
       <ul className="list-disc pl-4">
         {credentials.slice(0, 3).map((item) => <li key={item.title.zh}>{tx(item.title, lang)}</li>)}
       </ul>
+    </div>
+  );
+}
+
+function PhotosPane() {
+  const shots = [
+    ["/images/zoe/portrait.jpg", "Portrait"],
+    ["/images/zoe/salt-lake.jpg", "Salt lake"],
+    ["/images/zoe/seaside.jpg", "Seaside"],
+  ];
+  return (
+    <div className="grid grid-cols-1 gap-2">
+      {shots.map(([src, alt]) => (
+        <img key={src} src={src} alt={alt} className="max-h-48 w-full object-cover" />
+      ))}
     </div>
   );
 }

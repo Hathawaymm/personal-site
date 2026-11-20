@@ -17,7 +17,7 @@ export default function PublicNav({ tone = "dark" }: { tone?: "dark" | "paper" }
   const dark = tone === "dark";
 
   return (
-    <header className={`career-no-print sticky top-0 z-40 border-b backdrop-blur-md ${dark ? "border-white/10 bg-[#07080c]/80 text-[#f4ead8]" : "border-accent-gold/20 bg-bg-cream/90 text-text-primary"}`}>
+    <header className={`career-no-print sticky top-0 z-40 border-b backdrop-blur-md ${dark ? "relative z-40 border-white/10 bg-[#07080c]/75 text-[#f4ead8]" : "border-accent-gold/20 bg-bg-cream/90 text-text-primary"}`}>
       <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-2 px-3 py-2.5 sm:px-5">
         <Link href="/portfolio" className="font-display text-sm font-bold tracking-wide">
           {lang === "zh" ? "张寒梅" : "Hanmei Zhang"}
