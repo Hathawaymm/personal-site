@@ -53,7 +53,7 @@ test("03 - Logout clears cookie", async ({ page }) => {
 test("08 - Resume page", async ({ page }) => {
   await page.goto(`${BASE}/resume`);
   await page.waitForTimeout(3000);
-  const hasContent = await hasText(page, "嚣张小张") || await hasText(page, "简历");
+  const hasContent = await hasText(page, "张寒梅") || await hasText(page, "简历");
   console.log(hasContent ? "✅ Resume page loaded" : "⚠️ Resume page may be empty");
   expect(hasContent).toBeTruthy();
 });
@@ -61,8 +61,9 @@ test("08 - Resume page", async ({ page }) => {
 test("09 - Portfolio page", async ({ page }) => {
   await page.goto(`${BASE}/portfolio`);
   await page.waitForTimeout(3000);
-  const hasWorks = await hasText(page, "视频创作");
+  const hasWorks = await hasText(page, "张寒梅");
   console.log(hasWorks ? "✅ Portfolio page loaded" : "⚠️ Portfolio page may be empty");
+  expect(hasWorks).toBeTruthy();
 });
 
 test("10 - Family page", async ({ page }) => {

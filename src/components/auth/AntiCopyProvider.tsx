@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, type ReactNode } from "react";
+import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
+import { isCareerPath } from "@/components/layout/SiteChrome";
 
 interface AntiCopyProviderProps {
   children: ReactNode;
@@ -9,8 +11,16 @@ interface AntiCopyProviderProps {
 
 export default function AntiCopyProvider({ children }: AntiCopyProviderProps) {
   const { isAdmin, loading } = useAuth();
+  const pathname = usePathname();
+  const career = isCareerPath(pathname);
 
   useEffect(() => {
+    if (career) {
+      document.body.style.userSelect = "";
+      document.body.style.webkitUserSelect = "";
+      return;
+    }
+
     if (loading) return;
 
     if (isAdmin) {
@@ -62,7 +72,7 @@ export default function AntiCopyProvider({ children }: AntiCopyProviderProps) {
       document.removeEventListener("cut", blockCopy);
       document.removeEventListener("keydown", blockKey);
     };
-  }, [isAdmin, loading]);
+  }, [isAdmin, loading, career]);
 
   return <>{children}</>;
 }

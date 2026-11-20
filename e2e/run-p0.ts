@@ -108,21 +108,21 @@ test("TC-HOME-06", "首页右下角问号图标", "full", async (page) => {
 
 // ========== CONTENT PAGES (5 per page type, taking resume as example) ==========
 test("TC-RESUME-01", "pending用户无权限→简历页面锁住", "pending", async (page) => {
-  await page.goto(`${BASE}/resume`, { waitUntil: "domcontentloaded" });
+  await page.goto(`${BASE}/space/about`, { waitUntil: "domcontentloaded" });
   await new Promise(r => setTimeout(r, 3000));
   const text = await page.evaluate(() => document.body.textContent);
   return text.includes("上锁") || text.includes("等待") || text.includes("审批") ? "✅" : "❌";
 });
 
 test("TC-RESUME-02", "textonly用户有文字无照片权限", "textonly", async (page) => {
-  await page.goto(`${BASE}/resume`, { waitUntil: "domcontentloaded" });
+  await page.goto(`${BASE}/space/about`, { waitUntil: "domcontentloaded" });
   await new Promise(r => setTimeout(r, 3000));
   const text = await page.evaluate(() => document.body.textContent);
   return text.includes("嚣张小张") ? "✅ 文字可见" : "❌ 文字不可见";
 });
 
 test("TC-RESUME-03", "full权限用户全部可见", "full", async (page) => {
-  await page.goto(`${BASE}/resume`, { waitUntil: "domcontentloaded" });
+  await page.goto(`${BASE}/space/about`, { waitUntil: "domcontentloaded" });
   await new Promise(r => setTimeout(r, 3000));
   const text = await page.evaluate(() => document.body.textContent);
   return text.includes("嚣张小张") ? "✅" : "❌";
@@ -140,7 +140,7 @@ test("TC-RESUME-04", "照片右键被禁用", "full", async (page) => {
 
 // ========== PERMISSION COMBINATIONS (4) ==========
 test("TC-PERM-01", "textonly访客简历照片不可见", "textonly", async (page) => {
-  await page.goto(`${BASE}/resume`, { waitUntil: "domcontentloaded" });
+  await page.goto(`${BASE}/space/about`, { waitUntil: "domcontentloaded" });
   await new Promise(r => setTimeout(r, 3000));
   const visibleImgs = await page.evaluate(() => {
     return Array.from(document.querySelectorAll("img")).filter(i => i.offsetParent).length;

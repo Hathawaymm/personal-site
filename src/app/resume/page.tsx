@@ -1,28 +1,12 @@
-"use client";
+import type { Metadata } from "next";
+import CareerPage from "@/components/portfolio/CareerPage";
 
-import AuthGuard from "@/components/auth/AuthGuard";
-import ResumeSection from "@/components/resume/ResumeSection";
-import { useEffect, useState } from "react";
-import type { ResumeData } from "@/lib/data";
-import { emptyResume } from "@/lib/constants";
-import { useAccessLog } from "@/hooks/useAccessLog";
+export const metadata: Metadata = {
+  title: "张寒梅 · 简历 | Hanmei Zhang",
+  description: "张寒梅的公开中英文简历，可用浏览器直接打印或导出 PDF。无需登录。",
+  robots: { index: true, follow: true },
+};
 
 export default function ResumePage() {
-  useAccessLog("简历");
-  const [resume, setResume] = useState<ResumeData>(emptyResume);
-
-  useEffect(() => {
-    fetch("/api/site-data")
-      .then(r => r.json())
-      .then(d => setResume(d.resume || emptyResume))
-      .catch((err) => { console.error("加载简历失败:", err); });
-  }, []);
-
-  return (
-    <AuthGuard requirePermissions={["resume_text"]}>
-      <div className="min-h-screen pt-24 pb-16">
-        <ResumeSection data={resume} />
-      </div>
-    </AuthGuard>
-  );
+  return <CareerPage mode="resume" />;
 }

@@ -1,10 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
+import { isCareerPath } from "@/components/layout/SiteChrome";
 
 export default function Watermark() {
   const { isLoggedIn } = useAuth();
+  const pathname = usePathname();
   const [patternUrl, setPatternUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -42,7 +45,7 @@ export default function Watermark() {
     return () => controller.abort();
   }, [isLoggedIn]);
 
-  if (!isLoggedIn || !patternUrl) return null;
+  if (!isLoggedIn || !patternUrl || isCareerPath(pathname)) return null;
 
   return (
     <div
