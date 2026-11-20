@@ -1,11 +1,14 @@
-import { governance, keyboardSkills, profile, projects, tx, type Lang } from "@/data/portfolio-data";
+import { tx, type Lang } from "@/data/portfolio-data";
+import { seedCareerDocument, type CareerDocument } from "@/data/career-document";
 
 export interface CommandResult {
   lines: string[];
   action?: "clear" | "toggle-lang";
 }
 
-export function runCommand(raw: string, lang: Lang): CommandResult {
+export function runCommand(raw: string, lang: Lang, source?: Pick<CareerDocument, "profile" | "keyboardSkills" | "projects" | "governance">): CommandResult {
+  const data = source ?? seedCareerDocument();
+  const { profile, keyboardSkills, projects, governance } = data;
   const command = raw.trim().toLowerCase();
   if (!command) return { lines: [] };
   if (command === "clear") return { lines: [], action: "clear" };

@@ -23,6 +23,7 @@
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
+    "@neondatabase/serverless": "^1.2.1",
     "@react-three/drei": "^10.7.6",
     "@react-three/fiber": "^9.4.0",
     "@tailwindcss/typography": "^0.5.20",
@@ -31,6 +32,7 @@
     "@tiptap/react": "^3.29.1",
     "@tiptap/starter-kit": "^3.29.1",
     "@types/three": "^0.185.0",
+    "@vercel/blob": "^2.9.0",
     "cos-js-sdk-v5": "^1.10.1",
     "cos-nodejs-sdk-v5": "^2.14.0",
     "gsap": "^3.12.5",
@@ -46,7 +48,9 @@
     "react-markdown": "^10.1.0",
     "react-pdf": "^9.2.1",
     "remark-gfm": "^4.0.1",
-    "three": "^0.185.1"
+    "sharp": "^0.35.5",
+    "three": "^0.185.1",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@playwright/test": "^1.62.0",

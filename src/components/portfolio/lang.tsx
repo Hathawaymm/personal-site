@@ -13,13 +13,15 @@ interface LangContextValue {
 
 const LangContext = createContext<LangContextValue | null>(null);
 
-export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Lang>("zh");
+export function LanguageProvider({ children, initialLang = "en" }: { children: ReactNode; initialLang?: Lang }) {
+  const [lang, setLangState] = useState<Lang>(initialLang === "zh" ? "zh" : "en");
 
   useEffect(() => {
     try {
-      const saved = readStoredLang(localStorage.getItem(STORAGE_KEY));
-      setLangState(saved);
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw !== "zh" && raw !== "en") return;
+      setLangState(raw);
+      document.cookie = `${STORAGE_KEY}=${raw}; Path=/; Max-Age=31536000; SameSite=Lax`;
     } catch {
       /* private mode */
     }
@@ -37,6 +39,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     setLangState(next);
     try {
       localStorage.setItem(STORAGE_KEY, next);
+      document.cookie = `${STORAGE_KEY}=${next}; Path=/; Max-Age=31536000; SameSite=Lax`;
     } catch {
       /* ignore */
     }

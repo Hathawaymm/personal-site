@@ -15,6 +15,7 @@ const MENU_ITEMS = [
   { key: "visitors", label: "访客管理", href: "/dashboard?tab=visitors" },
   { key: "logs", label: "日志中心", href: "/dashboard?tab=logs" },
   { key: "settings", label: "系统设置", href: "/dashboard?tab=settings" },
+  { key: "career", label: "作品集与桌面", href: "/admin/career" },
   { key: "resume", label: "简历编辑", href: "/dashboard?tab=resume" },
   { key: "blog", label: "博客管理", href: "/dashboard?tab=blog" },
   { key: "family", label: "家庭编辑", href: "/dashboard?tab=family" },

@@ -2,7 +2,8 @@
 
 import { memo, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { ChibiScene, type ChibiSceneApi, type RuntimeEvent, type ScenePointerEvent } from "@chibi3d/runtime";
-import { keyboardSkills, tx } from "@/data/portfolio-data";
+import { tx, type KeySkill } from "@/data/portfolio-data";
+import { useCareer } from "../career-context";
 import { readSoundMuted } from "@/lib/sound-pref";
 import { useLang } from "../lang";
 import { createKeyInput, isTypingTarget } from "./input";
@@ -27,14 +28,34 @@ const LEGENDS: Record<string, string> = {
   vibe: "Vibe", next: "Next", cursor: "Cursor", delivery: "Ship", wms: "WMS", erp: "ERP",
 };
 
-function sceneSkills(): KeyboardSkill[] {
-  return keyboardSkills.map((skill, index) => ({
+function legendIcon(text: string): string {
+  const canvas = document.createElement("canvas");
+  canvas.width = 512;
+  canvas.height = 220;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return "";
+  ctx.clearRect(0, 0, 512, 220);
+  ctx.fillStyle = "#24180f";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  let size = 128;
+  ctx.font = `700 ${size}px Georgia, serif`;
+  while (ctx.measureText(text).width > 470 && size > 42) {
+    size -= 8;
+    ctx.font = `700 ${size}px Georgia, serif`;
+  }
+  ctx.fillText(text, 256, 110);
+  return canvas.toDataURL("image/png");
+}
+
+function sceneSkills(skills: (KeySkill & { legend?: string })[]): KeyboardSkill[] {
+  return skills.map((skill, index) => ({
     name: skill.id,
-    label: LEGENDS[skill.id] ?? skill.label.en,
+    label: skill.legend || LEGENDS[skill.id] || skill.label.en,
     shortDescription: skill.proof.en,
     color: COLORS[index % COLORS.length],
     keyboardColor: COLORS[index % COLORS.length],
-    icon: `/images/keys/${skill.id}.png`,
+    icon: legendIcon(skill.legend || LEGENDS[skill.id] || skill.label.en) || `/images/keys/${skill.id}.png`,
   }));
 }
 
@@ -46,8 +67,9 @@ export default function ZoeKeyboard() {
   const [ready, setReady] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [section, setSection] = useState("hero");
+  const { keyboardSkills } = useCareer();
   const playSound = useKeyboardSounds();
-  const scene = useMemo(() => createKeyboardScene(sceneSkills(), 6), []);
+  const scene = useMemo(() => createKeyboardScene(sceneSkills(keyboardSkills), 6), [keyboardSkills]);
   const { settings: graphics, markActive } = useAdaptiveGraphics(ready);
   const environment = useMemo(() => ({
     ...scene.document.environment,

@@ -1,13 +1,15 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { employerFilters, profile, projectSearchText, projects, shellCopy, tx, ui, type EmployerId, type Project } from "@/data/portfolio-data";
+import { projectSearchText, tx, ui, type EmployerId, type Project } from "@/data/portfolio-data";
+import { useCareer } from "../career-context";
 import { useLang } from "../lang";
 
 type Filter = "all" | EmployerId;
 
 export default function ProjectShowcase() {
   const { lang } = useLang();
+  const { projects, employerFilters, shellCopy, profile } = useCareer();
   const [filter, setFilter] = useState<Filter>("all");
   const [query, setQuery] = useState("");
   const [openId, setOpenId] = useState<string | null>(null);
@@ -19,7 +21,7 @@ export default function ProjectShowcase() {
       if (!q) return true;
       return projectSearchText(project, lang).includes(q);
     });
-  }, [filter, query, lang]);
+  }, [filter, query, lang, projects]);
 
   const open = projects.find((project) => project.id === openId) ?? null;
 
@@ -78,8 +80,8 @@ export default function ProjectShowcase() {
   );
 }
 
-function coverSrc(id: string): string {
-  return `/images/projects/${id}.svg`;
+function coverSrc(project: Project & { cover?: string }): string {
+  return project.cover || `/images/projects/${project.id}.svg`;
 }
 
 function Cover({ project }: { project: Project }) {
@@ -88,7 +90,7 @@ function Cover({ project }: { project: Project }) {
   const accent = project.employer === "root" ? "#e4b15a" : project.employer === "bank" ? "#7ec8c3" : "#e07a5f";
   return (
     <div className="relative aspect-[3/2] overflow-hidden bg-[#16130f]">
-      <img src={coverSrc(project.id)} alt="" className="h-full w-full origin-center object-cover transition duration-700 group-hover:scale-110" />
+      <img src={coverSrc(project)} alt="" className="h-full w-full origin-center object-cover transition duration-700 group-hover:scale-110" />
       <svg viewBox="0 0 300 200" className="pointer-events-none absolute inset-0 hidden" aria-hidden>
         <defs>
           <linearGradient id={`g-${project.id}`} x1="0" y1="0" x2="1" y2="1">
@@ -113,6 +115,7 @@ function Cover({ project }: { project: Project }) {
 
 function CaseModal({ project, onClose }: { project: Project; onClose: () => void }) {
   const { lang } = useLang();
+  const { shellCopy, profile } = useCareer();
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {

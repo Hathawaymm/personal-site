@@ -1,13 +1,13 @@
 "use client";
 
-import { ui, tx } from "@/data/portfolio-data";
+import { ui, tx, type Lang } from "@/data/portfolio-data";
 import { LanguageProvider, useLang } from "./lang";
 import PrintableResume from "./PrintableResume";
 import PublicNav from "./PublicNav";
 
-export default function CareerPage() {
+export default function CareerPage({ initialLang = "en" }: { initialLang?: Lang }) {
   return (
-    <LanguageProvider>
+    <LanguageProvider initialLang={initialLang}>
       <ResumeFrame />
     </LanguageProvider>
   );

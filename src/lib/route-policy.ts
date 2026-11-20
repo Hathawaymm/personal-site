@@ -23,6 +23,7 @@ export function isVisitorGuardedPath(pathname: string): boolean {
     || pathname.startsWith("/space/");
 }
 
-export function readStoredLang(value: string | null): "zh" | "en" {
-  return value === "en" ? "en" : "zh";
+/** Missing or unknown values are English. Only an explicit "zh" or "en" is a saved choice. */
+export function readStoredLang(value: string | null | undefined): "zh" | "en" {
+  return value === "zh" || value === "en" ? value : "en";
 }

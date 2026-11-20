@@ -3,19 +3,12 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState, type FormEvent, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
 import {
-  credentials,
-  education,
-  employerFilters,
-  experience,
-  governance,
-  profile,
-  projects,
-  shellCopy,
   tx,
   ui,
   type EmployerId,
   type Project,
 } from "@/data/portfolio-data";
+import { useCareer } from "../portfolio/career-context";
 import { useLang } from "../portfolio/lang";
 import { playDeskKey, playDeskMouse, releaseDeskKey, unlockDeskAudio } from "./desk-audio";
 import { AboutIcon, ExperienceIcon, GovernanceIcon, PhotosIcon, ProjectsIcon, ResumeIcon, TerminalIcon } from "./pixel-icons";
@@ -55,6 +48,8 @@ const APPS: { id: WinId; title: { zh: string; en: string }; x: number; y: number
 
 export default function RetroOS({ onBack, fill = false }: { onBack: () => void; fill?: boolean }) {
   const { lang, setLang } = useLang();
+  const { shellCopy, desktop } = useCareer();
+  const label = (id: WinId) => desktop.find((item) => item.id === id)?.title ?? APPS.find((item) => item.id === id)!.title;
   const [wins, setWins] = useState<WinState[]>(() => APPS.map((app, index) => ({
     id: app.id,
     x: app.x,
@@ -134,12 +129,15 @@ export default function RetroOS({ onBack, fill = false }: { onBack: () => void; 
         style={{ imageRendering: "pixelated" }}
       />
       <div className="relative z-10 grid grid-cols-3 gap-4 p-4 sm:grid-cols-6">
-        {APPS.map((app) => (
+        {APPS.map((app) => {
+          const title = label(app.id);
+          return (
           <button key={app.id} type="button" onClick={() => focus(app.id)} className="flex w-28 flex-col items-center gap-1 text-center text-xs font-medium leading-tight text-white" style={{ textShadow: "0 1px 0 #1c140c, 1px 0 0 #1c140c, -1px 0 0 #1c140c, 0 -1px 0 #1c140c, 1px 1px 2px rgba(0,0,0,0.85)" }}>
             <span className="flex size-10 items-center justify-center border-2 border-white/70 bg-[#efe6d4] shadow-[2px_2px_0_#1c140c]">{APP_ICON[app.id]()}</span>
-            {tx(app.title, lang)}
+            {tx(title, lang)}
           </button>
-        ))}
+          );
+        })}
       </div>
       {ordered.filter((win) => win.open && !win.minimized).map((win) => {
         const app = APPS.find((item) => item.id === win.id);
@@ -147,7 +145,7 @@ export default function RetroOS({ onBack, fill = false }: { onBack: () => void; 
         return (
           <WindowFrame
             key={win.id}
-            title={tx(app.title, lang)}
+            title={tx(label(win.id), lang)}
             win={win}
             narrow={narrow}
             onFocus={() => focus(win.id)}
@@ -169,7 +167,7 @@ export default function RetroOS({ onBack, fill = false }: { onBack: () => void; 
             const app = APPS.find((item) => item.id === win.id);
             return (
               <button key={win.id} type="button" onClick={() => focus(win.id)} className="shrink-0 border border-[#1c140c]/30 bg-[#efe6d4] px-2 py-1 text-xs">
-                {app ? tx(app.title, lang) : win.id}
+                {tx(label(win.id), lang)}
               </button>
             );
           })}
@@ -188,7 +186,7 @@ export default function RetroOS({ onBack, fill = false }: { onBack: () => void; 
         <div className="absolute bottom-12 left-2 z-40 w-56 border-2 border-[#efe6d4] bg-[#d9d0c2] text-sm text-[#1c140c] shadow-[4px_4px_0_#1c140c]">
           {APPS.map((app) => (
             <button key={app.id} type="button" onClick={() => focus(app.id)} className="block w-full px-3 py-2 text-left hover:bg-[#3c4f7c] hover:text-white">
-              {tx(app.title, lang)}
+              {tx(label(app.id), lang)}
             </button>
           ))}
         </div>
@@ -265,6 +263,7 @@ function WindowBody({ id, onOpenProject }: { id: WinId; onOpenProject: () => voi
 
 function AboutPane() {
   const { lang } = useLang();
+  const { profile, education, credentials } = useCareer();
   return (
     <div className="space-y-2">
       <img src="/images/zoe/seaside.webp" alt="" className="mb-2 max-h-52 w-full object-contain object-[62%_center]" />
@@ -292,6 +291,7 @@ function PhotosPane() {
 
 function ExperiencePane() {
   const { lang } = useLang();
+  const { experience, education } = useCareer();
   return (
     <div className="space-y-4">
       {experience.map((role) => (
@@ -313,6 +313,7 @@ function ExperiencePane() {
 
 function ProjectsPane() {
   const { lang } = useLang();
+  const { projects, employerFilters } = useCareer();
   const [folder, setFolder] = useState<"all" | EmployerId>("all");
   const [project, setProject] = useState<Project | null>(null);
   const list = projects.filter((item) => folder === "all" || item.employer === folder);
@@ -355,6 +356,7 @@ function ProjectsPane() {
 
 function GovernancePane() {
   const { lang } = useLang();
+  const { governance } = useCareer();
   const [tab, setTab] = useState<"gates" | "standards" | "risk" | "audit">("audit");
   return (
     <div>
@@ -392,6 +394,7 @@ function GovernancePane() {
 
 function ResumePane({ onOpenProject }: { onOpenProject: () => void }) {
   const { lang } = useLang();
+  const { profile, shellCopy } = useCareer();
   return (
     <div className="space-y-2">
       <p>{tx(profile.summary, lang)}</p>
@@ -405,11 +408,12 @@ function ResumePane({ onOpenProject }: { onOpenProject: () => void }) {
 
 function TerminalPane() {
   const { lang, setLang } = useLang();
+  const career = useCareer();
   const [lines, setLines] = useState<string[]>(["ZoeOS 98", "help"]);
   const [value, setValue] = useState("");
   const submit = (event: FormEvent) => {
     event.preventDefault();
-    const result = runCommand(value, lang);
+    const result = runCommand(value, lang, career);
     setValue("");
     if (result.action === "clear") {
       setLines([]);

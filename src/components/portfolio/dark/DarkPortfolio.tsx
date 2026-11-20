@@ -5,7 +5,8 @@ import Image from "next/image";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { credentials, education, experience, governance, heroMetrics, keyboardSkills, profile, shellCopy, tx, ui } from "@/data/portfolio-data";
+import { tx, ui, type Lang } from "@/data/portfolio-data";
+import { useCareer } from "../career-context";
 import { LanguageProvider, useLang } from "../lang";
 import PublicNav from "../PublicNav";
 import PrintableResume from "../PrintableResume";
@@ -15,9 +16,10 @@ const ZoeKeyboard = dynamic(() => import("../keyboard/ZoeKeyboard"), { ssr: fals
 
 gsap.registerPlugin(ScrollTrigger);
 
-export default function DarkPortfolio() {
+export default function DarkPortfolio({ initialLang = "en" }: { initialLang?: Lang }) {
+  const { profile, shellCopy } = useCareer();
   return (
-    <LanguageProvider>
+    <LanguageProvider initialLang={initialLang}>
     <div className="space-ui career-root min-h-screen bg-[#07080c] text-[#f4ead8]">
       <Starfield />
       <ZoeKeyboard />
@@ -58,11 +60,13 @@ function Bound({ text }: { text: { zh: string; en: string } }) {
 
 function KeyboardLede() {
   const { lang } = useLang();
+  const { shellCopy, keyboardSkills } = useCareer();
   return <p className="mt-2 max-w-2xl text-sm text-[#f4ead8]/70">{tx(shellCopy.keyboardLede, lang)} · {keyboardSkills.length}</p>;
 }
 
 function Hero() {
   const { lang } = useLang();
+  const { profile, heroMetrics } = useCareer();
   return (
     <section id="hero" className="relative z-10 mx-auto grid min-h-[100dvh] max-w-6xl items-center gap-10 px-4 py-16 sm:px-6 lg:grid-cols-12">
       <div className="lg:col-span-7">
@@ -102,6 +106,7 @@ function Hero() {
 
 function Timeline() {
   const { lang } = useLang();
+  const { experience, education, credentials } = useCareer();
   return (
     <section id="experience" className="relative z-10 border-y border-white/10 bg-[#07080c]/80">
       <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
@@ -146,6 +151,7 @@ const TABS = ["gates", "standards", "risk", "audit"] as const;
 
 function GovernanceDeck() {
   const { lang } = useLang();
+  const { governance } = useCareer();
   const [tab, setTab] = useState<(typeof TABS)[number]>("gates");
   return (
     <section id="governance" className="relative z-10 mx-auto max-w-6xl px-4 py-16 sm:px-6">
@@ -256,6 +262,7 @@ function Reveal({ children }: { children: ReactNode }) {
 
 function ContactBlock() {
   const { lang } = useLang();
+  const { profile } = useCareer();
   return (
     <ul className="mt-4 space-y-2 text-lg">
       <li><a className="text-[#7ec8c3]" href={`mailto:${profile.email}`}>{profile.email}</a></li>
