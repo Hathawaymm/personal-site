@@ -2,8 +2,9 @@
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import type { Lang } from "@/data/portfolio-data";
+import { LANG_STORAGE_KEY, readStoredLang } from "@/lib/route-policy";
 
-const STORAGE_KEY = "career-lang";
+const STORAGE_KEY = LANG_STORAGE_KEY;
 
 interface LangContextValue {
   lang: Lang;
@@ -17,8 +18,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved === "en" || saved === "zh") setLangState(saved);
+      const saved = readStoredLang(localStorage.getItem(STORAGE_KEY));
+      setLangState(saved);
     } catch {
       /* private mode */
     }

@@ -135,9 +135,15 @@ body {
 .career-print-only { display: none; }
 .career-root { user-select: text; -webkit-user-select: text; }
 
+@media (prefers-reduced-motion: reduce) {
+  .reveal-block { opacity: 1 !important; transform: none !important; transition: none !important; }
+}
+
 @media print {
   .career-no-print,
-  .career-screen-only { display: none !important; }
+  .career-screen-only,
+  .space-ui canvas { display: none !important; }
+  .space-ui { background: #fff !important; }
   .career-print-only { display: block !important; }
   .film-grain::after { display: none !important; }
   body, .career-root { background: #fff !important; }

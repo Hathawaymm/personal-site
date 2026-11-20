@@ -1035,6 +1035,172 @@ export const governance = {
   },
 };
 
+export interface KeySkill {
+  id: string;
+  label: Copy;
+  title: Copy;
+  description: Copy;
+  proof: Copy;
+}
+
+/** Keycaps for the public 3D skills keyboard. Every proof line is already in the career record. */
+export const keyboardSkills: KeySkill[] = [
+  {
+    id: "pmp",
+    label: c("PMP", "PMP"),
+    title: c("PMP 项目管理", "PMP"),
+    description: c("用评审、门禁和版本切割把多项目并行收成可交付的节奏。", "Turns parallel programs into a deliverable rhythm: reviews, gates, and version cuts."),
+    proof: c("PMI PMP，2024.03 取得，2027.03 到期。", "PMI PMP, granted 2024.03, valid through 2027.03."),
+  },
+  {
+    id: "agile",
+    label: c("敏捷", "Agile"),
+    title: c("敏捷 / 瀑布", "Agile and waterfall"),
+    description: c("按项目选方法：汽车金融用 OKR 和 MVP，核心迁移用阶段门禁。", "The method follows the work: OKRs and an MVP for auto finance, stage gates for the core migration."),
+    proof: c("小米汽车金融开发周期缩短 25%。信用卡核心按方案、联调、演练、灰度四段推进。", "Xiaomi Auto build cycle −25%. The credit-card core moved through solution, integration, rehearsal, and canary."),
+  },
+  {
+    id: "gates",
+    label: c("门禁", "Gates"),
+    title: c("四层质量门禁", "Four quality gates"),
+    description: c("需求评审 → 技术评审 → 提测主流程走查 → 分级发布与复盘。", "Requirements review → technical review → main-path walkthrough → staged release and retro."),
+    proof: c("核心版本按期交付率 100%，上线缺陷率 < 5%。2025 年 7 月评审覆盖 38 个需求，待办闭环率 100%。", "Core releases 100% on time, post-release defect rate under 5%. July 2025 reviewed 38 requirements with 100% action closure."),
+  },
+  {
+    id: "audit",
+    label: c("审计", "Audit"),
+    title: c("外部审计取数", "External-audit data pulls"),
+    description: c("口径对齐、跨系统取数、多方复核、证据链归档、按期报送。", "Align definitions, extract across systems, cross-check, archive the evidence, file on time."),
+    proof: c("重庆农商行每年配合外部审计完成合规报告。公开页不写审计机构名称，也不编造次数。", "Yearly external-audit support at Chongqing Rural Commercial Bank. The public page names no audit firm and invents no counts."),
+  },
+  {
+    id: "oms",
+    label: c("OMS", "OMS"),
+    title: c("自研订单中心", "In-house order hub"),
+    description: c("C 端履约从第三方 ERP 迁到自研 OMS，规则改成可配置，并准备回滚。", "C-end fulfillment moved from a third-party ERP to an in-house OMS, with configurable rules and a rollback plan."),
+    proof: c("按店铺和大区分阶段切换，集成库存、仓储、运输等 5+ 下游系统。", "Cut over by store and region, integrated with 5+ downstream inventory, warehouse, and transport systems."),
+  },
+  {
+    id: "edi",
+    label: c("EDI", "EDI"),
+    title: c("B 端 EDI 中台", "B2B EDI hub"),
+    description: c("报文 850 / 855 / 856 / 810。海外服务商的唯一接口人，英文邮件和周会。", "Messages 850 / 855 / 856 / 810. Sole counterpart to the overseas provider, in English email and a weekly meeting."),
+    proof: c("单笔处理时间约 20 分钟 → 3–5 分钟。Walmart、Target、McKesson 上线。", "Per-order handling about 20 minutes → 3–5 minutes. Walmart, Target, and McKesson went live."),
+  },
+  {
+    id: "rpa",
+    label: c("RPA", "RPA"),
+    title: c("企业级 RPA", "Enterprise RPA"),
+    description: c("多厂商评估后引入 RPA，用 SOP 和公司级培训把零散提需收成可排期的自动化。", "Selected an enterprise RPA platform after a multi-vendor review, then used an SOP and company training to schedule the work."),
+    proof: c("全部场景合计月省 500+ 小时。", "All scenarios together save 500+ hours a month."),
+  },
+  {
+    id: "feishu",
+    label: c("飞书", "Feishu"),
+    title: c("飞书多维表格", "Feishu Bitable"),
+    description: c("版本状态离开聊天记录，周报自动汇总，超期任务自己预警。", "Version status left the chat log. Weekly reports assemble themselves, and overdue tasks alert on their own."),
+    proof: c("路特信息技术中心的交付看板，以及个人项目里同一套「看板 + 超期提醒」。", "The delivery board for Root Innovation’s IT center, and the same board-plus-alert pattern in personal work."),
+  },
+  {
+    id: "crm",
+    label: c("CRM", "CRM"),
+    title: c("Salesforce · LTC", "Salesforce lead-to-cash"),
+    description: c("线下 CRM，15+ 主架构、50+ 模块。上线窗口收紧时按 P0 / P1 / P2 切版本。", "Offline CRM, 15+ domains and 50+ modules. When the launch window tightened, scope was cut by P0 / P1 / P2."),
+    proof: c("82 项验收问题分级追踪：67 已处理、9 处理中、6 项上线后优化。2025 年 12 月底试运行。", "82 acceptance issues ranked: 67 resolved, 9 in progress, 6 post-launch. Trial run at the end of December 2025."),
+  },
+  {
+    id: "risk",
+    label: c("风控", "Risk"),
+    title: c("风险与变更", "Risk and change"),
+    description: c("变更要有级别、负责人和资源。冻结版本不硬塞紧急需求。", "A change needs a severity, an owner, and capacity. A frozen release does not absorb an urgent request."),
+    proof: c("住建委项目关键问题响应时效 +60%，弹性资源池 3 名备用开发 + 2 名测试。", "Housing-escrow critical-issue response +60%, with a pool of 3 reserve developers and 2 testers."),
+  },
+  {
+    id: "data",
+    label: c("数据", "Data"),
+    title: c("主数据与 SQL", "Master data and SQL"),
+    description: c("SKU、国家、渠道、店铺收成一套说法。MySQL 用来核对和落地结构化数据。", "SKU, country, channel, and store master data share one meaning. MySQL is the working store for structured checks."),
+    proof: c("订单一致性看板和系统间映射规范，来自 OMS 数据治理这条线。", "The order-consistency board and cross-system mapping rules, from the OMS data-governance track."),
+  },
+  {
+    id: "agent",
+    label: c("Agent", "Agent"),
+    title: c("AI Agent 新品洞察", "AI-agent product insight"),
+    description: c("六个模块：市场、竞品、VOC、用户、定位、营销。规划 15 个 Agent。", "Six modules: market, competitors, VOC, users, positioning, marketing. Fifteen agents planned."),
+    proof: c("2025.09.11 MVP。V1.0 新品分析效率 +30%–50%。", "MVP on 2025.09.11. V1.0 analysis efficiency +30–50%."),
+  },
+  {
+    id: "vibe",
+    label: c("Vibe", "Vibe"),
+    title: c("Vibe Coding", "Vibe coding"),
+    description: c("自己定义产品，再用 AI 编程工具做成每天在用的软件。数据留在本机，不自动投递。", "Defines the product, then ships software she actually uses with AI coding tools. Data stays local. No auto-apply."),
+    proof: c("job-tracker 约 10,300 行、479 条岗位；个人门户约一周，含 GitHub OAuth 和六个权限位。", "job-tracker is about 10,300 lines and 479 roles. The personal portal took about a week, with GitHub OAuth and six permission flags."),
+  },
+  {
+    id: "next",
+    label: c("Next", "Next"),
+    title: c("Next.js", "Next.js"),
+    description: c("这个公开站本身：Next.js 16 与 React 19，作品集、书房和简历都不需要登录。", "This public site: Next.js 16 and React 19. The portfolio, desk, and résumé do not require a login."),
+    proof: c("八个云函数负责认证、内容、权限和日志。私人空间仍按权限位分开。", "Eight cloud functions cover auth, content, permissions, and logs. The private space stays behind permission flags."),
+  },
+  {
+    id: "cursor",
+    label: c("Cursor", "Cursor"),
+    title: c("AI 编程工具", "AI coding tools"),
+    description: c("用 Cursor 一类 AI 编程工具把经历库、求职助手和这个站点做成可运行的产品。", "Uses AI coding tools such as Cursor to turn the experience bank, the job assistant, and this site into software that runs."),
+    proof: c("job-tracker 约两周，个人门户约一周，含调试。密钥不进仓库。", "job-tracker in about two weeks, the personal portal in about a week, including debugging. Keys stay out of the repository."),
+  },
+  {
+    id: "delivery",
+    label: c("交付", "Ship"),
+    title: c("跨部门交付", "Cross-team delivery"),
+    description: c("业务、研发、测试、供应商和海外服务商坐到同一张桌上，再给结论。", "Business, engineering, test, vendors, and the overseas provider sit at one table before a decision."),
+    proof: c("信用卡核心协调超 10 个团队，关键问题平均 48 小时内闭环。中国区 APP 拉通 AIOT、品牌、法务和合规。", "The credit-card core coordinated 10+ teams, with critical issues closed in 48 hours on average. The China app aligned AIOT, brand, legal, and compliance."),
+  },
+  {
+    id: "wms",
+    label: c("仓储", "WMS"),
+    title: c("仓储与运输集成", "Warehouse and transport"),
+    description: c("订单中心接到库存、仓储和运输，预占、出库和状态回传走同一条链路。", "The order hub connects inventory, warehouse, and transport, so reserve, ship, and status return share one path."),
+    proof: c("OMS 项目集成 5+ 下游系统，包含仓储与运输。", "The OMS program integrated 5+ downstream systems, including warehouse and transport."),
+  },
+  {
+    id: "erp",
+    label: c("ERP", "ERP"),
+    title: c("自研 ERP 订单域", "In-house ERP order domain"),
+    description: c("B 端 EDI 与 C 端 OMS 都落到自研 ERP 的订单域，而不是继续人工录单。", "Both the B2B EDI path and the C-end OMS land in the in-house ERP order domain, instead of manual keying."),
+    proof: c("三线合一：EDI 中台、自研 OMS、订单主数据。单笔约 20 分钟降到 3–5 分钟。", "One program: EDI hub, in-house OMS, order master data. Per order, about 20 minutes down to 3–5 minutes."),
+  },
+];
+
+export const employerFilters: { id: "all" | EmployerId; label: Copy }[] = [
+  { id: "all", label: c("全部", "All") },
+  { id: "root", label: c("Momcozy", "Momcozy") },
+  { id: "bank", label: c("农商行", "CQRCB") },
+  { id: "personal", label: c("Vibe Coding", "Vibe Coding") },
+];
+
+export const shellCopy = {
+  modes: {
+    portfolio: c("3D 键盘版", "3D Keyboard"),
+    desk: c("3D 书房桌面版", "3D Desk OS"),
+    resume: c("正式简历 PDF", "Resume PDF"),
+  },
+  keyboardTitle: c("技能键盘", "Skills keyboard"),
+  keyboardLede: c("按下键帽，读这条能力在项目里的真实落点。", "Press a keycap. The readout is where that skill actually landed."),
+  keyboardHint: c("悬停或点击键帽", "Hover or press a key"),
+  hudIdle: c("选一个键帽", "Choose a keycap"),
+  projectsTitle: c("十六个案例", "Sixteen case studies"),
+  close: c("关闭", "Close"),
+  deskEnter: c("点击电脑进入桌面", "Click the monitor to enter"),
+  deskSkip: c("直接进入桌面", "Skip to desktop"),
+  deskBack: c("退回 3D 书房", "Back to 3D desk"),
+  deskTitle: c("书房", "Study"),
+  osName: c("ZoeOS 98", "ZoeOS 98"),
+  start: c("开始", "Start"),
+  webglFallback: c("当前环境没有 WebGL，已切换为平面键盘。", "WebGL is unavailable here, so this is the flat keyboard."),
+};
+
 export const categoryOrder: ProjectCategory[] = ["commerce", "ai", "fintech", "opensource"];
 
 export function projectSearchText(project: Project, lang: Lang): string {

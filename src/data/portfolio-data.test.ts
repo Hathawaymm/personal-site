@@ -3,10 +3,12 @@ import {
   credentials,
   education,
   experience,
+  governance,
+  keyboardSkills,
   profile,
   projects,
+  shellCopy,
   skillGroups,
-  governance,
 } from "./portfolio-data";
 import { normalizeSections, type SiteSection } from "@/lib/data";
 
@@ -17,9 +19,17 @@ function collect(value: unknown): string[] {
   return [];
 }
 
-const corpus = collect({ credentials, education, experience, profile, projects, skillGroups, governance }).join("\n");
+const corpus = collect({ credentials, education, experience, profile, projects, skillGroups, governance, keyboardSkills, shellCopy }).join("\n");
 
 describe("public portfolio facts", () => {
+  it("gives the skills keyboard a real proof line for every key", () => {
+    expect(keyboardSkills.length).toBeGreaterThanOrEqual(16);
+    for (const skill of keyboardSkills) {
+      expect(skill.proof.zh.length).toBeGreaterThan(4);
+      expect(skill.proof.en.length).toBeGreaterThan(4);
+    }
+  });
+
   it("lists every required project once", () => {
     const ids = projects.map((project) => project.id);
     expect(new Set(ids).size).toBe(ids.length);

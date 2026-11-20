@@ -6,9 +6,10 @@ import BgPhotoWall from "@/components/photo/BgPhotoWall";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import VisitorBanner, { AdminWelcomeToast, ApprovedToast } from "@/components/auth/VisitorBanner";
+import { isPublicCareerPath } from "@/lib/route-policy";
 
 function isCareerPath(pathname: string): boolean {
-  return pathname === "/portfolio" || pathname === "/resume" || pathname.startsWith("/portfolio/") || pathname.startsWith("/resume/");
+  return isPublicCareerPath(pathname);
 }
 
 export default function SiteChrome({ children }: { children: ReactNode }) {

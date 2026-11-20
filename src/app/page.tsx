@@ -229,10 +229,11 @@ export default function Home() {
               GitHub 登录
             </Link>
           )}
-          <Link href="/portfolio" className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-gold-strong hover:underline">
-            公开简历与作品集
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
-          </Link>
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-3 text-sm font-medium">
+            <Link href="/portfolio" className="text-gold-strong hover:underline">3D 作品集</Link>
+            <Link href="/desk" className="text-gold-strong hover:underline">3D 书房</Link>
+            <Link href="/resume" className="text-gold-strong hover:underline">正式简历</Link>
+          </div>
           {isLoggedIn && !isAdmin && status === "pending" && (
             <p className="mt-6 caption-text text-text-muted">
               🏠 管理员还没开门，稍等片刻哦~

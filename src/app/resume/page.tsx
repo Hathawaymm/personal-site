@@ -8,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function ResumePage() {
-  return <CareerPage mode="resume" />;
+  return <CareerPage />;
 }

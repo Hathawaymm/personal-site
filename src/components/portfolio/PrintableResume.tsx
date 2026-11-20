@@ -7,6 +7,7 @@ import {
   experience,
   profile,
   projects,
+  shellCopy,
   skillGroups,
   tx,
   ui,
@@ -27,7 +28,11 @@ export default function PrintableResume({ screen }: { screen?: boolean }) {
         <p className="career-no-print mx-auto max-w-3xl px-4 pt-8 text-sm text-text-secondary sm:px-0">
           {tx(ui.resumeIntro, lang)}{" "}
           <Link href="/portfolio" className="text-gold-strong underline-offset-4 hover:underline">
-            {tx(ui.viewPortfolio, lang)}
+            {tx(shellCopy.modes.portfolio, lang)}
+          </Link>
+          {" · "}
+          <Link href="/desk" className="text-gold-strong underline-offset-4 hover:underline">
+            {tx(shellCopy.modes.desk, lang)}
           </Link>
         </p>
       )}
