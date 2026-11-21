@@ -1,5 +1,5 @@
-import { seedCareerDocument, type CareerDocument, type CareerProject, type CareerSkill, type DesktopApp } from "@/data/career-document";
-import type { Copy } from "@/data/portfolio-data";
+import { seedCareerDocument, type CareerDocument, type CareerProject, type CareerSkill, type DesktopApp, type TerminalCopy } from "@/data/career-document";
+import type { Copy, GovernanceCard, GovernanceStage } from "@/data/portfolio-data";
 
 const PHONE_KEY = /phone|mobile|telephone|手机|电话/i;
 const MAX_TEXT = 4000;
@@ -91,10 +91,73 @@ function skill(value: unknown, fallback: CareerSkill): CareerSkill {
 
 function desktop(value: unknown, fallback: DesktopApp): DesktopApp {
   if (!isRecord(value)) return fallback;
-  return { ...fallback, title: copy(value.title, fallback.title) };
+  const order = typeof value.order === "number" && Number.isFinite(value.order)
+    ? Math.max(0, Math.min(99, Math.round(value.order)))
+    : fallback.order;
+  return {
+    ...fallback,
+    title: copy(value.title, fallback.title),
+    hidden: value.hidden === true,
+    order,
+  };
 }
 
-/** Keep seed ids and structure. Only known text, links, and covers can change. */
+function stages(value: unknown, fallback: GovernanceStage[]): void {
+  if (!Array.isArray(value)) return;
+  fallback.forEach((stage, index) => {
+    const item = value[index];
+    if (!isRecord(item)) return;
+    stage.title = copy(item.title, stage.title);
+    stage.detail = copy(item.detail, stage.detail);
+  });
+}
+
+function cards(value: unknown, fallback: GovernanceCard[]): void {
+  if (!Array.isArray(value)) return;
+  fallback.forEach((card, index) => {
+    const item = value[index];
+    if (!isRecord(item)) return;
+    card.title = copy(item.title, card.title);
+    card.detail = copy(item.detail, card.detail);
+  });
+}
+
+function signals(value: unknown, fallback: { value: Copy; label: Copy }[]): void {
+  if (!Array.isArray(value)) return;
+  fallback.forEach((signal, index) => {
+    const item = value[index];
+    if (!isRecord(item)) return;
+    signal.value = copy(item.value, signal.value);
+    signal.label = copy(item.label, signal.label);
+  });
+}
+
+function shell(value: unknown, base: CareerDocument["shellCopy"]): void {
+  if (!isRecord(value)) return;
+  const modes = isRecord(value.modes) ? value.modes : {};
+  base.modes = {
+    portfolio: copy(modes.portfolio, base.modes.portfolio),
+    desk: copy(modes.desk, base.modes.desk),
+    resume: copy(modes.resume, base.modes.resume),
+  };
+  const keys = [
+    "keyboardTitle", "keyboardLede", "keyboardHint", "hudIdle", "projectsTitle", "close",
+    "deskEnter", "deskSkip", "deskBack", "deskTitle", "osName", "start", "webglFallback",
+  ] as const;
+  for (const key of keys) base[key] = copy(value[key], base[key]);
+}
+
+function terminal(value: unknown, fallback: TerminalCopy): TerminalCopy {
+  if (!isRecord(value)) return fallback;
+  return {
+    banner: copy(value.banner, fallback.banner),
+    startup: copy(value.startup, fallback.startup),
+    help: copy(value.help, fallback.help),
+    unknown: copy(value.unknown, fallback.unknown),
+  };
+}
+
+/** Keep seed ids and structure. Text, links, covers, portrait, wallpaper, and desktop order can change. */
 export function sanitizeCareerDocument(input: unknown): CareerDocument {
   assertNoPhone(input);
   const base = seedCareerDocument();
@@ -151,27 +214,63 @@ export function sanitizeCareerDocument(input: unknown): CareerDocument {
   if (Array.isArray(desktopInput)) {
     base.desktop = base.desktop.map((item) => desktop(desktopInput.find((entry) => isRecord(entry) && entry.id === item.id), item));
   }
-  if (isRecord(input.shellCopy)) {
-    base.shellCopy = {
-      ...base.shellCopy,
-      keyboardTitle: copy(input.shellCopy.keyboardTitle, base.shellCopy.keyboardTitle),
-      keyboardLede: copy(input.shellCopy.keyboardLede, base.shellCopy.keyboardLede),
-      projectsTitle: copy(input.shellCopy.projectsTitle, base.shellCopy.projectsTitle),
-    };
-  }
+  shell(input.shellCopy, base.shellCopy);
   if (isRecord(input.governance)) {
-    base.governance = {
-      ...base.governance,
-      title: copy(input.governance.title, base.governance.title),
-      lede: copy(input.governance.lede, base.governance.lede),
-    };
-    for (const key of ["gates", "standards", "risk", "audit"] as const) {
-      const section = input.governance[key];
-      if (!isRecord(section)) continue;
-      base.governance[key].title = copy(section.title, base.governance[key].title);
-      base.governance[key].lede = copy(section.lede, base.governance[key].lede);
+    base.governance.eyebrow = copy(input.governance.eyebrow, base.governance.eyebrow);
+    base.governance.title = copy(input.governance.title, base.governance.title);
+    base.governance.lede = copy(input.governance.lede, base.governance.lede);
+    const gatesIn = input.governance.gates;
+    if (isRecord(gatesIn)) {
+      base.governance.gates.title = copy(gatesIn.title, base.governance.gates.title);
+      base.governance.gates.where = copy(gatesIn.where, base.governance.gates.where);
+      base.governance.gates.lede = copy(gatesIn.lede, base.governance.gates.lede);
+      base.governance.gates.board = copy(gatesIn.board, base.governance.gates.board);
+      stages(gatesIn.stages, base.governance.gates.stages);
+      signals(gatesIn.signals, base.governance.gates.signals);
+    }
+    const standardsIn = input.governance.standards;
+    if (isRecord(standardsIn)) {
+      base.governance.standards.title = copy(standardsIn.title, base.governance.standards.title);
+      base.governance.standards.where = copy(standardsIn.where, base.governance.standards.where);
+      base.governance.standards.lede = copy(standardsIn.lede, base.governance.standards.lede);
+      base.governance.standards.also = copy(standardsIn.also, base.governance.standards.also);
+      cards(standardsIn.cards, base.governance.standards.cards);
+    }
+    const riskIn = input.governance.risk;
+    if (isRecord(riskIn)) {
+      base.governance.risk.title = copy(riskIn.title, base.governance.risk.title);
+      base.governance.risk.where = copy(riskIn.where, base.governance.risk.where);
+      base.governance.risk.lede = copy(riskIn.lede, base.governance.risk.lede);
+      cards(riskIn.cards, base.governance.risk.cards);
+    }
+    const auditIn = input.governance.audit;
+    if (isRecord(auditIn)) {
+      base.governance.audit.title = copy(auditIn.title, base.governance.audit.title);
+      base.governance.audit.where = copy(auditIn.where, base.governance.audit.where);
+      base.governance.audit.lede = copy(auditIn.lede, base.governance.audit.lede);
+      base.governance.audit.note = copy(auditIn.note, base.governance.audit.note);
+      stages(auditIn.stages, base.governance.audit.stages);
     }
   }
+  const credentialInput = input.credentials;
+  if (Array.isArray(credentialInput)) {
+    base.credentials = base.credentials.map((item, index) => {
+      const raw = credentialInput[index];
+      if (!isRecord(raw)) return item;
+      return { title: copy(raw.title, item.title), detail: copy(raw.detail, item.detail) };
+    });
+  }
+  const filterInput = input.employerFilters;
+  if (Array.isArray(filterInput)) {
+    base.employerFilters = base.employerFilters.map((item) => {
+      const raw = filterInput.find((entry) => isRecord(entry) && entry.id === item.id);
+      if (!isRecord(raw)) return item;
+      return { ...item, label: copy(raw.label, item.label) };
+    });
+  }
+  base.portrait = safeUrl(input.portrait);
+  base.wallpaper = safeUrl(input.wallpaper);
+  base.terminal = terminal(input.terminal, base.terminal);
   if (isRecord(input.education)) {
     base.education = {
       ...base.education,

@@ -16,6 +16,12 @@ describe("ZoeOS terminal", () => {
     expect(lines).not.toMatch(/199\d{8}/);
   });
 
+  it("uses edited terminal copy", () => {
+    const source = { terminal: { banner: { zh: "ZoeOS", en: "ZoeOS" }, startup: { zh: "help", en: "help" }, help: { zh: "只有 help", en: "only help" }, unknown: { zh: "没有 {command}", en: "no {command}" } } };
+    expect(runCommand("help", "en", source).lines).toEqual(["only help"]);
+    expect(runCommand("nope", "zh", source).lines).toEqual(["没有 nope"]);
+  });
+
   it("toggles language and clears", () => {
     expect(runCommand("lang", "zh").action).toBe("toggle-lang");
     expect(runCommand("clear", "en").action).toBe("clear");
