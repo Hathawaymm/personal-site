@@ -10,7 +10,7 @@ const GROUPS: EmployerId[] = ["root", "bank", "personal"];
 
 export default function PrintableResume({ screen }: { screen?: boolean }) {
   const { lang } = useLang();
-  const { profile, experience, projects, education, credentials, skillGroups, shellCopy } = useCareer();
+  const { profile, experience, projects, education, credentials, skillGroups, shellCopy, portrait } = useCareer();
   const contacts = contactItems(lang, profile);
 
   return (
@@ -29,6 +29,7 @@ export default function PrintableResume({ screen }: { screen?: boolean }) {
       )}
       <article className="mx-auto max-w-3xl px-4 py-8 text-[15px] leading-7 text-text-primary sm:px-6 print:max-w-none print:px-0 print:py-0 print:text-[12px] print:leading-snug">
         <header className="border-b border-text-primary/20 pb-4">
+          {portrait ? <img src={portrait} alt="" className="float-right mb-2 ml-4 h-24 w-24 rounded-lg object-cover" /> : null}
           <h1 className="font-display text-4xl leading-none print:text-3xl">{tx(profile.name, lang)}</h1>
           <p className="mt-2 text-base text-text-secondary print:text-sm">{tx(profile.title, lang)}</p>
           <ul className="mt-3 flex flex-col gap-1 text-sm sm:flex-row sm:flex-wrap sm:gap-x-5 print:flex-row print:gap-x-5 print:text-[12px]">

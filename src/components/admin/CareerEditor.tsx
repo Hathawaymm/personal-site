@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { CareerDocument } from "@/data/career-document";
-import type { Copy } from "@/data/portfolio-data";
+import { projectCoverSrc, type CareerDocument } from "@/data/career-document";
+import DesktopEditor from "./DesktopEditor";
+import ImageField from "./ImageField";
+import { Pair } from "./fields";
 
-type Tab = "intro" | "contact" | "experience" | "projects" | "skills" | "desktop" | "governance";
+type Tab = "intro" | "images" | "contact" | "experience" | "projects" | "skills" | "desktop" | "governance";
 
 interface HistoryRow {
   id: number;
@@ -14,23 +16,14 @@ interface HistoryRow {
 
 const TABS: { id: Tab; label: string }[] = [
   { id: "intro", label: "简介" },
+  { id: "images", label: "图片" },
   { id: "contact", label: "联系" },
   { id: "experience", label: "经历" },
   { id: "projects", label: "项目" },
   { id: "skills", label: "键帽" },
-  { id: "desktop", label: "桌面" },
+  { id: "desktop", label: "ZoeOS" },
   { id: "governance", label: "治理" },
 ];
-
-function Pair({ label, value, onChange, rows = 3 }: { label: string; value: Copy; onChange: (next: Copy) => void; rows?: number }) {
-  return (
-    <fieldset className="grid gap-2 sm:grid-cols-2">
-      <legend className="col-span-full text-xs text-text-muted">{label}</legend>
-      <textarea rows={rows} value={value.zh} onChange={(event) => onChange({ ...value, zh: event.target.value })} className="rounded-lg border border-accent-gold/30 bg-bg-paper p-2 text-sm" aria-label={`${label} 中文`} />
-      <textarea rows={rows} value={value.en} onChange={(event) => onChange({ ...value, en: event.target.value })} className="rounded-lg border border-accent-gold/30 bg-bg-paper p-2 text-sm" aria-label={`${label} English`} />
-    </fieldset>
-  );
-}
 
 export default function CareerEditor() {
   const [doc, setDoc] = useState<CareerDocument | null>(null);
@@ -95,18 +88,6 @@ export default function CareerEditor() {
     await load();
   };
 
-  const upload = async (file: File, apply: (url: string) => void) => {
-    const body = new FormData();
-    body.set("file", file);
-    const response = await fetch("/api/admin/career/upload", { method: "POST", body });
-    const payload = await response.json();
-    if (!response.ok) {
-      setError(payload.error || "上传失败");
-      return;
-    }
-    apply(payload.url);
-  };
-
   if (error && !doc) {
     return <p className="px-6 py-10 text-text-secondary">{error}。请用管理员 GitHub 账号登录后再来。</p>;
   }
@@ -120,6 +101,7 @@ export default function CareerEditor() {
         <div>
           <h1 className="font-display text-3xl">作品集与桌面</h1>
           <p className="mt-1 text-sm text-text-muted">中文在左，英文在右。发布后 /portfolio、/desk 和简历会立刻使用这一版。存储：{storage === "neon" ? "Neon Postgres" : storage === "file" ? "本地文件" : "未连接"}。</p>
+          <p className="mt-2 text-sm text-text-secondary">换个人照片、桌面壁纸或项目封面，打开「图片」。ZoeOS 的图标和每个窗口正文在「ZoeOS」。</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <a className="rounded-full border border-accent-gold/40 px-3 py-1.5 text-sm" href="/portfolio?draft=1" target="_blank" rel="noreferrer">预览草稿</a>
@@ -149,6 +131,40 @@ export default function CareerEditor() {
             ))}
           </>
         )}
+        {tab === "images" && (
+          <div data-testid="career-images" className="space-y-4">
+            <ImageField
+              label="个人照片"
+              hint="用于首页、关于我和相册。拖到虚线框里，或点上传 / 更换。恢复默认会回到海边那张。"
+              value={doc.portrait}
+              fallback="/images/zoe/seaside.webp"
+              testId="career-image-portrait"
+              onChange={(portrait) => setDoc({ ...doc, portrait })}
+            />
+            <ImageField
+              label="ZoeOS 桌面壁纸"
+              hint="铺满 /desk 里的桌面。拖到虚线框里即可更换。"
+              value={doc.wallpaper}
+              fallback="/images/zoe/wallpaper-seaside-dusk.webp"
+              testId="career-image-wallpaper"
+              onChange={(wallpaper) => setDoc({ ...doc, wallpaper })}
+            />
+            <h2 className="text-sm font-semibold">项目封面</h2>
+            <div className="grid gap-4 lg:grid-cols-2">
+              {doc.projects.map((item) => (
+                <ImageField
+                  key={item.id}
+                  label={item.title.zh}
+                  hint="作品集卡片上的封面。"
+                  value={item.cover}
+                  fallback={projectCoverSrc({ id: item.id, cover: "" })}
+                  testId={`career-image-cover-${item.id}`}
+                  onChange={(cover) => setDoc({ ...doc, projects: doc.projects.map((projectItem) => projectItem.id === item.id ? { ...projectItem, cover } : projectItem) })}
+                />
+              ))}
+            </div>
+          </div>
+        )}
         {tab === "contact" && (
           <>
             <label className="block text-xs text-text-muted">邮箱
@@ -172,6 +188,14 @@ export default function CareerEditor() {
             <select value={project.id} onChange={(event) => setProjectId(event.target.value)} className="rounded-lg border border-accent-gold/30 p-2 text-sm">
               {doc.projects.map((item) => <option key={item.id} value={item.id}>{item.title.zh}</option>)}
             </select>
+            <ImageField
+              label="项目封面"
+              hint="拖到虚线框，或点上传 / 更换。恢复默认回到内置插图。"
+              value={project.cover}
+              fallback={projectCoverSrc({ id: project.id, cover: "" })}
+              testId={`career-image-cover-project-${project.id}`}
+              onChange={(cover) => setDoc({ ...doc, projects: doc.projects.map((item) => item.id === project.id ? { ...item, cover } : item) })}
+            />
             <Pair label="标题" value={project.title} onChange={(title) => setDoc({ ...doc, projects: doc.projects.map((item) => item.id === project.id ? { ...item, title } : item) })} rows={2} />
             <Pair label="摘要" value={project.summary} onChange={(summary) => setDoc({ ...doc, projects: doc.projects.map((item) => item.id === project.id ? { ...item, summary } : item) })} />
             <Pair label="标签" value={project.domain} onChange={(domain) => setDoc({ ...doc, projects: doc.projects.map((item) => item.id === project.id ? { ...item, domain } : item) })} rows={2} />
@@ -182,14 +206,6 @@ export default function CareerEditor() {
                 setDoc({ ...doc, projects: doc.projects.map((item) => item.id === project.id ? { ...item, links } : item) });
               }} className="mt-1 w-full rounded-lg border border-accent-gold/30 p-2 text-sm" />
             </label>
-            <label className="block text-xs text-text-muted">封面（最大 4MB，会转成 WebP）
-              <input type="file" accept="image/*" className="mt-1 block text-sm" onChange={(event) => {
-                const file = event.target.files?.[0];
-                if (!file) return;
-                void upload(file, (cover) => setDoc({ ...doc, projects: doc.projects.map((item) => item.id === project.id ? { ...item, cover } : item) }));
-              }} />
-            </label>
-            {project.cover && <img src={project.cover} alt="" className="h-28 rounded-lg object-cover" />}
           </>
         )}
         {tab === "skills" && doc.keyboardSkills.map((skill) => (
@@ -200,11 +216,10 @@ export default function CareerEditor() {
             <Pair label={skill.id} value={skill.proof} onChange={(proof) => setDoc({ ...doc, keyboardSkills: doc.keyboardSkills.map((item) => item.id === skill.id ? { ...item, proof } : item) })} rows={2} />
           </section>
         ))}
-        {tab === "desktop" && doc.desktop.map((app) => (
-          <Pair key={app.id} label={app.id} value={app.title} onChange={(title) => setDoc({ ...doc, desktop: doc.desktop.map((item) => item.id === app.id ? { ...item, title } : item) })} rows={2} />
-        ))}
+        {tab === "desktop" && <DesktopEditor doc={doc} setDoc={setDoc} />}
         {tab === "governance" && (
           <>
+            <p className="text-xs text-text-muted">四个标签里的步骤和卡片在「ZoeOS」里改，这里改总标题。</p>
             <Pair label="总标题" value={doc.governance.title} onChange={(title) => setDoc({ ...doc, governance: { ...doc.governance, title } })} rows={2} />
             <Pair label="导语" value={doc.governance.lede} onChange={(lede) => setDoc({ ...doc, governance: { ...doc.governance, lede } })} />
           </>

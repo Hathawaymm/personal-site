@@ -8,6 +8,7 @@ import {
   type EmployerId,
   type Project,
 } from "@/data/portfolio-data";
+import { portraitSrc, wallpaperSrc, visibleDesktop } from "@/data/career-document";
 import { useCareer } from "../portfolio/career-context";
 import { useLang } from "../portfolio/lang";
 import { playDeskKey, playDeskMouse, releaseDeskKey, unlockDeskAudio } from "./desk-audio";
@@ -48,7 +49,8 @@ const APPS: { id: WinId; title: { zh: string; en: string }; x: number; y: number
 
 export default function RetroOS({ onBack, fill = false }: { onBack: () => void; fill?: boolean }) {
   const { lang, setLang } = useLang();
-  const { shellCopy, desktop } = useCareer();
+  const { shellCopy, desktop, wallpaper } = useCareer();
+  const icons = visibleDesktop(desktop);
   const label = (id: WinId) => desktop.find((item) => item.id === id)?.title ?? APPS.find((item) => item.id === id)!.title;
   const [wins, setWins] = useState<WinState[]>(() => APPS.map((app, index) => ({
     id: app.id,
@@ -123,13 +125,13 @@ export default function RetroOS({ onBack, fill = false }: { onBack: () => void; 
   return (
     <div className={`relative overflow-hidden bg-[#1a2744] ${fill ? "h-dvh" : "min-h-[calc(100dvh-52px)]"}`}>
       <img
-        src="/images/zoe/wallpaper-seaside-dusk.webp"
+        src={wallpaperSrc(wallpaper)}
         alt=""
         className="pointer-events-none absolute inset-0 h-full w-full object-cover"
-        style={{ imageRendering: "pixelated" }}
+        style={wallpaper ? undefined : { imageRendering: "pixelated" }}
       />
       <div className="relative z-10 grid grid-cols-3 gap-4 p-4 sm:grid-cols-6">
-        {APPS.map((app) => {
+        {icons.map((app) => {
           const title = label(app.id);
           return (
           <button key={app.id} type="button" onClick={() => focus(app.id)} className="flex w-28 flex-col items-center gap-1 text-center text-xs font-medium leading-tight text-white" style={{ textShadow: "0 1px 0 #1c140c, 1px 0 0 #1c140c, -1px 0 0 #1c140c, 0 -1px 0 #1c140c, 1px 1px 2px rgba(0,0,0,0.85)" }}>
@@ -184,7 +186,7 @@ export default function RetroOS({ onBack, fill = false }: { onBack: () => void; 
       </footer>
       {startOpen && (
         <div className="absolute bottom-12 left-2 z-40 w-56 border-2 border-[#efe6d4] bg-[#d9d0c2] text-sm text-[#1c140c] shadow-[4px_4px_0_#1c140c]">
-          {APPS.map((app) => (
+          {icons.map((app) => (
             <button key={app.id} type="button" onClick={() => focus(app.id)} className="block w-full px-3 py-2 text-left hover:bg-[#3c4f7c] hover:text-white">
               {tx(label(app.id), lang)}
             </button>
@@ -263,10 +265,10 @@ function WindowBody({ id, onOpenProject }: { id: WinId; onOpenProject: () => voi
 
 function AboutPane() {
   const { lang } = useLang();
-  const { profile, education, credentials } = useCareer();
+  const { profile, education, credentials, portrait } = useCareer();
   return (
     <div className="space-y-2">
-      <img src="/images/zoe/seaside.webp" alt="" className="mb-2 max-h-52 w-full object-contain object-[62%_center]" />
+      <img src={portraitSrc(portrait)} alt="" className={`mb-2 max-h-52 w-full ${portrait ? "object-cover" : "object-contain object-[62%_center]"}`} />
       <h3 className="font-display text-xl">{tx(profile.name, lang)}</h3>
       <p>{tx(profile.title, lang)}</p>
       <p>{tx(profile.summary, lang)}</p>
@@ -284,8 +286,9 @@ function AboutPane() {
 }
 
 function PhotosPane() {
+  const { portrait } = useCareer();
   return (
-    <img src="/images/zoe/seaside.webp" alt="Seaside" className="max-h-[320px] w-full object-contain object-[62%_center]" />
+    <img src={portraitSrc(portrait)} alt="Seaside" className={`max-h-[320px] w-full ${portrait ? "object-cover" : "object-contain object-[62%_center]"}`} />
   );
 }
 
@@ -409,7 +412,7 @@ function ResumePane({ onOpenProject }: { onOpenProject: () => void }) {
 function TerminalPane() {
   const { lang, setLang } = useLang();
   const career = useCareer();
-  const [lines, setLines] = useState<string[]>(["ZoeOS 98", "help"]);
+  const [lines, setLines] = useState<string[]>([tx(career.terminal.banner, lang), tx(career.terminal.startup, lang)]);
   const [value, setValue] = useState("");
   const submit = (event: FormEvent) => {
     event.preventDefault();

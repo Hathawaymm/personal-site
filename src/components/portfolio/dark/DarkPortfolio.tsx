@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { portraitSrc } from "@/data/career-document";
 import { tx, ui, type Lang } from "@/data/portfolio-data";
 import { useCareer } from "../career-context";
 import { LanguageProvider, useLang } from "../lang";
@@ -66,7 +67,8 @@ function KeyboardLede() {
 
 function Hero() {
   const { lang } = useLang();
-  const { profile, heroMetrics } = useCareer();
+  const { profile, heroMetrics, portrait } = useCareer();
+  const photo = portraitSrc(portrait);
   return (
     <section id="hero" className="relative z-10 mx-auto grid min-h-[100dvh] max-w-6xl items-center gap-10 px-4 py-16 sm:px-6 lg:grid-cols-12">
       <div className="lg:col-span-7">
@@ -83,13 +85,14 @@ function Hero() {
       </div>
       <div className="lg:col-span-5">
         <Image
-          src="/images/zoe/seaside.webp"
+          src={photo}
           alt={tx(profile.name, lang)}
           width={1280}
           height={1706}
           priority
+          unoptimized={photo.startsWith("http")}
           sizes="(max-width: 1024px) 90vw, 420px"
-          className="mb-4 h-auto w-full max-w-sm rounded-3xl object-contain object-[62%_center] shadow-[0_20px_80px_rgba(0,0,0,0.45)]"
+          className={`mb-4 h-auto w-full max-w-sm rounded-3xl shadow-[0_20px_80px_rgba(0,0,0,0.45)] ${portrait ? "object-cover object-center" : "object-contain object-[62%_center]"}`}
         />
       <dl className="grid grid-cols-2 gap-3">
         {heroMetrics.map((metric) => (

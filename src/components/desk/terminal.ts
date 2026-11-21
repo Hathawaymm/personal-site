@@ -6,18 +6,14 @@ export interface CommandResult {
   action?: "clear" | "toggle-lang";
 }
 
-export function runCommand(raw: string, lang: Lang, source?: Pick<CareerDocument, "profile" | "keyboardSkills" | "projects" | "governance">): CommandResult {
-  const data = source ?? seedCareerDocument();
-  const { profile, keyboardSkills, projects, governance } = data;
+export function runCommand(raw: string, lang: Lang, source?: Partial<Pick<CareerDocument, "profile" | "keyboardSkills" | "projects" | "governance" | "terminal">>): CommandResult {
+  const data = { ...seedCareerDocument(), ...source };
+  const { profile, keyboardSkills, projects, governance, terminal } = data;
   const command = raw.trim().toLowerCase();
   if (!command) return { lines: [] };
   if (command === "clear") return { lines: [], action: "clear" };
   if (command === "help") {
-    return {
-      lines: lang === "zh"
-        ? ["help · whoami · skills · projects · audit · contact · lang · portfolio · clear"]
-        : ["help · whoami · skills · projects · audit · contact · lang · portfolio · clear"],
-    };
+    return { lines: [tx(terminal.help, lang)] };
   }
   if (command === "whoami") {
     return { lines: [tx(profile.name, lang), tx(profile.title, lang), tx(profile.kicker, lang)] };
@@ -43,5 +39,5 @@ export function runCommand(raw: string, lang: Lang, source?: Pick<CareerDocument
   if (command === "portfolio") {
     return { lines: ["/portfolio", "/desk", "/resume"] };
   }
-  return { lines: [lang === "zh" ? `未知命令：${command}。输入 help。` : `Unknown command: ${command}. Type help.`] };
+  return { lines: [tx(terminal.unknown, lang).replaceAll("{command}", command)] };
 }

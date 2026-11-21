@@ -2,7 +2,7 @@ import { mkdtemp, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { seedCareerDocument } from "@/data/career-document";
+import { seedCareerDocument, visibleDesktop } from "@/data/career-document";
 import { saveCareerRevision, latestCareer } from "@/lib/career-store";
 import { CareerValidationError, sanitizeCareerDocument } from "@/lib/career-validate";
 
@@ -21,6 +21,34 @@ describe("career content validation", () => {
     expect(next.projects).toHaveLength(16);
     expect(next.projects.find((item) => item.id === "oms")?.title.zh).toBe("新订单标题");
     expect(next.projects.find((item) => item.id === "oms")?.cover).toBe("");
+  });
+
+  it("saves portrait, wallpaper, cover, desktop order, and window text", () => {
+    const next = sanitizeCareerDocument({
+      portrait: "https://example.com/me.webp",
+      wallpaper: "javascript:alert(1)",
+      projects: [{ id: "oms", cover: "https://example.com/oms.webp" }],
+      desktop: [
+        { id: "about", order: 3, hidden: false, title: { zh: "关于我", en: "About_Me.exe" } },
+        { id: "terminal", order: 0, hidden: false, title: { zh: "终端", en: "Term.exe" } },
+        { id: "photos", order: 8, hidden: true, title: { zh: "相册", en: "Photos.exe" } },
+      ],
+      governance: {
+        audit: { stages: [{ title: { zh: "新口径", en: "New definition" }, detail: { zh: "细节", en: "Detail" } }] },
+      },
+      terminal: { unknown: { zh: "没有 {command}", en: "no {command}" } },
+    });
+    expect(next.portrait).toBe("https://example.com/me.webp");
+    expect(next.wallpaper).toBe("");
+    expect(next.projects.find((item) => item.id === "oms")?.cover).toBe("https://example.com/oms.webp");
+    expect(next.desktop.find((item) => item.id === "terminal")?.title.en).toBe("Term.exe");
+    expect(next.desktop.find((item) => item.id === "photos")?.hidden).toBe(true);
+    expect(visibleDesktop(next.desktop)[0]?.id).toBe("terminal");
+    expect(visibleDesktop(next.desktop).some((item) => item.id === "photos")).toBe(false);
+    expect(next.governance.audit.stages[0]?.title.zh).toBe("新口径");
+    expect(next.governance.audit.stages[1]?.title.zh).toContain("跨系统");
+    expect(next.terminal.unknown.en).toBe("no {command}");
+    expect(next.profile).not.toHaveProperty("phone");
   });
 });
 
